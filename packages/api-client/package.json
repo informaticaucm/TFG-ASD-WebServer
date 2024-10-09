@@ -1,0 +1,21 @@
+{
+  "name": "@informaticaucm/seguimiento-api-client",
+  "version": "1.1.0-alpha1",
+  "description": "Seguimiento Docente api client",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@9.11.0",
+  "dependencies": {
+    "@informaticaucm/seguimiento-logger": "workspace:^1.1.0-alpha1",
+    "dotenv": "^16.4.3",
+    "wretch": "^2.8.0"
+  }
+}

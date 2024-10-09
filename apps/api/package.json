@@ -1,0 +1,42 @@
+{
+  "private": true,
+  "name": "@informaticaucm/seguimiento-api",
+  "version": "1.1.0-alpha1",
+  "description": "Seguimiento docente API",
+  "type": "module",
+  "main": "src/api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "sequelize-cli db:migrate",
+    "undo-migrate": "sequelize-cli db:migrate:undo:all",
+    "seed": "sequelize-cli db:seed:all",
+    "undo-seed": "sequelize-cli db:seed:undo:all",
+    "start": "node ./src/api.js"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@9.11.0",
+  "dependencies": {
+    "@informaticaucm/seguimiento-api-client": "^1.1.0-alpha1",
+    "@informaticaucm/seguimiento-base-config": "^1.1.0-alpha1",
+    "@informaticaucm/seguimiento-events": "^1.1.0-alpha1",
+    "@informaticaucm/seguimiento-logger": "^1.1.0-alpha1",
+    "bcrypt": "^5.1.1",
+    "canvas": "^2.11.2",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.3",
+    "express": "^4.18.2",
+    "moment": "^2.30.1",
+    "otplib": "^12.0.1",
+    "pino": "^8.20.0",
+    "pino-pretty": "^11.0.0",
+    "qrcode": "^1.5.3",
+    "sequelize": "^6.37.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.2"
+  }
+}
