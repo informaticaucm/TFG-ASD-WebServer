@@ -1,0 +1,256 @@
+x-default-opts: 
+  &default-opts
+  logging:
+    options:
+      max-size: "1m"
+      max-file: "10"
+  # driver: "gelf"
+  # options:
+  #   gelf-address: "udp://127.0.0.1:5000"
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${APP_HOME?No definida}/dozzle-users.yml:/data/users.yml
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_FILTER: "label=com.docker.compose.project=asistencia"
+    networks:
+      default:
+        aliases:
+          - alogs.fdilabs.test
+      services:
+        aliases:
+          - alogs.fdilabs.test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.alogs.loadbalancer.server.port=8080"
+      - "traefik.http.routers.alogs.rule=Host(`logs.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.http.routers.alogs.entrypoints=websecure"
+      - "traefik.http.routers.alogs.tls=true"
+      - "traefik.http.routers.alogs.middlewares=restricted@file" 
+  mytb:
+    << : *default-opts
+    image: "thingsboard/tb-postgres:3.6.3"
+#    ports:
+#      - "8080:9090"
+#      - "1883:1883"
+#      - "7070:7070"
+#      - "5683-5688:5683-5688/udp"
+    environment:
+      TZ: "Europe/Madrid"
+      TB_QUEUE_TYPE: rabbitmq
+      TB_QUEUE_RABBIT_MQ_USERNAME: "${RABBIT_MQ_USERNAME:?required}"
+      TB_QUEUE_RABBIT_MQ_PASSWORD: "${RABBIT_MQ_PASSWORD:?required}"
+      TB_QUEUE_RABBIT_MQ_HOST: rabbitmq
+      TB_QUEUE_RABBIT_MQ_PORT: 5672
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_HOME?No definida}/thingsboard/data:/data
+      - ${APP_HOME?No definida}/thingsboard/logs:/var/log/thingsboard
+    ulimits:
+      nofile:
+        soft: "65536"
+        hard: "65536"
+    restart:
+      unless-stopped
+    networks:
+      default:
+        aliases:
+          - mytb.fdilabs.test
+      services:
+        aliases:
+          - mytb.fdilabs.test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.services.mqtt.loadbalancer.server.port=1883"
+      - "traefik.tcp.routers.mqtt.rule=HostSNI(`${MQTT_SUBDOMAIN:?required}.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.tcp.routers.mqtt.entrypoints=websecure"
+      - "traefik.tcp.routers.mqtt.tls=true"
+      - "traefik.http.services.tbm.loadbalancer.server.port=9090"
+      - "traefik.http.routers.tbm.rule=Host(`${THINGSBOARD_SUBDOMAIN:?required}.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.http.routers.tbm.entrypoints=websecure"
+      - "traefik.http.routers.tbm.tls=true"
+      - "traefik.http.routers.tbm.middlewares=restricted@file" 
+
+  rabbitmq:
+    << : *default-opts
+    image: rabbitmq:3.12.13-management
+    environment:
+      TZ: "Europe/Madrid"
+      RABBITMQ_DEFAULT_USER: "${RABBIT_MQ_USERNAME:?required}"
+      RABBITMQ_DEFAULT_PASS: "${RABBIT_MQ_PASSWORD:?required}"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_HOME?No definida}/rabbit/data:/var/lib/rabbitmq
+    restart:
+      unless-stopped
+    networks:
+      default:
+        aliases:
+          - rmq.fdilabs.test
+      services:
+        aliases:
+          - rmq.fdilabs.test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.rmq.loadbalancer.server.port=15672"
+      - "traefik.http.routers.rmq.rule=Host(`rmq-asistencia.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.http.routers.rmq.entrypoints=websecure"
+      - "traefik.http.routers.rmq.tls=true"
+      - "traefik.http.routers.rmq.middlewares=restricted@file" 
+  app:
+    image: node:22.9.0-bookworm
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -ex;
+        env;
+        if [[ ! -f /app/backend/.initialized ]]; then
+          pushd /app/backend;
+          npm install;
+          cat <<EOF > ./.env
+          # ENVIROMENT
+          NODE_ENV = "production"
+          LOG_TO_STDOUT=true
+
+          # SERVER
+          SERVER_HOST="$${SERVER_HOST}"
+          SERVER_PORT=3000
+          SERVER_PROTOCOL="https"
+          SERVER_PORT_SPECIFICATION=false
+
+          # API
+          API_HOST="$${API_HOST}"
+          API_PORT=3001
+          API_PATH="/api/v1"
+          API_PROTOCOL="https"
+          API_PORT_SPECIFICATION=false
+          API_ALLOWED={"app":"E5CSIlb5OMJTwSCeHA5SCmANNIiTUUDOJApdWZAKInYV6GJMGIZTuH2PLRST63RuE5YU4IKQNIVXoOYE", "mtb": "CROxiXZMIIQEIYL7cQCGmRAnNFUWWEBQGV3HW7YAKIPAqbJ3CBBRYQbcO53tGWZ3CMKSQ5z7CF7QESJx"}
+
+          # DATABASE
+          DB_DIALECT="mysql"
+          DB_TIMEZONE="+01:00"
+
+          # PRODUCTION DATABASE
+          DB_PROD_HOST="$${DB_PROD_HOST}"
+          DB_PROD_PORT="$${DB_PROD_PORT}"
+          DB_PROD_NAME="$${DB_PROD_NAME}"
+          DB_PROD_USER="$${DB_PROD_USER}"
+          DB_PROD_PASS="$${DB_PROD_PASS}"
+          # Para los seeders TEST DATABASE
+          DB_TEST_HOST="$${DB_PROD_HOST}"
+          DB_TEST_PORT="$${DB_PROD_PORT}"
+          DB_TEST_NAME="$${DB_PROD_NAME}"
+          DB_TEST_USER="$${DB_PROD_USER}"
+          DB_TEST_PASS="$${DB_PROD_PASS}"
+        EOF
+          cat <<EOF > ./ecosystem.config.js
+            module.exports = {
+              apps : [{
+                name   : "app",
+                script : "./src/app.js",
+              },{
+                name   : "api",
+                script : "./src/api.js",
+              }]
+            }
+        EOF
+          npm run migrate;
+          npm install pm2;
+          popd;
+          touch /app/backend/.initialized
+        fi
+        pushd /app/backend;
+        npx pm2-runtime ./ecosystem.config.js
+    restart: unless-stopped
+    environment:
+      TZ: 'Europe/Madrid'
+      NODE_ENV: production
+      SERVER_HOST: "${SERVER_SUBDOMAIN?No definida}${DOMAIN_SUFFIX?No definida}"
+      API_HOST: "${API_SUBDOMAIN?No definida}.${DOMAIN_SUFFIX?No definida}"
+      DB_PROD_HOST: "mysql"
+      DB_PROD_PORT: 3306
+      DB_PROD_NAME: "${DB_PROD_NAME?No definida}"
+      DB_PROD_USER: "${DB_PROD_USER?No definida}"
+      DB_PROD_PASS: "${DB_PROD_PASS?No definida}"
+    volumes:
+      - type: bind
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
+      - ${APP_HOME?No definida}:/app
+    networks:
+      default:
+        aliases:
+          - app-asistencia.fdilabs.test
+      services:
+        aliases:
+          - app-asistencia.fdilabs.test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.app-asistencia.loadbalancer.server.port=3000"
+      - "traefik.http.routers.app-asistencia.rule=Host(`asistencia.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.http.routers.app-asistencia.service=app-asistencia"
+      - "traefik.http.routers.app-asistencia.entrypoints=websecure"
+      - "traefik.http.routers.app-asistencia.tls=true"
+      - "traefik.http.routers.app-asistencia.middlewares=restricted@file" 
+      - "traefik.http.services.api-asistencia.loadbalancer.server.port=3001"
+#      - "traefik.http.routers.api-asistencia.rule=Host(`asistencia.${DOMAIN_SUFFIX:?required}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api-asistencia.rule=Host(`asistencia-api.${DOMAIN_SUFFIX:?required}`)"
+      - "traefik.http.routers.api-asistencia.service=api-asistencia"
+      - "traefik.http.routers.api-asistencia.entrypoints=websecure"
+      - "traefik.http.routers.api-asistencia.tls=true"
+      - "traefik.http.routers.api-asistencia.middlewares=restricted@file" 
+  mysql:
+    image: mysql:8.0.36-bullseye
+    command: ['mysqld', '--default-time-zone=Europe/Madrid']
+    restart: unless-stopped
+    environment:
+      TZ: 'Europe/Madrid'
+      MYSQL_ROOT_PASSWORD: "${DB_PROD_ROOT_PASS?No definida}"
+      MYSQL_DATABASE: "${DB_PROD_NAME?No definida}"
+      MYSQL_USER: "${DB_PROD_USER?No definida}"
+      MYSQL_PASSWORD: "${DB_PROD_PASS?No definida}"
+    cap_add:
+      - SYS_NICE  # https://stackoverflow.com/a/55706057
+    volumes:
+      - type: bind
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
+      - ${APP_HOME?No definida}/mysql:/var/lib/mysql
+
+#  mosquitto:
+#    << : *default-opts
+#    image: eclipse-mosquitto:2.0.18
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.tcp.services.mosquitto.loadbalancer.server.port=1883"
+#      - "traefik.tcp.routers.mosquitto.rule=HostSNI(`mqtt.${DOMAIN_SUFFIX:?required}`)"
+#      - "traefik.tcp.routers.mosquitto.entrypoints=websecure"
+#      - "traefik.tcp.routers.mosquitto.tls=true"
+#    restart: unless-stopped
+#    networks:
+#      default:
+#        aliases:
+#          - mqtt.fdilabs.test
+#      services:
+#        aliases:
+#          - mqtt.fdilabs.test
+#    environment:
+#      - TZ=Europe/Madrid  
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - "./mosquitto/config/:/mosquitto/config/"
+#      - "./mosquitto/data/:/mosquitto/data"
+#      - "./mosquitto/log/:/mosquitto/log"
+      
+networks:
+  services:
+    name: "traefik_services"
+    external: true
+
