@@ -1,7 +1,8 @@
-export * from './actividades.js';
-export * from './asignaturas.js';
-export * from './clases.js';
-export * from './dispositivos.js';
+export * from './actividades.js'; //done
+export * from './asignaturas.js';//done
+export * from './asistencia.js'; //done
+export * from './clases.js'; //done
+export * from './dispositivos.js'; //done
 export * from './espacios.js';
 export * from './excepciones.js';
 export * from './grupos.js';

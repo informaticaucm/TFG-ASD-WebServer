@@ -6,7 +6,9 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage=false",
+    "test:debug": "node --experimental-vm-modules --nolazy --inspect-brk=0.0.0.0:9229 ./node_modules/jest/bin/jest.js --runInBand --verbose",
+
     "mocks": "mocks-server",
     "start": "node ./src/app.js"
   },
