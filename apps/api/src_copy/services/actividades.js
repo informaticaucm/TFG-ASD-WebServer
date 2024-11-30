@@ -1,6 +1,6 @@
 // services/actividades.js
-import { apiLogger } from '../config/logger.js';  // Asumimos que tienes un logger configurado
-import { AppError, notFoundError } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';  // Asumimos que tienes un logger configurado
+import { AppError, notFoundError } from '../errors/errors.js';
 
 export async function getActividadesOfUsuario(db, idUsuario) {
     const query_doc = await db.sequelize.models.Docente.findOne({
