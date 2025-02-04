@@ -1,4 +1,4 @@
-import { getActividadesOfUsuario } from '../../src_copy/services/actividades.js';
+import { getActividadesOfUsuario, getActividadesOfEspacio, getActividadesOfClase } from '../../src_copy/services/actividades.js';
 import { jest } from '@jest/globals'
 
 describe('Pruebas unitarias /services/actividades.js', () => {
@@ -15,11 +15,17 @@ describe('Pruebas unitarias /services/actividades.js', () => {
                     },
                     Actividad: {
                         findAll: jest.fn()
+                    },
+                    Espacio:{
+                        findOne: jest.fn(),
+                        findAll: jest.fn()
                     }
                 }
             }
         };
     });
+
+    /////////////// Usuario ///////////////
 
     it('Prueba de error al no encontrar al usuario', async () => {
         mockDb.sequelize.models.Docente.findOne.mockResolvedValue(null);
@@ -53,6 +59,82 @@ describe('Pruebas unitarias /services/actividades.js', () => {
         ]);
 
         const actividades = await getActividadesOfUsuario(mockDb, 1);
+
+        expect(actividades).toEqual([{ id: 101 }, { id: 102 }]);
+    });
+
+    /////////////// Espacio ///////////////
+
+    it('Prueba de error al no encontrar el espacio', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue(null);
+
+        await expect(getActividadesOfEspacio(mockDb, 1))
+            .rejects
+            .toThrow('Espacio no encontrado');
+
+        expect(mockDb.sequelize.models.Espacio.findOne).toHaveBeenCalledWith({
+            attributes: ['id'],
+            where: { id: 1 }
+        });
+    });
+
+    it('Prueba de espacio existente pero sin actividades', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue({ dataValues: { id: 1 } });
+
+        mockDb.sequelize.models.Actividad.findAll.mockResolvedValue([]);
+
+        const actividades = await getActividadesOfEspacio(mockDb, 1);
+
+        expect(actividades).toEqual([]);
+    });
+
+    it('Prueba de espacio existente con actividades', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue({ dataValues: { id: 1 } });
+
+        mockDb.sequelize.models.Actividad.findAll.mockResolvedValue([
+            { dataValues: { id: 101 } },
+            { dataValues: { id: 102 } }
+        ]);
+
+        const actividades = await getActividadesOfEspacio(mockDb, 1);
+
+        expect(actividades).toEqual([{ id: 101 }, { id: 102 }]);
+    });
+
+    /////////////// Clase ///////////////
+
+    it('Prueba de error al no encontrar la clase', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue(null);
+
+        await expect(getActividadesOfEspacio(mockDb, 1))
+            .rejects
+            .toThrow('Espacio no encontrado');
+
+        expect(mockDb.sequelize.models.Espacio.findOne).toHaveBeenCalledWith({
+            attributes: ['id'],
+            where: { id: 1 }
+        });
+    });
+
+    it('Prueba de clase existente pero sin actividades', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue({ dataValues: { id: 1 } });
+
+        mockDb.sequelize.models.Actividad.findAll.mockResolvedValue([]);
+
+        const actividades = await getActividadesOfEspacio(mockDb, 1);
+
+        expect(actividades).toEqual([]);
+    });
+
+    it('Prueba de clase existente con actividades', async () => {
+        mockDb.sequelize.models.Espacio.findOne.mockResolvedValue({ dataValues: { id: 1 } });
+
+        mockDb.sequelize.models.Actividad.findAll.mockResolvedValue([
+            { dataValues: { id: 101 } },
+            { dataValues: { id: 102 } }
+        ]);
+
+        const actividades = await getActividadesOfEspacio(mockDb, 1);
 
         expect(actividades).toEqual([{ id: 101 }, { id: 102 }]);
     });
