@@ -2,16 +2,20 @@ import { apiLogger } from '../../../../packages/logger/src/logger.js';  // Asumi
 import { AppError, notFoundError } from '../errors/errors.js';
 
 export async function getAsignaturaById(db, idAsignatura) {
+    // Buscamos la asignatura por ID
     const asignatura = await db.sequelize.models.Asignatura.findOne({
         attributes: ['nombre', 'siglas', 'departamento', 'periodo'],
         where: { id: idAsignatura }
     });
-    console.log(asignatura)
+
+    // Si no encontramos la asignatura, lanzamos un error.
     if (!asignatura) {
         console.log("ERROR")
         throw notFoundError('Asignatura no encontrada');
         //{ status: 404, message: 'Asignatura no encontrada' }
     }
-    console.log("TODO OK")
+
+    // Retornamos directamente la asignatura sin modificaciones
     return asignatura;
 }
+

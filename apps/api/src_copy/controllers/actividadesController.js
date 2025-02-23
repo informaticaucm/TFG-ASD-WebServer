@@ -11,20 +11,25 @@ export function actividadesControllerFactory(db) {
     return {
         async getActividadesOfUsuario(req, res, next) {
             let idUsuario = Number(req.params.idUsuario);
+        
+            // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idUsuario)) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
-
-            const transaction = await db.sequelize.transaction();
-
+        
             try {
+                // Obtenemos las actividades del usuario
                 const actividades = await getActividadesOfUsuario(db, idUsuario);
-                await transaction.commit();
-
-                const respuesta = { actividades };
-                res.status(200).json(respuesta);
+        
+                // Si el usuario no tiene actividades, devolvemos un error 404
+                if (actividades.length === 0) {
+                    return res.status(404).json({ error: 'El usuario no tiene actividades o no existe' });
+                }
+        
+                // Respondemos con los datos obtenidos
+                res.status(200).json({ actividades });
             } catch (error) {
-                await transaction.rollback();
+                // Manejamos cualquier error inesperado
                 let err = error;
                 if (!(error instanceof AppError)) {
                     err = notExpectedError({ cause: error });
@@ -32,23 +37,28 @@ export function actividadesControllerFactory(db) {
                 next(err);
             }
         },
+        
 
         async getActividadesOfEspacio(req, res, next) {
             let idEspacio = Number(req.params.idEspacio);
+        
+            // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idEspacio)) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
-
-            const transaction = await db.sequelize.transaction();
-
+        
             try {
+                // Obtenemos las actividades del espacio
                 const actividades = await getActividadesOfEspacio(db, idEspacio);
-                await transaction.commit();
-
-                const respuesta = { actividades };
-                res.status(200).json(respuesta);
+        
+                // Si no hay actividades, respondemos con un error 404
+                if (actividades.length === 0) {
+                    return res.status(404).json({ error: 'No hay actividades en este espacio o el espacio no existe' });
+                }
+        
+                // Respondemos con los datos obtenidos
+                res.status(200).json({ actividades });
             } catch (error) {
-                await transaction.rollback();
                 let err = error;
                 if (!(error instanceof AppError)) {
                     err = notExpectedError({ cause: error });
@@ -56,23 +66,28 @@ export function actividadesControllerFactory(db) {
                 next(err);
             }
         },
+        
 
         async getActividadesOfClase(req, res, next) {
             let idClase = Number(req.params.idClase);
+        
+            // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idClase)) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
-
-            const transaction = await db.sequelize.transaction();
-
+        
             try {
+                // Obtenemos las actividades de la clase
                 const actividades = await getActividadesOfClase(db, idClase);
-                await transaction.commit();
-
-                const respuesta = { actividades };
-                res.status(200).json(respuesta);
+        
+                // Si no hay actividades, respondemos con un error 404
+                if (actividades.length === 0) {
+                    return res.status(404).json({ error: 'No hay actividades en esta clase o la clase no existe' });
+                }
+        
+                // Respondemos con los datos obtenidos
+                res.status(200).json({ actividades });
             } catch (error) {
-                await transaction.rollback();
                 let err = error;
                 if (!(error instanceof AppError)) {
                     err = notExpectedError({ cause: error });
@@ -80,22 +95,23 @@ export function actividadesControllerFactory(db) {
                 next(err);
             }
         },
+        
 
         async getActividadById(req, res, next) {
             let idActividad = Number(req.params.idActividad);
+        
+            // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idActividad)) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
-
-            const transaction = await db.sequelize.transaction();
-
+        
             try {
+                // Obtenemos la actividad por su ID
                 const actividad = await getActividadById(db, idActividad);
-                await transaction.commit();
-
+        
+                // Respondemos con los datos obtenidos
                 res.status(200).json(actividad);
             } catch (error) {
-                await transaction.rollback();
                 let err = error;
                 if (!(error instanceof AppError)) {
                     err = notExpectedError({ cause: error });
@@ -103,5 +119,6 @@ export function actividadesControllerFactory(db) {
                 next(err);
             }
         }
+        
     };
 }

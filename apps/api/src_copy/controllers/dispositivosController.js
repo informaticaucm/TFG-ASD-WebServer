@@ -1,16 +1,15 @@
 import { apiLogger } from '@informaticaucm/seguimiento-logger/src/logger.js';
 import moment from 'moment';
 import { getAllDispositivos, createDispositivo, findDispositivoById, removeDispositivo, getCurrentEpoch } from './DispositivoService.js';
+import { errorValidacion, notExpectedError } from '../../../../utils/errors.js';
 
 export async function getDispositivos(req, res, next, db) {
     try {
         const dispositivos = await getAllDispositivos(db);
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(dispositivos);
+        res.status(200).json(dispositivos);
     } catch (error) {
         apiLogger.error(`Error while interacting with database: ${error}`);
-        let err = { status: 500, message: 'Something went wrong' };
-        return next(err);
+        next(notExpectedError({ cause: error }));
     }
 }
 
@@ -27,65 +26,48 @@ export async function creaDispositivo(req, res, next, db, api_config) {
     ) {
         try {
             const respuesta = await createDispositivo(req.body, db, api_config);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(200).send(respuesta);
+            res.status(200).json(respuesta);
         } catch (error) {
             apiLogger.error(`Error while interacting with database: ${error}`);
-            let err = { status: 500, message: 'Something went wrong' };
-            return next(err);
+            next(notExpectedError({ cause: error }));
         }
     } else {
-        let err = { status: 422, message: 'Datos no válidos' };
-        return next(err);
+        return next(errorValidacion('Datos no válidos'));
     }
 }
 
 export async function getDispositivoById(req, res, next, db) {
     const idDispositivo = Number(req.params.idDispositivo);
     if (!Number.isInteger(idDispositivo)) {
-        let err = { status: 400, message: 'Id suministrado no válido' };
-        return next(err);
+        return next(errorValidacion('Id suministrado no válido'));
     }
 
     try {
         const dispositivo = await findDispositivoById(idDispositivo, db);
-        if (!dispositivo) {
-            let err = { status: 404, message: 'Dispositivo no encontrado' };
-            return next(err);
-        }
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(dispositivo);
+        res.status(200).json(dispositivo);
     } catch (error) {
         apiLogger.error(`Error while interacting with database: ${error}`);
-        let err = { status: 500, message: 'Something went wrong' };
-        return next(err);
+        next(notExpectedError({ cause: error }));
     }
 }
 
 export async function deleteDispositivo(req, res, next, db) {
     const idDispositivo = Number(req.params.idDispositivo);
     if (!Number.isInteger(idDispositivo)) {
-        let err = { status: 400, message: 'Id suministrado no válido' };
-        return next(err);
+        return next(errorValidacion('Id suministrado no válido'));
     }
 
     try {
-        const success = await removeDispositivo(idDispositivo, db);
-        if (!success) {
-            let err = { status: 404, message: 'Dispositivo no encontrado' };
-            return next(err);
-        }
-        res.status(204).send('Operación exitosa');
+        await removeDispositivo(idDispositivo, db);
+        res.status(204).send(); // Código 204 = No Content, no debe enviar body
     } catch (error) {
         apiLogger.error(`Error while interacting with database: ${error}`);
-        let err = { status: 500, message: 'Something went wrong' };
-        return next(err);
+        next(notExpectedError({ cause: error }));
     }
 }
 
 export async function getLocalTime(req, res) {
     const resultado = getCurrentEpoch();
     apiLogger.info(`Pong! ${resultado.epoch}`);
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send(resultado);
+    res.status(200).json(resultado);
 }
