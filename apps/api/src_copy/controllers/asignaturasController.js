@@ -1,27 +1,23 @@
 import { getAsignaturaById } from '../services/asignaturas.js'; // Servicio con la lógica
+import { errorValidacion, notExpectedError } from '../utils/errors.js';
 
 export function asignaturaControllerFactory(db) {
-    return async (req, res, next) => {
-        let idAsignatura = Number(req.params.idAsignatura);
-        
-        if (!Number.isInteger(idAsignatura)) {
-            return next({
-                status: 400,
-                message: 'Id suministrado no válido'
-            });
-        }
+    return {
+        async getAsignaturaById(req, res, next) {
+            let idAsignatura = Number(req.params.idAsignatura);
+            
+            if (!Number.isInteger(idAsignatura)) {
+                return next(errorValidacion('Id suministrado no válido'));
+            }
 
-        const transaction = await db.sequelize.transaction();
-        
-        try {
-            // Llamada al servicio
-            const asignatura = await getAsignaturaById(db, idAsignatura);
-            await transaction.commit();
-
-            res.status(200).json(asignatura); // Devolvemos la respuesta en formato JSON
-        } catch (error) {
-            await transaction.rollback();
-            next(error); // Propagamos el error
+            try {
+                // Llamada al servicio sin transacción (solo lectura)
+                const asignatura = await getAsignaturaById(db, idAsignatura);
+                res.status(200).json(asignatura);
+            } catch (error) {
+                next(notExpectedError({ cause: error })); // Manejo uniforme de errores
+            }
         }
     };
 }
+
