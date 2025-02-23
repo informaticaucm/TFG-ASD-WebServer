@@ -1,4 +1,3 @@
-// controllers/espaciosController.js
 import {
     getEspacios as fetchEspacios,
     getEspacioById as fetchEspacioById,
@@ -10,15 +9,11 @@ import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js'
 export function espaciosControllerFactory(db) {
     return {
         async getEspacios(req, res, next) {
-            const transaction = await db.sequelize.transaction();
             try {
                 const espacios = await fetchEspacios(db); // Llama al servicio
-                await transaction.commit();
                 res.status(200).json(espacios);
             } catch (error) {
-                await transaction.rollback();
-                const err = error instanceof AppError ? error : notExpectedError({ cause: error });
-                next(err);
+                next(error instanceof AppError ? error : notExpectedError({ cause: error }));
             }
         },
 
@@ -28,15 +23,11 @@ export function espaciosControllerFactory(db) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
 
-            const transaction = await db.sequelize.transaction();
             try {
                 const espacio = await fetchEspacioById(db, idEspacio);
-                await transaction.commit();
                 res.status(200).json(espacio);
             } catch (error) {
-                await transaction.rollback();
-                const err = error instanceof AppError ? error : notExpectedError({ cause: error });
-                next(err);
+                next(error instanceof AppError ? error : notExpectedError({ cause: error }));
             }
         },
 
@@ -46,15 +37,14 @@ export function espaciosControllerFactory(db) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
 
-            const transaction = await db.sequelize.transaction();
+            // Validamos si req.body.opcion está presente
+            const opcion = req.body.opcion ?? null;
+
             try {
-                const espacios = await fetchEspaciosOfUsuario(db, idUsuario, req.body.opcion);
-                await transaction.commit();
+                const espacios = await fetchEspaciosOfUsuario(db, idUsuario, opcion);
                 res.status(200).json(espacios);
             } catch (error) {
-                await transaction.rollback();
-                const err = error instanceof AppError ? error : notExpectedError({ cause: error });
-                next(err);
+                next(error instanceof AppError ? error : notExpectedError({ cause: error }));
             }
         },
 
@@ -64,15 +54,11 @@ export function espaciosControllerFactory(db) {
                 return next(errorValidacion('Id suministrado no válido'));
             }
 
-            const transaction = await db.sequelize.transaction();
             try {
                 const espacio = await fetchEspacioOfActividad(db, idActividad);
-                await transaction.commit();
                 res.status(200).json(espacio);
             } catch (error) {
-                await transaction.rollback();
-                const err = error instanceof AppError ? error : notExpectedError({ cause: error });
-                next(err);
+                next(error instanceof AppError ? error : notExpectedError({ cause: error }));
             }
         }
     };
