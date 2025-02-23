@@ -1,7 +1,9 @@
+import { notFoundError, notExpectedError } from '../utils/errors.js';
+import { apiLogger } from '../config/logger.js';
 // clase.service.js
 
-export async function getClaseById(db, idClase) {
-    //const transaction = await db.sequelize.transaction();
+/*export async function getClaseById(db, idClase) {
+    const transaction = await db.sequelize.transaction();
 
     try {
         const query_cla = await db.sequelize.models.Clase.findOne({
@@ -10,64 +12,81 @@ export async function getClaseById(db, idClase) {
         });
 
         if (!query_cla) {
-            //await transaction.rollback();
+            await transaction.rollback();
             throw new Error('Clase no encontrada');
         }
 
         return query_cla.dataValues;
     } catch (error) {
-        //await transaction.rollback();
+        await transaction.rollback();
         throw new Error(`Error while interacting with database: ${error.message}`);
-    } 
-	/*
-	finally {
-        //await transaction.commit();
-    }*/
+    } finally {
+        await transaction.commit();
+    }
+}*/
+
+
+/**
+ * Obtiene una clase por su ID.
+ */
+export async function getClaseById(db, idClase) {
+    try {
+        // Buscamos la clase por ID
+        const clase = await db.sequelize.models.Clase.findOne({
+            attributes: ['asignatura_id', 'grupo_id'],
+            where: { id: idClase }
+        });
+
+        // Si no se encuentra la clase, lanzamos error
+        if (!clase) {
+            throw notFoundError('Clase no encontrada');
+        }
+
+        return clase.dataValues;
+    } catch (error) {
+        apiLogger.error(`Error al obtener clase por ID: ${error.message}`);
+        throw notExpectedError({ cause: error });
+    }
 }
 
+/**
+ * Obtiene la clase de una asignatura y grupo específicos.
+ */
 export async function getClaseOfAsignaturaGrupo(db, asignatura_id, grupo_id) {
-    //const transaction = await db.sequelize.transaction();
-
     try {
-        const query_asig = await db.sequelize.models.Asignatura.findOne({
+        // Verificamos si la asignatura existe
+        const asignatura = await db.sequelize.models.Asignatura.findOne({
             attributes: ['id'],
             where: { id: asignatura_id }
         });
 
-        if (!query_asig) {
-            //await transaction.rollback();
-            throw new Error('Asignatura no encontrada');
+        if (!asignatura) {
+            throw notFoundError(`Asignatura con ID ${asignatura_id} no encontrada`);
         }
 
-        const query_gr = await db.sequelize.models.Grupo.findOne({
+        // Verificamos si el grupo existe
+        const grupo = await db.sequelize.models.Grupo.findOne({
             attributes: ['id'],
             where: { id: grupo_id }
         });
 
-        if (!query_gr) {
-            //await transaction.rollback();
-            throw new Error('Grupo no encontrado');
+        if (!grupo) {
+            throw notFoundError(`Grupo con ID ${grupo_id} no encontrado`);
         }
 
-        const query_cla = await db.sequelize.models.Clase.findOne({
+        // Ahora buscamos la clase en base a la asignatura y grupo
+        const clase = await db.sequelize.models.Clase.findOne({
             attributes: ['id'],
             where: { asignatura_id, grupo_id }
         });
 
-        if (!query_cla) {
-            //await transaction.rollback();
-            throw new Error('Clase no encontrada');
+        if (!clase) {
+            throw notFoundError(`No se encontró una clase para la asignatura ${asignatura_id} y el grupo ${grupo_id}`);
         }
 
-        return { id: query_cla.id };
+        return { id: clase.id };
     } catch (error) {
-        //await transaction.rollback();
-        throw new Error(`Error while interacting with database: ${error.message}`);
-    } 
-	/*
-	
-	finally {
-        await transaction.commit();
+        apiLogger.error(`Error al obtener clase de asignatura y grupo: ${error.message}`);
+        throw notExpectedError({ cause: error });
     }
-	*/
 }

@@ -20,7 +20,8 @@ export function asistenciasControllerFactory(db) {
 
         async getAsistencias(req, res, next) {
             try {
-                const result = await getAsistencias(db, req.body);
+                // Usamos req.query en lugar de req.body para filtros
+                const result = await getAsistencias(db, req.query);
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
@@ -57,7 +58,13 @@ export function asistenciasControllerFactory(db) {
 
         async getMacsBLE(req, res, next) {
             try {
-                const result = await getMacsBLE(db, req.query);
+                // Validamos que los parámetros obligatorios están presentes
+                const { espacioId, comienzo, fin } = req.query;
+                if (!espacioId || !comienzo || !fin) {
+                    return next(errorValidacion('Faltan parámetros requeridos: espacioId, comienzo, fin'));
+                }
+
+                const result = await getMacsBLE(db, { espacioId, comienzo, fin });
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
