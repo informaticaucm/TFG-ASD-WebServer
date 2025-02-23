@@ -1,7 +1,7 @@
 // clase.service.js
 
 export async function getClaseById(db, idClase) {
-    const transaction = await db.sequelize.transaction();
+    //const transaction = await db.sequelize.transaction();
 
     try {
         const query_cla = await db.sequelize.models.Clase.findOne({
@@ -10,21 +10,23 @@ export async function getClaseById(db, idClase) {
         });
 
         if (!query_cla) {
-            await transaction.rollback();
+            //await transaction.rollback();
             throw new Error('Clase no encontrada');
         }
 
         return query_cla.dataValues;
     } catch (error) {
-        await transaction.rollback();
+        //await transaction.rollback();
         throw new Error(`Error while interacting with database: ${error.message}`);
-    } finally {
-        await transaction.commit();
-    }
+    } 
+	/*
+	finally {
+        //await transaction.commit();
+    }*/
 }
 
 export async function getClaseOfAsignaturaGrupo(db, asignatura_id, grupo_id) {
-    const transaction = await db.sequelize.transaction();
+    //const transaction = await db.sequelize.transaction();
 
     try {
         const query_asig = await db.sequelize.models.Asignatura.findOne({
@@ -33,7 +35,7 @@ export async function getClaseOfAsignaturaGrupo(db, asignatura_id, grupo_id) {
         });
 
         if (!query_asig) {
-            await transaction.rollback();
+            //await transaction.rollback();
             throw new Error('Asignatura no encontrada');
         }
 
@@ -43,7 +45,7 @@ export async function getClaseOfAsignaturaGrupo(db, asignatura_id, grupo_id) {
         });
 
         if (!query_gr) {
-            await transaction.rollback();
+            //await transaction.rollback();
             throw new Error('Grupo no encontrado');
         }
 
@@ -53,15 +55,19 @@ export async function getClaseOfAsignaturaGrupo(db, asignatura_id, grupo_id) {
         });
 
         if (!query_cla) {
-            await transaction.rollback();
+            //await transaction.rollback();
             throw new Error('Clase no encontrada');
         }
 
         return { id: query_cla.id };
     } catch (error) {
-        await transaction.rollback();
+        //await transaction.rollback();
         throw new Error(`Error while interacting with database: ${error.message}`);
-    } finally {
+    } 
+	/*
+	
+	finally {
         await transaction.commit();
     }
+	*/
 }
