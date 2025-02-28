@@ -117,11 +117,11 @@
                                     <form method="post"> 
                                         <p>Datos de la clase a justificar</p>
                                         <div class="form-floating mb-3">
-                                            <input class="form-control" id="fechayhora" type="fechayhora" value="<%= resultado.fechayhora %>" readonly/>
+                                            <input class="form-control" id="fechayhora" type="datetime-local" value="<%= resultado.fechayhora %>" readonly/>
                                             <label for="fechayhora">Fecha y Hora</label>
                                         </div>
                                         <div class="form-floating mb-3">
-                                            <input class="form-control" id="clase" type="clase" value="<%= resultado.clase %>" readonly/>
+                                            <input class="form-control" id="clase" type="text" value="<%= resultado.clase %>" readonly/>
                                             <label for="clase">Asignatura y Grupo</label>
                                         </div>
                                         <p>Motivo</p>
@@ -139,7 +139,7 @@
                                                 <label for="cuidado-familiar">Cuidado de un familiar</label>
                                             </div>
                                             <div class="form-check radio-container">
-                                                <input type="radio" name="motivo" class="form-check-input" id="otro">
+                                                <input type="radio" name="motivo" class="form-check-input" id="otro" value="otro">
                                                 <label for="otro">Otro</label>
                                                 <input class="form-control ms-2" type="text" name="texto-otro" id="texto-otro">
                                             </div>
