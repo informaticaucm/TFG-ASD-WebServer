@@ -1,8 +1,8 @@
 // clases.js
 
 import { apiLogger } from '../../../../packages/logger/src/logger.js';
-import { getClaseById, getClaseOfAsignaturaGrupo } from './clase.service.js';
-import { notExpectedError, errorValidacion } from '../../../../utils/errors.js';
+import { getClaseById, getClaseOfAsignaturaGrupo } from '../services/clase.js';
+import { notExpectedError, validationError } from '../errors/errors.js';
 
 /*export async function getClaseById(req, res, next, db) {
     let idClase = Number(req.params.idClase);
@@ -50,7 +50,7 @@ export function clasesControllerFactory(db) {
         async getClaseById(req, res, next) {
             let idClase = Number(req.params.idClase);
             if (!Number.isInteger(idClase)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -68,7 +68,7 @@ export function clasesControllerFactory(db) {
             let grupo_id = Number(req.query.grupo_id);
 
             if (!Number.isInteger(asignatura_id) || !Number.isInteger(grupo_id)) {
-                return next(errorValidacion('Los IDs de asignatura y grupo deben ser números enteros'));
+                return next(validationError('Los IDs de asignatura y grupo deben ser números enteros'));
             }
 
             try {

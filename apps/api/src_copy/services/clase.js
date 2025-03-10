@@ -1,5 +1,5 @@
-import { notFoundError, notExpectedError } from '../utils/errors.js';
-import { apiLogger } from '../config/logger.js';
+import { notFoundError, notExpectedError } from '../errors/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
 // clase.service.js
 
 /*export async function getClaseById(db, idClase) {

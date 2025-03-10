@@ -1,14 +1,14 @@
 // controllers/gruposController.js
 
 import { getGrupoById, getGrupoByCursoLetra } from '../services/grupos.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function gruposControllerFactory(db) {
     return {
         async getGrupoById(req, res, next) {
             const idGrupo = Number(req.params.idGrupo);
             if (!Number.isInteger(idGrupo)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -24,7 +24,7 @@ export function gruposControllerFactory(db) {
             const letra = req.query.letra;
 
             if (!Number.isInteger(curso) || typeof letra !== 'string') {
-                return next(errorValidacion('Datos suministrados no válidos'));
+                return next(validationError('Datos suministrados no válidos'));
             }
 
             try {
@@ -43,7 +43,7 @@ export function gruposControllerFactory(db) {
         async getGrupoById(req, res, next) {
             const idGrupo = Number(req.params.idGrupo);
             if (!Number.isInteger(idGrupo)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             const transaction = await db.sequelize.transaction();
@@ -63,7 +63,7 @@ export function gruposControllerFactory(db) {
             const letra = req.body.letra;
 
             if (!Number.isInteger(curso) || typeof letra !== 'string') {
-                return next(errorValidacion('Datos suministrados no válidos'));
+                return next(validationError('Datos suministrados no válidos'));
             }
 
             const transaction = await db.sequelize.transaction();

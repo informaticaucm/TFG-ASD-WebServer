@@ -7,7 +7,7 @@ import {
     registerMACToUsuario,
     registerNFCToUsuario
 } from '../services/usuarios.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function usuariosControllerFactory(db) {
     return {
@@ -46,7 +46,7 @@ export function usuariosControllerFactory(db) {
         async getUsuarioById(req, res, next) {
             const idUsuario = Number(req.params.idUsuario);
             if (!Number.isInteger(idUsuario)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -62,7 +62,7 @@ export function usuariosControllerFactory(db) {
         async registerMACToUsuario(req, res, next) {
             const idUsuario = Number(req.params.idUsuario);
             if (!Number.isInteger(idUsuario)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -77,7 +77,7 @@ export function usuariosControllerFactory(db) {
         async registerNFCToUsuario(req, res, next) {
             const idUsuario = Number(req.params.idUsuario);
             if (!Number.isInteger(idUsuario)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {

@@ -1,5 +1,5 @@
-import { apiLogger } from '../config/logger.js';
-import { AppError, notFoundError, notExpectedError, errorValidacion } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
+import { AppError, notFoundError, notExpectedError, validationError } from '../errors/errors.js';
 
 /**
  * Registra una nueva asistencia en la base de datos.
@@ -22,7 +22,7 @@ export async function registroAsistencia(db, asistenciaData) {
 
         // Capturamos errores específicos de Sequelize para devolver un 400 en caso de validación incorrecta
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeForeignKeyConstraintError') {
-            throw errorValidacion(`Datos de asistencia no válidos: ${error.message}`);
+            throw validationError(`Datos de asistencia no válidos: ${error.message}`);
         }
 
         throw notExpectedError({ cause: error });
@@ -105,7 +105,7 @@ export async function getMacsBLE(db, params) {
 
     // Validamos que los parámetros esenciales estén presentes
     if (!espacioId || !comienzo || !fin) {
-        throw errorValidacion('Faltan parámetros requeridos: espacioId, comienzo, fin');
+        throw validationError('Faltan parámetros requeridos: espacioId, comienzo, fin');
     }
 
     apiLogger.info(`Obteniendo MACs BLE para espacioId: ${espacioId}`);

@@ -4,8 +4,8 @@ import {
     getAsistenciaById,
     updateAsistenciaById,
     getMacsBLE
-} from '../services/asistencias.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+} from '../services/asistencia.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function asistenciasControllerFactory(db) {
     return {
@@ -32,7 +32,7 @@ export function asistenciasControllerFactory(db) {
             try {
                 const idAsistencia = Number(req.params.idAsistencia);
                 if (!Number.isInteger(idAsistencia)) {
-                    return next(errorValidacion('Id suministrado no válido'));
+                    return next(validationError('Id suministrado no válido'));
                 }
 
                 const result = await getAsistenciaById(db, idAsistencia);
@@ -46,7 +46,7 @@ export function asistenciasControllerFactory(db) {
             try {
                 const idAsistencia = Number(req.params.idAsistencia);
                 if (!Number.isInteger(idAsistencia)) {
-                    return next(errorValidacion('Id suministrado no válido'));
+                    return next(validationError('Id suministrado no válido'));
                 }
 
                 const result = await updateAsistenciaById(db, idAsistencia, req.body);
@@ -61,7 +61,7 @@ export function asistenciasControllerFactory(db) {
                 // Validamos que los parámetros obligatorios están presentes
                 const { espacioId, comienzo, fin } = req.query;
                 if (!espacioId || !comienzo || !fin) {
-                    return next(errorValidacion('Faltan parámetros requeridos: espacioId, comienzo, fin'));
+                    return next(validationError('Faltan parámetros requeridos: espacioId, comienzo, fin'));
                 }
 
                 const result = await getMacsBLE(db, { espacioId, comienzo, fin });

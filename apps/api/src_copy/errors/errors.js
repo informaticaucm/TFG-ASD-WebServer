@@ -19,6 +19,6 @@ export function notExpectedError({message = 'Ooops, Error no esperado', cause = 
     throw new AppError(message, 500, cause);
 }
 
-export function errorValidacion(message, cause) {
+export function validationError(message, cause) {
     throw new AppError(message, 400, cause);
 }
