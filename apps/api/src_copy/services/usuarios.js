@@ -1,5 +1,5 @@
 // services/usuarios.js
-import { apiLogger } from '../config/logger.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import bcrypt from 'bcrypt';
 
 const spices = [

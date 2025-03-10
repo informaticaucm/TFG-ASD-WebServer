@@ -1,5 +1,5 @@
-import { apiLogger } from '../config/logger.js';
-import { notFoundError } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
+import { notFoundError } from '../errors/errors.js';
 
 export async function getRecurrenciaById(db, idRecurrencia) {
     apiLogger.info(`Fetching recurrencia with id ${idRecurrencia}`);

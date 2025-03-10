@@ -1,5 +1,5 @@
 import { getRecurrenciaById, getRecurrenciaByActividad } from '../services/recurrencias.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function recurrenciaControllerFactory(db) {
     return {
@@ -7,7 +7,7 @@ export function recurrenciaControllerFactory(db) {
             // Convertimos el parámetro a número y validamos si es un entero válido
             const idRecurrencia = Number(req.params.idRecurrencia);
             if (!Number.isInteger(idRecurrencia)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -23,7 +23,7 @@ export function recurrenciaControllerFactory(db) {
             // Convertimos el parámetro a número y validamos si es un entero válido
             const idActividad = Number(req.params.idActividad);
             if (!Number.isInteger(idActividad)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {

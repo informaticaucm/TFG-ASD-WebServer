@@ -5,7 +5,7 @@ import {
     getActividadesOfClase,
     getActividadById
 } from '../services/actividades.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function actividadesControllerFactory(db) {
     return {
@@ -14,7 +14,7 @@ export function actividadesControllerFactory(db) {
         
             // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idUsuario)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
         
             try {
@@ -44,7 +44,7 @@ export function actividadesControllerFactory(db) {
         
             // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idEspacio)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
         
             try {
@@ -73,7 +73,7 @@ export function actividadesControllerFactory(db) {
         
             // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idClase)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
         
             try {
@@ -102,7 +102,7 @@ export function actividadesControllerFactory(db) {
         
             // Validamos que el ID sea un número entero válido
             if (!Number.isInteger(idActividad)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
         
             try {

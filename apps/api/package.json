@@ -12,7 +12,7 @@
     "undo-migrate": "sequelize-cli db:migrate:undo:all",
     "seed": "sequelize-cli db:seed:all",
     "undo-seed": "sequelize-cli db:seed:undo:all",
-    "start": "node ./src/api.js"
+    "start": "node ./src_copy/api.js"
   },
   "author": "",
   "license": "Apache-2.0",

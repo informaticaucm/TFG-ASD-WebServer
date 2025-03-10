@@ -1,5 +1,5 @@
-import { getAsignaturaById } from '../services/asignaturas.js'; // Servicio con la lógica
-import { errorValidacion, notExpectedError } from '../utils/errors.js';
+import { getAsignaturaById } from '../services/asignatura.js'; // Servicio con la lógica
+import { validationError, notExpectedError } from '../errors/errors.js';
 
 export function asignaturaControllerFactory(db) {
     return {
@@ -7,7 +7,7 @@ export function asignaturaControllerFactory(db) {
             let idAsignatura = Number(req.params.idAsignatura);
             
             if (!Number.isInteger(idAsignatura)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {

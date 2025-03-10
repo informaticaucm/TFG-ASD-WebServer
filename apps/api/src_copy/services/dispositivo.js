@@ -1,7 +1,7 @@
 import { authenticator } from 'otplib';
 import moment from 'moment';
-import { apiLogger } from '../config/logger.js';
-import { notFoundError, notExpectedError } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
+import { notFoundError, notExpectedError } from '../errors/errors.js';
 
 /*export async function getAllDispositivos(db) {
     apiLogger.info('Searching in Dispositivo for id, nombre, espacioId, idExternoDispositivo');

@@ -1,4 +1,4 @@
-import { apiLogger } from '../config/logger.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import { configApi } from '../config/api.js';
 import { authenticator } from '../config/authenticator.js';
 import { configQr } from '../config/qr.js';
@@ -6,7 +6,7 @@ import qrcode from 'qrcode';
 import { createCanvas, loadImage } from 'canvas';
 import fs from 'node:fs';
 import path from 'path';
-import { notFoundError, validationError } from '../utils/errors.js';
+import { notFoundError, validationError } from '../errors/errors.js';
 
 export async function generateQR(req, idEspacio, db) {
     apiLogger.info(`Generating QR for espacio id: ${idEspacio}`);
