@@ -1,13 +1,13 @@
 
 import { generateQR } from '../services/qrs.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function qrsControllerFactory(db) {
     return {
         async generateQR(req, res, next) {
             const idEspacio = Number(req.params.idEspacio);
             if (!Number.isInteger(idEspacio)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {

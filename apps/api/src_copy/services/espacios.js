@@ -1,6 +1,6 @@
 // services/espacios.js
-import { apiLogger } from '../config/logger.js';
-import { notFoundError } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
+import { notFoundError } from '../errors/errors.js';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import { isInRecurrencia } from '@informaticaucm/seguimiento-events';

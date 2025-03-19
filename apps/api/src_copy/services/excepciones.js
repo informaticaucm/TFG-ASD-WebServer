@@ -1,8 +1,8 @@
 // services/excepciones.js
-import { apiLogger } from '../config/logger.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import moment from 'moment';
 import * as recurrence_tool from '@informaticaucm/seguimiento-events';
-import { notFoundError, validationError } from '../utils/errors.js';
+import { notFoundError, validationError } from '../errors/errors.js';
 
 export async function createExcepcion(req, db) {
     const { actividad_id, esta_cancelado, esta_reprogramado, fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex } = req.body;

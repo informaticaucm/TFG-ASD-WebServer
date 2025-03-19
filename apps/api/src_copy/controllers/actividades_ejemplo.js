@@ -1,12 +1,12 @@
 // controllers/actividadesController.js
 import { getActividadesOfUsuario } from '../services/actividades.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../utils/errors.js';
 
 export function actividadesUsuarioControllerFactory(db) {
     return async (req, res, next) => {
         let idUsuario = Number(req.params.idUsuario);
         if (!Number.isInteger(idUsuario)) {
-            return next(errorValidacion('Id suministrado no válido'));
+            return next(validationError('Id suministrado no válido'));
         }
         
         const transaction = await db.sequelize.transaction();

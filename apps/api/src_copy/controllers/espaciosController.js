@@ -4,7 +4,7 @@ import {
     getEspaciosOfUsuario as fetchEspaciosOfUsuario,
     getEspacioOfActividad as fetchEspacioOfActividad
 } from '../services/espacios.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function espaciosControllerFactory(db) {
     return {
@@ -20,7 +20,7 @@ export function espaciosControllerFactory(db) {
         async getEspacioById(req, res, next) {
             const idEspacio = Number(req.params.idEspacio);
             if (!Number.isInteger(idEspacio)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {
@@ -34,7 +34,7 @@ export function espaciosControllerFactory(db) {
         async getEspaciosOfUsuario(req, res, next) {
             const idUsuario = Number(req.params.idUsuario);
             if (!Number.isInteger(idUsuario)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             // Validamos si req.body.opcion está presente
@@ -51,7 +51,7 @@ export function espaciosControllerFactory(db) {
         async getEspacioOfActividad(req, res, next) {
             const idActividad = Number(req.params.idActividad);
             if (!Number.isInteger(idActividad)) {
-                return next(errorValidacion('Id suministrado no válido'));
+                return next(validationError('Id suministrado no válido'));
             }
 
             try {

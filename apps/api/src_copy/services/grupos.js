@@ -1,6 +1,6 @@
 // services/grupos.js
-import { apiLogger } from '../config/logger.js'; // Configuración del logger
-import { notFoundError } from '../utils/errors.js';
+import { apiLogger } from '../../../../packages/logger/src/logger.js'; // Configuración del logger
+import { notFoundError } from '../errors/errors.js';
 
 
 export async function getGrupoById(db, idGrupo) {

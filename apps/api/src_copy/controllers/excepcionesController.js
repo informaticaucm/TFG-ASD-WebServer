@@ -4,7 +4,7 @@ import {
     getExcepcionById,
     getExcepcionesOfActividad
 } from '../services/excepciones.js';
-import { AppError, errorValidacion, notExpectedError } from '../utils/errors.js';
+import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
 export function excepcionesControllerFactory(db) {
     return {

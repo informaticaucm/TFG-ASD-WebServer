@@ -1,7 +1,7 @@
 import { apiLogger } from '@informaticaucm/seguimiento-logger/src/logger.js';
 import moment from 'moment';
-import { getAllDispositivos, createDispositivo, findDispositivoById, removeDispositivo, getCurrentEpoch } from './DispositivoService.js';
-import { errorValidacion, notExpectedError } from '../../../../utils/errors.js';
+import { getAllDispositivos, createDispositivo, findDispositivoById, removeDispositivo, getCurrentEpoch } from '../services/dispositivo.js';
+import { validationError, notExpectedError } from '../errors/errors.js';
 
 export async function getDispositivos(req, res, next, db) {
     try {
@@ -32,14 +32,14 @@ export async function creaDispositivo(req, res, next, db, api_config) {
             next(notExpectedError({ cause: error }));
         }
     } else {
-        return next(errorValidacion('Datos no válidos'));
+        return next(validationError('Datos no válidos'));
     }
 }
 
 export async function getDispositivoById(req, res, next, db) {
     const idDispositivo = Number(req.params.idDispositivo);
     if (!Number.isInteger(idDispositivo)) {
-        return next(errorValidacion('Id suministrado no válido'));
+        return next(validationError('Id suministrado no válido'));
     }
 
     try {
@@ -54,7 +54,7 @@ export async function getDispositivoById(req, res, next, db) {
 export async function deleteDispositivo(req, res, next, db) {
     const idDispositivo = Number(req.params.idDispositivo);
     if (!Number.isInteger(idDispositivo)) {
-        return next(errorValidacion('Id suministrado no válido'));
+        return next(validationError('Id suministrado no válido'));
     }
 
     try {

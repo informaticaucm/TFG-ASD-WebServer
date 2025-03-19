@@ -126,7 +126,7 @@
                                             </div>
                                             <div class="form-floating mb-3">
                                                 <input type="hidden" name="clases" value="<%= JSON.stringify(resultado.clases) %>">
-                                                <select type="text" class="select form-control" name="asignatura" id="clase" readonly>
+                                                <select class="select form-control" name="asignatura" id="clase" readonly>
                                                     <% resultado.clases.forEach(function(clase) { %>
                                                         <option value="<%= clase.asignatura %> <%= clase.grupo %>"> <%= clase.asignatura %> <%= clase.grupo %> </option>
                                                     <% }); %>
@@ -138,11 +138,11 @@
                                                 <label for="espacio">Aula / Laboratorio</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input type="text" pattern="[0-9]{6}" class="form-control" name="totp" id="totp" value="<%= resultado.totp %>"/>
+                                                <input type="number" pattern="[0-9]{6}" class="form-control" name="totp" id="totp" value="<%= resultado.totp %>"/>
                                                 <label for="totp">TOTP</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" name="hora" id="hora" value="<%= resultado.hora %>" readonly/>
+                                                <input type="time" class="form-control" name="hora" id="hora" value="<%= resultado.hora %>" readonly/>
                                                 <label for="hora">Hora</label>
                                             </div>
                                             <% if (irregularidad) {%>
