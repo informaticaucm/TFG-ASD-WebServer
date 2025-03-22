@@ -9,13 +9,16 @@ export function buildClient(apiBaseUrl, apiClient, apiSecret, messagingLogger) {
 class SeguimientoClient {
     constructor(apiBaseUrl, apiClient, apiSecret, messagingLogger) {
         this.apiClient = wretch(apiBaseUrl);
-        this.apiClient = apiClient;
+        //this.apiClient = apiClient;
+        this.apiClient.options.apiClient = apiClient;
+        this.apiClient.options.apiSecret = apiSecret;
         this.apiSecret = apiSecret;
         this.messagingLogger = messagingLogger;
     }
 
     async getFromApi(req_path, server_response, omit_error) {
-        const getResult = await this.apiClient.headers({"X-Token": `${this.apiClient}:${this.apiSecret}`}).get(req_path)
+        
+        const getResult = await this.apiClient.headers({"X-Token": `${this.apiClient.options.apiClient}:${this.apiSecret}`}).get(req_path)
         .error(response => {
             if (!omit_error && response.status >= 400 && response.status < 500) {
                 throw response.status
@@ -32,8 +35,8 @@ class SeguimientoClient {
     }
     
     async sendToApiJSON(json, req_path, server_response, omit_error) {
-        
-        const postResult = await this.apiClient.headers({"X-Token": `${this.apiClient}:${this.apiSecret}`}).post(json, req_path)
+     
+        const postResult = await this.apiClient.headers({"X-Token": `${this.apiClient.options.apiClient}:${this.apiSecret}`}).post(json, req_path)
         .error(response => {
             if (!omit_error && response.status >= 400 && response.status < 500) {
                 this.messagingLogger.error(`Received status code ${response.status} on a post to ${req_path}`);
