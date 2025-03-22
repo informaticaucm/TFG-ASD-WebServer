@@ -55,40 +55,40 @@ app.get('/login', (req, res) => {
 
 app.post('/login', [middleware.escapeRequest, middleware.checkRequest(['usuario', 'password', 'timezone'])], async (req, res) => {
   uiLogger.info(`Got a POST in login with ${JSON.stringify(req.body)}`);
-  await app_controllers.session.login(req, res);
+  await app_controllers.login(req, res);
 });
 
 app.get('/logout', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in logout');
-  await app_controllers.session.logout(req, res);
+  await app_controllers.logout(req, res);
 });
 
 app.get('/formulario-aulas', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in formulario-aulas');
-  await app_controllers.form.getEspaciosPosibles(req, res);
+  await app_controllers.getEspaciosPosibles(req, res);
 });
 
 app.post('/formulario-aulas', [checkSesion, middleware.keepCookies(['estado']), middleware.escapeRequest, 
     middleware.checkRequest(['espacio'])], (req, res) => {
   
   uiLogger.info(`Got a POST in formulario-aulas with ${JSON.stringify(req.body)}`);
-  app_controllers.form.confirmEspacioPosible(req, res);
+  app_controllers.confirmEspacioPosible(req, res);
 });
 
 app.get('/formulario-end', [checkSesion, middleware.keepCookies(['estado'])], async (req, res) => {
   uiLogger.info(`Got a GET in formulario-end with ${JSON.stringify(req.body)}`);
-  await app_controllers.form.getForm(req, res);
+  await app_controllers.getForm(req, res);
 });
 
 app.post('/formulario-end', [checkSesion, middleware.keepCookies(['actividades_ids', 'espacio_id', 'estado']),
     middleware.escapeRequest, middleware.checkRequest(['docente', 'espacio', 'hora'])], async (req, res) => {
   uiLogger.info(`Got a POST in formulario-end with ${JSON.stringify(req.body)}`);
-  app_controllers.form.postForm(req, res);
+  app_controllers.postForm(req, res);
 });
 
 app.get('/formulario-aulas-qr', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in formulario-aulas-qr');
-  await app_controllers.form.getAllEspacios(req, res);
+  await app_controllers.getAllEspacios(req, res);
 });
 
 app.post('/formulario-aulas-qr', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest], 
@@ -104,7 +104,7 @@ app.get('/formulario-end-qr', [checkSesion, middleware.keepCookies([])], (req, r
 
 app.get('/lista-registro-motivo-falta', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in lista-registro-motivo-falta`);
-  const resultado = await app_controllers.asistencia.getAJustificar(req, res);
+  const resultado = await app_controllers.getAJustificar(req, res);
   res.render('lista-registro-motivo-falta', {clases: resultado, 
     usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}
   });
@@ -120,24 +120,24 @@ app.get('/registro-motivo-falta', [checkSesion, middleware.keepCookies(['no_just
 app.post('/registro-motivo-falta', [checkSesion, middleware.keepCookies(['no_justificadas']),
     middleware.escapeRequest, middleware.checkRequest(['motivo'])], (req, res) => {
   uiLogger.info(`Got a POST in registro-motivo-falta with ${JSON.stringify(req.body)}`);
-  app_controllers.asistencia.justificar(req, res);
+  app_controllers.justificar(req, res);
 });
 
 app.get('/anular-clase', [checkSesion, middleware.keepCookies([])], (req, res) => {
   uiLogger.info(req.query);
   let fechayhora = req.query.fecha || moment.now();
-  app_controllers.clase.getClases(req, res, fechayhora);
+  app_controllers.getClases(req, res, fechayhora);
 });
 
 app.post('/anular-clase', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest, 
     middleware.checkRequest(['meeting_time', 'motivo'])], async (req, res) => {
   uiLogger.info(`Got a POST in anular-clase with ${JSON.stringify(req.body)}`);
-  app_controllers.clase.anularClase(req, res);
+  app_controllers.anularClase(req, res);
 });
 
 app.get('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in verificar-docencias`);
-  let resultado = await app_controllers.asistencia.verAsistencias(req, res);
+  let resultado = await app_controllers.verAsistencias(req, res);
   res.render('verificar-docencias', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos},
     fecha: resultado.fecha, fecha_max: resultado.fecha_max, asistencias: resultado.asistencias, valores_asist: valoresAsistencia
   });
@@ -145,14 +145,14 @@ app.get('/verificar-docencias', [checkSesion, checkClearanceAdministracion, midd
 
 app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a POST in verificar-docencias with ${JSON.stringify(req.body)}`);
-  let resultado = await app_controllers.asistencia.verAsistencias(req, res);
+  let resultado = await app_controllers.verAsistencias(req, res);
   res.setHeader('Content-Type', 'application/json');
   res.status(200).send({asistencias: resultado.asistencias});
 });
 
 app.get('/registrar-firmas', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in registrar-firmas`);
-  await app_controllers.asistencia.filtrarAsistencias(req, res);
+  await app_controllers.filtrarAsistencias(req, res);
 });
 
 app.post('/registrar-firmas', [checkSesion, checkClearanceAdministracion, 
@@ -161,11 +161,11 @@ app.post('/registrar-firmas', [checkSesion, checkClearanceAdministracion,
   uiLogger.info(`Got a POST in registrar-firmas with ${JSON.stringify(req.body)}`);
   if (req.body.postType == 'filtro') {
     middleware.checkRequest(req, ['fecha', 'espacio']);
-    app_controllers.asistencia.filtrarAsistencias(req, res);
+    app_controllers.filtrarAsistencias(req, res);
   }
   else if (req.body.postType == 'firma') {  
     middleware.checkRequest(req, ['pos']);
-    app_controllers.asistencia.confirmarFirma(req, res);
+    app_controllers.confirmarFirma(req, res);
   }
 });
 
@@ -187,7 +187,7 @@ app.post('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkCl
   uiLogger.info(`Got a POST in crear-usuario with ${JSON.stringify(req.body)}`);
   
   try {
-    await app_controllers.session.createUser(req, res);
+    await app_controllers.createUser(req, res);
   }
   catch (error) {
     let redo = {
@@ -203,7 +203,7 @@ app.post('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkCl
 
 app.get('/generar-avisos', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in generar-avisos`);
-  const resultado = await app_controllers.asistencia.generarAvisos(req, res);
+  const resultado = await app_controllers.generarAvisos(req, res);
   res.render('generar-avisos', {resultado: resultado, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
@@ -211,12 +211,12 @@ app.post('/generar-avisos', [checkSesion, checkClearanceAdministracion, middlewa
     middleware.keepCookies([]), middleware.escapeRequest], async (req, res) => {
   uiLogger.info(`Got a POST in generar-avisos with ${JSON.stringify(req.body)}`);
   if (req.body.tipo == 'filtroFecha') {
-    const resultado = await app_controllers.asistencia.generarAvisos(req, res);
+    const resultado = await app_controllers.generarAvisos(req, res);
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send({asistencias: resultado.clases});
   }
   else if (req.body.tipo == 'avisos') {
-    await app_controllers.asistencia.enviarAvisos(req, res);
+    await app_controllers.enviarAvisos(req, res);
   }
 });
 
@@ -230,7 +230,7 @@ app.post('/registro-mac', [checkSesion, middleware.keepCookies([]), middleware.e
   uiLogger.info(`Got a POST in registro-mac with ${JSON.stringify(req.body)}`);
   
   try {
-    await app_controllers.session.assignMAC(req, res);
+    await app_controllers.assignMAC(req, res);
   }
   catch (error) {
     res.render('registro-mac', {error: JSON.parse(error.message), usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
@@ -248,7 +248,7 @@ app.post('/registro-nfc', [checkSesion, middleware.keepCookies([]), middleware.e
   uiLogger.info(`Got a POST in registro-nfc with ${JSON.stringify(req.body)}`);
   
   try {
-    await app_controllers.session.assignNFC(req, res);
+    await app_controllers.assignNFC(req, res);
   }
   catch (error) {
     res.render('registro-nfc', {error: JSON.parse(error.message), usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
@@ -258,7 +258,7 @@ app.post('/registro-nfc', [checkSesion, middleware.keepCookies([]), middleware.e
 
 app.get('/generar-avisos', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in generar-avisos`);
-  const resultado = await app_controllers.asistencia.generarAvisos(req, res);
+  const resultado = await app_controllers.generarAvisos(req, res);
   res.render('generar-avisos', {resultado: resultado, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
@@ -266,18 +266,18 @@ app.post('/generar-avisos', [checkSesion, checkClearanceAdministracion, middlewa
     middleware.keepCookies([]), middleware.escapeRequest], async (req, res) => {
   uiLogger.info(`Got a POST in generar-avisos with ${JSON.stringify(req.body)}`);
   if (req.body.tipo == 'filtroFecha') {
-    const resultado = await app_controllers.asistencia.generarAvisos(req, res);
+    const resultado = await app_controllers.generarAvisos(req, res);
     res.setHeader('Content-Type', 'application/json');
     res.status(200).send({asistencias: resultado.clases});
   }
   else if (req.body.tipo == 'avisos') {
-    await app_controllers.asistencia.enviarAvisos(req, res);
+    await app_controllers.enviarAvisos(req, res);
   }
 });
 
 app.get('/profesores-infracciones', [checkSesion, checkClearanceDecanato, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in profesores-infracciones`);
-  await app_controllers.asistencia.verProfesoresInfracciones(req, res);
+  await app_controllers.verProfesoresInfracciones(req, res);
 });
 
 app.listen(uiConfig.port, () => {

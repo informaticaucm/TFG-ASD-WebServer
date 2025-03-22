@@ -1,9 +1,12 @@
 import he from 'he';
 
 export function escapeRequest(req, res, next) {
-    for(key in req.body) {
-        let value = req.body[key];
-        req.body[key] = accentIgnorer(value);
+    console.log(req.body)
+    var datos;
+    for(datos in req.body) {
+        console.log(datos)
+        let value = req.body[datos];
+        req.body[datos] = accentIgnorer(value);
     }
     next()
 }
@@ -27,6 +30,7 @@ function accentIgnorer(str) {
 
 export function checkRequest(body_list) {
     return (req, res, next) => {
+        var elem;
         for (elem in body_list) {
             if (!req.body[body_list[elem]]) {
                 res.render('error', {error: 'Datos no válidos', redirect: req.originalUrl});
