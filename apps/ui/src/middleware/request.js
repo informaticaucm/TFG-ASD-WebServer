@@ -1,7 +1,6 @@
 import he from 'he';
 
 export function escapeRequest(req, res, next) {
-    console.log(req.body)
     var datos;
     for(datos in req.body) {
         console.log(datos)
