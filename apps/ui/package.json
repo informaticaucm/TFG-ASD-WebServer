@@ -24,7 +24,7 @@
     "@informaticaucm/seguimiento-events": "^1.1.0-alpha1",
     "@informaticaucm/seguimiento-logger": "^1.1.0-alpha1",
     "bcrypt": "^5.1.1",
-    "canvas": "^2.11.2",
+    "canvas": "^3.1.0",
     "croner": "^8.0.1",
     "csv-parser": "^3.0.0",
     "datatables": "^1.10.18",
