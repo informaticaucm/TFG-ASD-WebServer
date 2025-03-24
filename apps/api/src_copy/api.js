@@ -253,7 +253,7 @@ app.post(configApi.path + '/seguimiento/asistencias', authenticateClient, async 
         '404':
           description: Asistencia no encontrada
 */
-app.get(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticateClient, async (req, res, next) => await api_controllers.getAsistenciaById(req, res, next, db));
+app.get(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).getAsistenciaById(req, res, next));
 
 /* /seguimiento/asistencias/{idAsistencia}
     tags:
@@ -271,7 +271,7 @@ app.get(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticateC
         '404':
           description: Asistencia no encontrada
 */
-app.post(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticateClient, async (req, res, next) => await api_controllers.updateAsistenciaById(req, res, next, db));
+app.post(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).updateAsistenciaById(req, res, next));
 
 /* /ble
 
@@ -314,7 +314,7 @@ app.post(configApi.path + '/seguimiento/asistencias/:idAsistencia', authenticate
     security:
         - ApiKeyAuth: []
 */
-app.post(configApi.path + '/ble', authenticateClient, async (req, res, next) => await api_controllers.getMacsBLE(req, res, next, db));
+app.post(configApi.path + '/ble', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).getMacsBLE(req, res, next));
 
 /*
 tags:
@@ -332,7 +332,7 @@ tags:
     security:
       - ApiKeyAuth: []
 */
-app.post(configApi.path + '/pla', authenticateClient, async (req, res, next) => await api_controllers.registroPLA(req, res, next, db));
+app.post(configApi.path + '/pla', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).registroPLA(req, res, next, db));
 
 /* /login
 
@@ -351,7 +351,7 @@ app.post(configApi.path + '/pla', authenticateClient, async (req, res, next) => 
     security:
         - ApiKeyAuth: []
     */
-app.post(configApi.path + '/login', authenticateClient, async (req, res, next) => await api_controllers.authenticateUser(req, res, next, db));
+app.post(configApi.path + '/login', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).authenticateUser(req, res, next));
 
 /*  /usuarios
       tags:
@@ -363,7 +363,7 @@ app.post(configApi.path + '/login', authenticateClient, async (req, res, next) =
         '200':
           $ref: '#/components/responses/ListaUsuarios'
 */
-app.get(configApi.path + '/usuarios', authenticateClient, async (req, res, next) => await api_controllers.getUsuarios(req, res, next, db));
+app.get(configApi.path + '/usuarios', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).getUsuarios(req, res, next));
 
 /* /usuarios
       tags:
@@ -383,7 +383,7 @@ app.get(configApi.path + '/usuarios', authenticateClient, async (req, res, next)
         '422':
           description: Datos no válidos
 */
-app.post(configApi.path + '/usuarios', authenticateClient, async (req, res, next) => await api_controllers.createUser(req, res, next, db));
+app.post(configApi.path + '/usuarios', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).createUser(req, res, next));
 
 /* /usuarios/:idUsuario
 
@@ -402,7 +402,7 @@ app.post(configApi.path + '/usuarios', authenticateClient, async (req, res, next
       '404':
         description: Usuario no encontrado
 */
-app.get(configApi.path + '/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.getUsuarioById(req, res, next, db));
+app.get(configApi.path + '/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).getUsuarioById(req, res, next));
 
 /*   /usuarios/macs/{idUsuario}:
 
@@ -425,7 +425,7 @@ app.get(configApi.path + '/usuarios/:idUsuario', authenticateClient, async (req,
         '409':
           description: MAC ya registrada
 */
-app.post(configApi.path + '/usuarios/macs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.registerMACToUsuario(req, res, next, db));
+app.post(configApi.path + '/usuarios/macs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).registerMACToUsuario(req, res, next));
  
 /* /usuarios/nfcs/{idUsuario}:
 
@@ -448,7 +448,7 @@ app.post(configApi.path + '/usuarios/macs/:idUsuario', authenticateClient, async
         '409':
           description: UID de NFC ya registrado
 */
-app.post(configApi.path  + '/usuarios/nfcs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.registerNFCToUsuario(req, res, next, db));
+app.post(configApi.path  + '/usuarios/nfcs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).registerNFCToUsuario(req, res, next));
 
 /* /actividades/usuarios/:idUsuario
  
@@ -468,7 +468,7 @@ app.post(configApi.path  + '/usuarios/nfcs/:idUsuario', authenticateClient, asyn
         '404':
           description: Usuario no encontrado
     */
-app.get(configApi.path + '/actividades/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.getActividadesOfUsuario(req, res, next, db));
+app.get(configApi.path + '/actividades/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.actividadesControllerFactory(db).getActividadesOfUsuario(req, res, next));
 
 /* /actividades/:idActividad
 
@@ -487,7 +487,7 @@ app.get(configApi.path + '/actividades/usuarios/:idUsuario', authenticateClient,
         '404':
           description: Actividad no encontrada
     */
-app.get(configApi.path + '/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.getActividadById(req, res, next, db));
+app.get(configApi.path + '/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.actividadesControllerFactory(db).getActividadById(req, res, next));
 
 /* /actividades/espacios/:idEspacio
 
