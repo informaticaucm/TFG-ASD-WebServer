@@ -34,7 +34,7 @@ app.use(express.json());
     security:
         - ApiKeyAuth: []
 */
-app.get(configApi.path + '/espacios', authenticateClient, async (req, res, next) => await api_controllers.getEspacios(req, res, next, db));
+app.get(configApi.path + '/espacios', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getEspacios(req, res, next));
 
 /* /espacios/{idEspacio}
  
@@ -51,7 +51,7 @@ app.get(configApi.path + '/espacios', authenticateClient, async (req, res, next)
     security:
         - ApiKeyAuth: []
 */
-app.get(configApi.path + '/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.getEspacioById(req, res, next, db));
+app.get(configApi.path + '/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getEspacioById(req, res, next));
 
 /* /espacios/usuarios/{idUsuario}
 
@@ -74,7 +74,7 @@ app.get(configApi.path + '/espacios/:idEspacio', authenticateClient, async (req,
         '422':
             description: Datos no válidos
 */
-app.post(configApi.path + '/espacios/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.getEspaciosOfUsuario(req, res, next, db));
+app.post(configApi.path + '/espacios/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getEspaciosOfUsuario(req, res, next));
 
 /* /espacios/actividades/{idActividad}
       tags:
@@ -93,7 +93,7 @@ app.post(configApi.path + '/espacios/usuarios/:idUsuario', authenticateClient, a
         '404':
           description: Actividad no encontrada
 */
-app.get(configApi.path + '/espacios/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.getEspacioOfActividad(req, res, next, db));
+app.get(configApi.path + '/espacios/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getEspacioOfActividad(req, res, next));
 
 /*
   tags:
@@ -113,7 +113,7 @@ app.get(configApi.path + '/espacios/actividades/:idActividad', authenticateClien
     '500':
       description: Error al cargar la imagen
 */
-app.get(configApi.path + '/espacios/qr/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.generateQR(req, res, next, db));
+app.get(configApi.path + '/espacios/qr/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.qrsControllerFactory(db).generateQR(req, res, next));
 
 /* /dispositivos
 
@@ -221,7 +221,7 @@ app.get(configApi.path + '/ping', authenticateClient, async (req, res, next) => 
     security:
         - ApiKeyAuth: []
 */
-app.post(configApi.path + '/seguimiento', authenticateClient, async (req, res, next) => await api_controllers.registroAsistencia(req, res, next, db));
+app.post(configApi.path + '/seguimiento', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).registroAsistencia(req, res, next));
 
 /* /seguimiento/asistencias
     tags:
@@ -235,7 +235,7 @@ app.post(configApi.path + '/seguimiento', authenticateClient, async (req, res, n
         '200':
           $ref: '#/components/responses/Asistencia'
 */
-app.post(configApi.path + '/seguimiento/asistencias', authenticateClient, async (req, res, next) => await api_controllers.getAsistencias(req, res, next, db));
+app.post(configApi.path + '/seguimiento/asistencias', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).getAsistencias(req, res, next));
 
 /* /seguimiento/asistencias/{idAsistencia}
     tags:
