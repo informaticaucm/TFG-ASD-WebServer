@@ -507,7 +507,7 @@ app.get(configApi.path + '/actividades/:idActividad', authenticateClient, async 
         '404':
           description: Espacio no encontrado
 */
-app.get(configApi.path + '/actividades/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.getActividadesOfEspacio(req, res, next, db));
+app.get(configApi.path + '/actividades/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getActividadesOfEspacio(req, res, next));
 
 /* /actividades/clases/:idClase
     tags:
@@ -526,7 +526,7 @@ app.get(configApi.path + '/actividades/espacios/:idEspacio', authenticateClient,
         '404':
           description: Clase no encontrada
 */
-app.get(configApi.path + '/actividades/clases/:idClase', authenticateClient, async (req, res, next) => await api_controllers.getActividadesOfClase(req, res, next, db));
+app.get(configApi.path + '/actividades/clases/:idClase', authenticateClient, async (req, res, next) => await api_controllers.actividadesControllerFactory(db).getActividadesOfClase(req, res, next));
 
 /* /excepciones
     tags:
@@ -544,7 +544,7 @@ app.get(configApi.path + '/actividades/clases/:idClase', authenticateClient, asy
         '404':
           description: Actividad no encontrada
 */
-app.post(configApi.path + '/excepciones', authenticateClient, async (req, res, next) => await api_controllers.createExcepcion(req, res, next, db));
+app.post(configApi.path + '/excepciones', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).createExcepcion(req, res, next));
 
 /* /excepciones/{idExcepcion}:
 
@@ -563,7 +563,7 @@ app.post(configApi.path + '/excepciones', authenticateClient, async (req, res, n
         '404':
           description: Excepción no encontrada
 */
-app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async (req, res, next) => await api_controllers.getExcepcionById(req, res, next, db));
+app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionById(req, res, next));
 
 /* /excepciones/actividades/{idActividad}:
 
@@ -583,7 +583,7 @@ app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async 
         '404':
           description: Actividad no encontrada
 */
-app.get(configApi.path + '/excepciones/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.getExcepcionesOfActividad(req, res, next, db));
+app.get(configApi.path + '/excepciones/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionesOfActividad(req, res, next));
 
 /* /clases/:idClase
 
@@ -602,7 +602,7 @@ app.get(configApi.path + '/excepciones/actividades/:idActividad', authenticateCl
         '404':
           description: Clase no encontrada      
 */
-app.get(configApi.path + '/clases/:idClase', authenticateClient, async (req, res, next) => await api_controllers.getClaseById(req, res, next, db));
+app.get(configApi.path + '/clases/:idClase', authenticateClient, async (req, res, next) => await api_controllers.clasesControllerFactory(db).getClaseById(req, res, next));
 
 /* /clases/compose
     tags:
@@ -622,7 +622,7 @@ app.get(configApi.path + '/clases/:idClase', authenticateClient, async (req, res
         '404':
           description: Clase no encontrada
 */
-app.post(configApi.path + '/clases/compose', authenticateClient, async (req, res, next) => await api_controllers.getClaseOfAsignaturaGrupo(req, res, next, db));
+app.post(configApi.path + '/clases/compose', authenticateClient, async (req, res, next) => await api_controllers.clasesControllerFactory(db).getClaseOfAsignaturaGrupo(req, res, next));
 
 /* /asignaturas/:idAsignatura
 
@@ -641,7 +641,7 @@ app.post(configApi.path + '/clases/compose', authenticateClient, async (req, res
         '404':
           description: Asignatura no encontrada      
 */
-app.get(configApi.path + '/asignaturas/:idAsignatura',  authenticateClient, async (req, res, next) => await api_controllers.getAsignaturaById(req, res, next, db));
+app.get(configApi.path + '/asignaturas/:idAsignatura',  authenticateClient, async (req, res, next) => await api_controllers.asignaturaControllerFactory(db).getAsignaturaById(req, res, next));
 
 /* /grupos/:idGrupo
 
@@ -660,7 +660,7 @@ app.get(configApi.path + '/asignaturas/:idAsignatura',  authenticateClient, asyn
         '404':
             description: Grupo no encontrado      
 */
-app.get(configApi.path + '/grupos/:idGrupo', authenticateClient, async (req, res, next) => await api_controllers.getGrupoById(req, res, next, db));
+app.get(configApi.path + '/grupos/:idGrupo', authenticateClient, async (req, res, next) => await api_controllers.gruposControllerFactory(db).getGrupoById(req, res, next));
 
 /* /grupos/compose
     tags:
@@ -678,7 +678,7 @@ app.get(configApi.path + '/grupos/:idGrupo', authenticateClient, async (req, res
         '404':
           description: Grupo no encontrado
 */
-app.post(configApi.path + '/grupos/compose', authenticateClient, async (req, res, next) => await api_controllers.getGrupoByCursoLetra(req, res, next, db));
+app.post(configApi.path + '/grupos/compose', authenticateClient, async (req, res, next) => await api_controllers.gruposControllerFactory(db).getGrupoByCursoLetra(req, res, next));
 
 /* /recurrencias/:idRecurrencia
     tags:
@@ -696,7 +696,7 @@ app.post(configApi.path + '/grupos/compose', authenticateClient, async (req, res
         '404':
           description: Clase no encontrada
 */
-app.get(configApi.path + '/recurrencias/:idRecurrencia', authenticateClient, async (req, res, next) => await api_controllers.getRecurrenciaById(req, res, next, db));
+app.get(configApi.path + '/recurrencias/:idRecurrencia', authenticateClient, async (req, res, next) => await api_controllers.recurrenciaControllerFactory(db).getRecurrenciaById(req, res, next));
 
 /* /recurrencias/actividades/:idActividad
     tags:
@@ -715,7 +715,7 @@ app.get(configApi.path + '/recurrencias/:idRecurrencia', authenticateClient, asy
         '404':
           description: Clase no encontrada
 */
-app.get(configApi.path + '/recurrencias/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.getRecurrenciaByActividad(req, res, next, db));
+app.get(configApi.path + '/recurrencias/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.recurrenciaControllerFactory(db).getRecurrenciaByActividad(req, res, next));
 
 // Middleware to handle 404 and 405 errors (page not found and method not allowed)
 app.use((req, res, next) => {
