@@ -12,6 +12,7 @@
     "undo-migrate": "sequelize-cli db:migrate:undo:all",
     "seed": "sequelize-cli db:seed:all",
     "undo-seed": "sequelize-cli db:seed:undo:all",
+    "debug": "node --experimental-vm-modules --nolazy --inspect-brk=0.0.0.0:9229 ./src_copy/api.js --runInBand --verbose",
     "start": "node ./src_copy/api.js"
   },
   "author": "",
