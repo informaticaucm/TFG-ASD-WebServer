@@ -18,10 +18,16 @@ const spices = [
 export async function authenticateUser(req, db) {
     const { email, password } = req.body;
 
+    console.log('db:', db);
+    console.log('db.models:', db.models);
+    console.log('db.sequelize:', db.sequelize);
+
     const query = await db.sequelize.models.Docente.findOne({
         attributes: ['id', 'email', 'password', 'nombre', 'apellidos', 'rol'],
         where: { email }
     });
+
+    console.log('query:', query);
 
     if (!query) {
         let err = {};
@@ -31,19 +37,20 @@ export async function authenticateUser(req, db) {
     }
 
     const valid = spices.some((spice) => bcrypt.compareSync(spice + password, query.password));
+    console.log('valid:', valid);
     if (!valid) {
         let err = {};
         err.status = 422;
         err.message = 'Datos no válidos';
         throw err;
     }
-
     return {
         id: query.id,
         nombre: query.nombre,
         apellidos: query.apellidos,
         email: query.email,
         rol: query.rol
+        
     };
 }
 

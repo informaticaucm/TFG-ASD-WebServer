@@ -7,27 +7,32 @@ export async function initializeModels(sequelize) {
     /// TODO: node >= 20.11 import.meta.dirname
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
-    const modelLogger = logger.child({"process": "model_creation"});
+    const modelLogger = logger.child({ "process": "model_creation" });
 
     const modelos = await readdir(`${__dirname}`);
     const modelosPromesas = modelos
-    .filter(
-        file =>
-            file.endsWith('.model.js')
-    )
-    .map(async modelFileDefinition => {
-        const modulePath = resolve(__dirname, modelFileDefinition);
-        const module = await import(modulePath);
-        const model = module['model'](sequelize);
-        modelLogger.info(`Detected ${model.name} model`);
-        return model;
-    });
+        .filter(file => file.endsWith('.model.js'))
+        .map(async modelFileDefinition => {
+            const modulePath = resolve(__dirname, modelFileDefinition);
+            const module = await import(modulePath);
+            const model = module['model'](sequelize);
+            modelLogger.info(`Detected ${model.name} model`);
+            return model;
+        });
 
     const modelosInicializados = await Promise.all(modelosPromesas);
+
+    // Registrar los modelos en sequelize.models
     for (const modelo of modelosInicializados) {
-        if (modelo.associate == null) continue;
-        modelo.associate(sequelize.models);
+        sequelize.models[modelo.name] = modelo;
     }
 
-    return modelosInicializados;
+    // Configurar asociaciones si existen
+    for (const modelo of modelosInicializados) {
+        if (modelo.associate) {
+            modelo.associate(sequelize.models);
+        }
+    }
+
+    return { sequelize, models: sequelize.models };
 }
