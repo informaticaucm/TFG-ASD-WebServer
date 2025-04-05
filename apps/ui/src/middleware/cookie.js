@@ -4,7 +4,7 @@ const keepAlways = ['id', 'email', 'nombre', 'apellidos', 'rol', 'offset'];
 export function keepCookies(cookie_list) { 
     return (req, res, next) => {
         let curr_cookies = req.session.user;
-        for (cookie_key in curr_cookies) {
+        for (let cookie_key in curr_cookies) {
             if (!(keepAlways.includes(cookie_key) || cookie_list.includes(cookie_key))) {
                 delete req.session.user[cookie_key];
             }

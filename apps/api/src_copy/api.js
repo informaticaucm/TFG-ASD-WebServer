@@ -507,7 +507,7 @@ app.get(configApi.path + '/actividades/:idActividad', authenticateClient, async 
         '404':
           description: Espacio no encontrado
 */
-app.get(configApi.path + '/actividades/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.espaciosControllerFactory(db).getActividadesOfEspacio(req, res, next));
+app.get(configApi.path + '/actividades/espacios/:idEspacio', authenticateClient, async (req, res, next) => await api_controllers.actividadesControllerFactory(db).getActividadesOfEspacio(req, res, next));
 
 /* /actividades/clases/:idClase
     tags:

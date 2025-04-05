@@ -115,6 +115,7 @@ export async function getForm(req, res) {
   
   //Comprobamos que estén en la franja horaria actual
   let actividades_posibles = await getActividadesPosibles(res, currentHour, actividades_ids);
+  let irregularidad;
   if  (req.session.user.estado != null){
     irregularidad = (req.session.user.estado == valoresAsistencia[1])
   }

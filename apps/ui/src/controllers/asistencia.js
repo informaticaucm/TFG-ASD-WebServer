@@ -290,16 +290,16 @@ export async function confirmarFirma(req, res) {
 export async function verAsistencias(req, res) {
     
     const fecha_busqueda = req.body.fecha || moment().format('YYYY-MM-DD');
-    const asistencia_ids = (await sendToApiJSON({ fecha: fecha_busqueda }, '/seguimiento/asistencias', res, true)).asistencias;
+    const asistencia_ids = (await sendToApiJSON({ fecha: fecha_busqueda }, '/seguimiento/asistencias', res, true));
 
     let asistencias = [];
 
     for (let i = 0; i < asistencia_ids.length; i++) {
         const asistencia_info = (await getFromApi(`/seguimiento/asistencias/${asistencia_ids[i].id}`, res, true));
-        const docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
-        const espacio = await getFromApi(`/espacios/${asistencia_info.espacioId}`, res, true);
-        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
-        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
+        const docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
+        const espacio = await getFromApi(`/espacios/${asistencia_info.espacio_id}`, res, true);
+        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
 
         let actividades_ids = actividades_doc.filter(x => {
             for(let j = 0; j < actividades_esp.length; j++) {
@@ -458,10 +458,11 @@ export async function verProfesoresInfracciones(req, res) {
 
     const data = {estado: 'No Asistida'};
 
-    const asistencias_ids = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true)).asistencias;
+    const asistencias = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true)).asistencias;
+    const asistencias_ids = asistencias.asistencias;
 
     let profesores = [];
-    for (let i = 0; i < asistencias_ids.length; i++) {
+    for (let i = 0; i < asistencias.length; i++) {
         const asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencias_ids[i].id}`, res, true);
         const docente_id = asistencia_info.docenteId;
 
