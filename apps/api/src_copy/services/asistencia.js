@@ -35,7 +35,7 @@ export async function registroAsistencia(db, asistenciaData) {
 export async function getAsistencias(db, filter) {
     try {
         const asistencias = await db.sequelize.models.Asistencia.findAll({
-            attributes: ['id', 'usuarioId', 'fecha', 'estado'], // Solo traemos los campos relevantes
+            attributes: ['id', 'docente_id', 'fecha', 'estado'], // Solo traemos los campos relevantes
             where: filter
         });
 
