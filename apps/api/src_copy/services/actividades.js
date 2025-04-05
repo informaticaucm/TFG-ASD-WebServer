@@ -40,6 +40,16 @@ export async function getActividadesOfUsuario(db, idUsuario) {
     // Realiza una consulta a la base de datos para obtener todas las actividades
     // en las que el usuario (docente) participa.
 
+
+    /**
+     * 
+     * TODO: hacer dos búsquedas. una en el join de actividades y docentes para obtener todas las actividades de un docente y despues otra a
+     *      actividades para obtener todos los datos de las actividades por ID
+     *
+     * TODO 2: eliminar estos comentarios al terminar
+     * 
+     */
+
     apiLogger.info('Searching in Actividad impartida por Docente for actividad_id');
     const query_r = await db.sequelize.models.Actividad.findAll({
         attributes: ['id'],
