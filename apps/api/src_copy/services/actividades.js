@@ -1,6 +1,9 @@
 // services/actividades.js
-import { apiLogger } from '../config/logger.js';
-import { notFoundError } from '../utils/errors.js';
+import { where } from 'sequelize';
+import { apiLogger } from '../../../../packages/logger/src/logger.js';  // Asumimos que tienes un logger configurado
+import { AppError, notFoundError } from '../errors/errors.js';
+//import { apiLogger } from '../config/logger.js';
+//import { notFoundError } from '../utils/errors.js';
 
 /**
  * Obtiene las actividades de un usuario por su ID.
@@ -47,10 +50,16 @@ export async function getActividadesOfUsuario(db, idUsuario) {
      * TODO 2: eliminar estos comentarios al terminar
      * 
      */
-
+    apiLogger.info('Searching in Actividad impartida por Docente for actividad_id');
+    const query_id_actividades = await db.sequelize.models.Join_Actividad_Docentes.findAll({
+        attributes: ['actividad_id'],
+        where: { docente_id: idUsuario }
+    });
+    const asdf = query_id_actividades.map(act => act.actividad_id)
     apiLogger.info('Searching in Actividad impartida por Docente for actividad_id');
     const query_r = await db.sequelize.models.Actividad.findAll({
         attributes: ['id'],
+        where: {id: asdf},
         include: {
             model: db.sequelize.models.Docente,
             as: 'impartida_por', // Nombre de la relación en Sequelize
