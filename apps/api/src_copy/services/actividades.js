@@ -41,35 +41,49 @@ export async function getActividadesOfUsuario(db, idUsuario) {
     // Realiza una consulta a la base de datos para obtener todas las actividades
     // en las que el usuario (docente) participa.
 
+    apiLogger.info(`Buscando actividades para el docente con ID: ${idUsuario}`);
 
-    /**
-     * 
-     * TODO: hacer dos búsquedas. una en el join de actividades y docentes para obtener todas las actividades de un docente y despues otra a
-     *      actividades para obtener todos los datos de las actividades por ID
-     *
-     * TODO 2: eliminar estos comentarios al terminar
-     * 
-     */
-    apiLogger.info('Searching in Actividad impartida por Docente for actividad_id');
-    const query_id_actividades = await db.sequelize.models.Join_Actividad_Docentes.findAll({
+    // Primera consulta: Obtener los IDs de las actividades en las que participa el docente
+    const actividadesDocente = await db.sequelize.models.Join_Actividad_Docentes.findAll({
         attributes: ['actividad_id'],
         where: { docente_id: idUsuario }
     });
-    const asdf = query_id_actividades.map(act => act.actividad_id)
-    apiLogger.info('Searching in Actividad impartida por Docente for actividad_id');
-    const query_r = await db.sequelize.models.Actividad.findAll({
-        attributes: ['id'],
-        where: {id: asdf},
+
+    // Validar si se encontraron actividades
+    if (!actividadesDocente || actividadesDocente.length === 0) {
+        apiLogger.warn(`No se encontraron actividades para el docente con ID: ${idUsuario}`);
+        return []; // Devolver un array vacío si no hay actividades
+    }
+
+    // Extraer los IDs de las actividades
+    const actividadIds = actividadesDocente.map(act => act.actividad_id);
+
+    apiLogger.info(`IDs de actividades encontradas: ${actividadIds}`);
+
+    // Segunda consulta: Obtener los datos completos de las actividades
+    const actividades = await db.sequelize.models.Actividad.findAll({
+        attributes: ['id'], // Agrega los atributos relevantes
+        where: { id: actividadIds },
         include: {
             model: db.sequelize.models.Docente,
             as: 'impartida_por', // Nombre de la relación en Sequelize
             where: { id: idUsuario }, // Filtramos solo por el docente específico
-            attributes: []
+            attributes: [] // No necesitamos datos adicionales del docente
         }
     });
 
-    // Convertimos el resultado en un array con solo los IDs de las actividades
-    return query_r.map(act => ({ id: act.id }));
+    // Validar si se encontraron actividades completas
+    if (!actividades || actividades.length === 0) {
+        apiLogger.warn(`No se encontraron datos completos para las actividades del docente con ID: ${idUsuario}`);
+        return [];
+    }
+
+    // Convertir el resultado en un array con los datos relevantes de las actividades
+    const resultado = actividades.map(act => ({
+        id: act.id,
+    }));
+
+    return resultado;
 }
 
 
