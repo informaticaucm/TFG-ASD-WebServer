@@ -22,7 +22,8 @@ export async function anularClase(req, res) {
   // Creamos la excepción con la cancelación
   await sendToApiJSON(data_excepcion, '/excepciones', res, true);
 
-  const espacio_ids = (await getFromApi(`/espacios/actividades/${actividad_id}`, res, true)).espacios;
+  const espacios = (await getFromApi(`/espacios/actividades/${actividad_id}`, res, true));
+  const espacio_ids = espacios
 
   const data_asist = {
     tipo_registro: 'RegistroSeguimientoFormulario',
