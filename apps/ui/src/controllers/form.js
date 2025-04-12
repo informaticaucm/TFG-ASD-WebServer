@@ -1,6 +1,7 @@
 import { getFromApi, sendToApiJSON } from '../seguimientoApi.js';
 import moment from 'moment';
-import * as he from 'he';
+//import * as he from 'he';
+import he from 'he';
 import { isInRecurrencia } from '@informaticaucm/seguimiento-events';
 import { valoresAsistencia } from '@informaticaucm/seguimiento-api-client';
 
@@ -190,10 +191,11 @@ export async function postForm(req, res) {
 
   let data = {
     tipo_registro: "RegistroSeguimientoFormulario",
-    espacioId: espacio_id,
-    usuarioId: req.session.user.id,
+    espacio_id: espacio_id,
+    docente_id: req.session.user.id,
     estado: state,
-    motivo: motivo_asist
+    motivo: motivo_asist,
+    fecha: moment().utc().format('YYYY-MM-DD HH:mm:ss') // Agrega la fecha y hora actual en UTC
   };
 
   if (req.body.totp) {
