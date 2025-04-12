@@ -3,7 +3,6 @@ import he from 'he';
 export function escapeRequest(req, res, next) {
     var datos;
     for(datos in req.body) {
-        console.log(datos)
         let value = req.body[datos];
         req.body[datos] = accentIgnorer(value);
     }
