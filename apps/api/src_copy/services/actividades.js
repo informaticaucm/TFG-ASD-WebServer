@@ -124,20 +124,39 @@ export async function getActividadesOfUsuario(db, idUsuario) {
  * Obtiene las actividades de un espacio por su ID.
  */
 export async function getActividadesOfEspacio(db, idEspacio) {
-    apiLogger.info('Searching in Actividad for espacio_id');
+    apiLogger.info(`Buscando actividades para el espacio con ID: ${idEspacio}`);
+
     const query_act = await db.sequelize.models.Actividad.findAll({
-        attributes: ['id'], // Solo traemos el ID de la actividad, nada más
-        include: {
-            model: db.sequelize.models.Espacio,
-            as: 'impartida_en', // Alias de la relación en Sequelize
-            where: { id: idEspacio },
-            attributes: [] // No necesitamos datos de Espacio, solo filtramos por él
-        }
+        attributes: ['id'],
+        include: [
+            {
+                model: db.sequelize.models.Espacio,
+                as: 'impartida_en',
+                where: { id: idEspacio },
+                attributes: []
+            },
+            {
+                model: db.sequelize.models.Docente,
+                as: 'impartida_por',
+                attributes: ['id', 'nombre'],
+                through: {
+                    attributes: ['actividad_id', 'docente_id'] // Incluye los datos de la tabla intermedia
+                }
+            }
+        ]
     });
 
-    // Convertimos el resultado en un array con solo los IDs de las actividades
-    return query_act.map(act => ({ id: act.id }));
+    apiLogger.info(`Actividades encontradas para el espacio con ID ${idEspacio}: ${JSON.stringify(query_act, null, 2)}`);
+
+    return query_act.map(act => ({
+        id: act.id,
+        docentes: act.impartida_por.map(doc => ({
+            id: doc.id,
+            nombre: doc.nombre
+        }))
+    }));
 }
+
 
 
 /**

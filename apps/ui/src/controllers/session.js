@@ -77,9 +77,9 @@ export async function assignMAC(req, res) {
 
   for (mac in req.body) {
     if (req.body[mac] != null) { 
-      console.log(req.body[mac], mac);
+      //console.log(req.body[mac], mac);
       let mac_string = (req.body[mac]).toUpperCase();
-      console.log(mac_string);
+      //console.log(mac_string);
       if (mac_regex.test(mac_string)) {
         try {
           await sendToApiJSON({ mac: mac_string }, `/usuarios/macs/${req.session.user.id}`, res, true);

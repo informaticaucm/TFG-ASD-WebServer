@@ -37,7 +37,12 @@ module.exports = {
           type: Sequelize.DataTypes.ENUM('Asistida', 'Asistida con Irregularidad', 'No Asistida'),
           allowNull: false,
           defaultValue: 'No Asistida'
-      },      
+      },
+      motivo: {
+          type: Sequelize.DataTypes.STRING,
+          allowNull: false, // No permite valores NULL
+          defaultValue: 'No' // Valor predeterminado
+      },
       //Timestamps
       creadoEn: {
         type: Sequelize.DataTypes.DATE,

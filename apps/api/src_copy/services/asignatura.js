@@ -10,7 +10,7 @@ export async function getAsignaturaById(db, idAsignatura) {
 
     // Si no encontramos la asignatura, lanzamos un error.
     if (!asignatura) {
-        console.log("ERROR")
+        //console.log("ERROR")
         throw notFoundError('Asignatura no encontrada');
         //{ status: 404, message: 'Asignatura no encontrada' }
     }

@@ -6,6 +6,7 @@ import {
     getMacsBLE
 } from '../services/asistencia.js';
 import { AppError, validationError, notExpectedError } from '../errors/errors.js';
+import { apiLogger } from '@informaticaucm/seguimiento-logger';
 
 export function asistenciasControllerFactory(db) {
     return {
@@ -21,7 +22,8 @@ export function asistenciasControllerFactory(db) {
         async getAsistencias(req, res, next) {
             try {
                 // Usamos req.query en lugar de req.body para filtros
-                const result = await getAsistencias(db, req.query);
+                console.log('req.query', req.body);
+                const result = await getAsistencias(db, req.body);
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
