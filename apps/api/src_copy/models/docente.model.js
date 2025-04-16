@@ -38,9 +38,9 @@ export function model(sequelize) {
     Docente.associate = function (models) {
         models.Docente.hasMany(models.Actividad, { as: 'responsable', foreignKey: { name: 'responsable_id', allowNull: false }}); //Un docente es responsable de varias clases (responsable)
         models.Docente.belongsToMany(models.Actividad, { as: 'imparte', through: { model: models.Join_Actividad_Docentes, foreignKey: 'docente_id', allowNull: false }, foreignKey: 'docente_id' }); //Un docente imparte varias clases (imparte)
-        models.Docente.hasMany(models.Departamento, { as: 'Miembros_de', foreignKey: { name: 'departamento_id', allowNull: false }}); //Un departamento tiene varios docentes
+        /*models.Docente.hasMany(models.Departamento, { as: 'Miembros_de', foreignKey: { name: 'departamento_id', allowNull: false }}); //Un departamento tiene varios docentes
         models.Docente.belongsToMany(models.Departamento, { as: 'pertenece_a', through: { model: models.Join_Departamento_Docentes, foreignKey: 'docente_id', allowNull: false }, foreignKey: 'docente_id' });
-        models.Docente.belongsToMany(models.Espacio, { as: 'ha_impartido', through: { model: models.Asistencia, foreignKey: 'docente_id', allowNull: false }, foreignKey: 'docente_id' }); //Un docente asiste a varios espacios para realizar actividades
+        */models.Docente.belongsToMany(models.Espacio, { as: 'ha_impartido', through: { model: models.Asistencia, foreignKey: 'docente_id', allowNull: false }, foreignKey: 'docente_id' }); //Un docente asiste a varios espacios para realizar actividades
         models.Docente.hasMany(models.Macs, { as: 'con_mac', foreignKey: { name: 'usuario_id', allowNull: false }}); // Un docente puede tener varias Macs asociadas
         models.Docente.hasMany(models.Nfcs, { as: 'con_nfc', foreignKey: { name: 'usuario_id', allowNull: false }}); // Un docente puede tener varios Nfcs asociados
     };
