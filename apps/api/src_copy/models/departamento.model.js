@@ -24,9 +24,9 @@ export function model(sequelize) {
     });
 
     Departamento.associate = function (models) {
-        models.Departamento.hasMany(models.Docente, { as: 'Miembros', foreignKey: { name: 'docente_id', allowNull: false }}); //Un departamento tiene varios docentes
+        /*models.Departamento.hasMany(models.Docente, { as: 'Miembros', foreignKey: { name: 'docente_id', allowNull: false }}); //Un departamento tiene varios docentes
         models.Departamento.belongsToMany(models.Docente, { as: 'pertenece', through: { model: models.Join_Departamento_Docentes, foreignKey: 'departamento_id', allowNull: false }, foreignKey: 'departamento_id' });
-
+*/
     }; 
 
     return Departamento;
