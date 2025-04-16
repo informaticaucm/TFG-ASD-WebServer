@@ -4,7 +4,7 @@ const process = require('process');
 
 const env = process.env.NODE_ENV || 'development';
 const path = require('path');
-const configPath = path.resolve('.', 'src/config/db.cjs');
+const configPath = path.resolve('.', 'src_copy/config/db.cjs');
 console.log(configPath);
 module.exports = {
     config: configPath,
