@@ -1,9 +1,9 @@
 module.exports = {
     apps : [{
       name   : "app",
-      script : "./src/app.js",
+      script : "./src_copy/app.js",
     },{
       name   : "api",
-      script : "./src/api.js",
+      script : "./src_copy/api.js",
     }]
   }
