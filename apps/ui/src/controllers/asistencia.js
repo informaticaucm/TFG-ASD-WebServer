@@ -10,10 +10,15 @@ export async function getAJustificar(req, res) {
     const data = {
         estado: 'No Asistida',
         motivo: 'No'
-    }
+    };
 
-    // Sacamos de la base de datos todas las asistencias no justificadas (no asistidas y sin motivo)
-    const noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
+    try {
+        const noJustificadas = await sendToApiJSON(data, '/seguimiento/asistencias', res, true);
+
+        if (!noJustificadas) {
+            console.error('La API no devolvió asistencias válidas:', noJustificadas);
+            return res.render('error', { error: 'No se pudieron obtener las asistencias no justificadas.' });
+        }
 
     req.session.user.no_justificadas = [];
     let resultado = [];
@@ -21,11 +26,15 @@ export async function getAJustificar(req, res) {
     for(let i = 0; i < noJustificadas.length; i++) {
         let asistencia = noJustificadas[i];
         let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
+        console.log('asistencia_info', asistencia_info);
 
-        if (asistencia_info.docenteId == req.session.user.id) {
+        if (asistencia_info.docente_id == req.session.user.id) {
             // Sacar actividades de este docente en el espacio
-            let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
-            let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
+            let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
+            let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+
+            console.log('actividades_ids_docente', actividades_ids_docente);
+            console.log('actividades_ids_espacio', actividades_ids_espacio);
 
             let actividades_ids = actividades_ids_docente.filter(x => {
                 for(let j = 0; j < actividades_ids_espacio.length; j++) {
@@ -101,6 +110,11 @@ export async function getAJustificar(req, res) {
     uiLogger.info(JSON.stringify(resultado));
 
     return resultado;
+
+} catch (error) {
+    console.error('Error en getAJustificar:', error);
+    return res.render('error', { error: 'Ocurrió un error al obtener las asistencias no justificadas.' });
+}
 }
 
 export async function justificar(req, res) {
@@ -136,79 +150,82 @@ export async function filtrarAsistencias(req, res) {
     // Sacamos de la base de datos todas las asistencias no justificadas (no asistidas y sin motivo) en esa fecha y espacio
     const noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
 
+    console.log(noJustificadas);
     req.session.user.no_asistidas = [];
     let resultado = [];
-    for(let i = 0; i < noJustificadas.length; i++) {
-        let asistencia = noJustificadas[i];
-        let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
+    if (noJustificadas.length != 0) {
+        for(let i = 0; i < noJustificadas.length; i++) {
+            let asistencia = noJustificadas[i];
+            let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
 
-        let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
-        let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
+            let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
+            let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
 
-        let actividades_ids = actividades_ids_docente.filter(x => {
-            for(let j = 0; j < actividades_ids_espacio.length; j++) {
-              if (x.id == actividades_ids_espacio[j].id) {
-                return true;
-              }
-            }
-            return false;
-        });
+            let actividades_ids = actividades_ids_docente.filter(x => {
+                for(let j = 0; j < actividades_ids_espacio.length; j++) {
+                if (x.id == actividades_ids_espacio[j].id) {
+                    return true;
+                }
+                }
+                return false;
+            });
 
-        for (let j = 0; j < actividades_ids.length; j++) {
+            for (let j = 0; j < actividades_ids.length; j++) {
 
-            let actividad_id = actividades_ids[j];
-            let actividad = await getFromApi(`/actividades/${actividad_id.id}`, res, true);
+                let actividad_id = actividades_ids[j];
+                let actividad = await getFromApi(`/actividades/${actividad_id.id}`, res, true);
 
-            let encontrada = false;
-
-            if (actividad.tiempo_inicio == moment(asistencia_info.fecha + 'Z', 'YYYY-MM-DD HH:mm:00Z').format('HH:mm')) {
                 let encontrada = false;
 
-                let clase_strings = [];
-                for (let k = 0; k < actividad.clase_ids.length; k++) {
-                    let clase_info = await getFromApi(`/clases/${actividad.clase_ids[k].id}`, res, true);
-                    let grupo_info = await getFromApi(`/grupos/${clase_info.grupo_id}`, res, true);
-                    let asignatura_info = await getFromApi(`/asignaturas/${clase_info.asignatura_id}`, res, true);
-                    clase_strings.push(`${asignatura_info.nombre} ${grupo_info.curso}º${grupo_info.letra}`);
+                if (actividad.tiempo_inicio == moment(asistencia_info.fecha + 'Z', 'YYYY-MM-DD HH:mm:00Z').format('HH:mm')) {
+                    let encontrada = false;
+
+                    let clase_strings = [];
+                    for (let k = 0; k < actividad.clase_ids.length; k++) {
+                        let clase_info = await getFromApi(`/clases/${actividad.clase_ids[k].id}`, res, true);
+                        let grupo_info = await getFromApi(`/grupos/${clase_info.grupo_id}`, res, true);
+                        let asignatura_info = await getFromApi(`/asignaturas/${clase_info.asignatura_id}`, res, true);
+                        clase_strings.push(`${asignatura_info.nombre} ${grupo_info.curso}º${grupo_info.letra}`);
+                    }
+
+                    let docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
+                    if (actividad.es_recurrente == 'Sí') {
+                        let recurrencias_actividad = (await getFromApi(`/recurrencias/actividades/${actividad_id.id}`, res, true)).recurrencias;
+        
+                        for (let k = 0; k < recurrencias_actividad.length; k++) {
+                            let recurrencia = await getFromApi(`/recurrencias/${recurrencias_actividad[k].id}`, res, true);
+                            
+                            // Si una recurrencia encaja con la fecha de la asistencia, tenemos lo que buscamos, nos saltamos el resto
+                            if (recurrence_tool.isInRecurrencia(actividad, recurrencia, asistencia_info.fecha)) {
+                                resultado.push({hora: actividad.tiempo_inicio + ' - ' + actividad.tiempo_fin, clase: clase_strings, docente: docente.nombre + ' ' + docente.apellidos});
+                                req.session.user.no_asistidas.push({asistencia_id: noJustificadas[i].id, actividad_id: actividad_id.id});
+                                encontrada = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        resultado.push({hora: actividad.tiempo_inicio + ' - ' + actividad.tiempo_fin, clase: clase_strings, docente: docente.nombre + ' ' + docente.apellidos});
+                        req.session.user.no_asistidas.push({asistencia_id: noJustificadas[i].id, actividad_id: actividad_id.id});
+                        encontrada = true;
+                    }
                 }
 
-                let docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
-                if (actividad.es_recurrente == 'Sí') {
-                    let recurrencias_actividad = (await getFromApi(`/recurrencias/actividades/${actividad_id.id}`, res, true)).recurrencias;
-    
-                    for (let k = 0; k < recurrencias_actividad.length; k++) {
-                        let recurrencia = await getFromApi(`/recurrencias/${recurrencias_actividad[k].id}`, res, true);
+                // Al no haberla encontrado, miramos si es no asistida de una reprogramación
+                if (!encontrada) {
+                    let excepciones_ids = (await getFromApi(`/excepciones/actividades/${actividad.id}`, res, true)).excepciones;
+
+                    for (let k = 0; k < excepciones_ids.length; k++) {
+                        let excepcion = await getFromApi(`/excepciones/${excepciones_ids[k].id}`);
                         
-                        // Si una recurrencia encaja con la fecha de la asistencia, tenemos lo que buscamos, nos saltamos el resto
-                        if (recurrence_tool.isInRecurrencia(actividad, recurrencia, asistencia_info.fecha)) {
+                        // Hay una reprogamación no cancelada de esa actividad para el día de la no asistencia
+                        if (excepcion.esta_reprogramada == 'Sí' && excepcion.esta_cancelada == 'No' && 
+                            excepcion.fecha_inicio_ex == asistencia_info.fecha) {
                             resultado.push({hora: actividad.tiempo_inicio + ' - ' + actividad.tiempo_fin, clase: clase_strings, docente: docente.nombre + ' ' + docente.apellidos});
                             req.session.user.no_asistidas.push({asistencia_id: noJustificadas[i].id, actividad_id: actividad_id.id});
                             encontrada = true;
                             break;
                         }
-                    }
-                }
-                else {
-                    resultado.push({hora: actividad.tiempo_inicio + ' - ' + actividad.tiempo_fin, clase: clase_strings, docente: docente.nombre + ' ' + docente.apellidos});
-                    req.session.user.no_asistidas.push({asistencia_id: noJustificadas[i].id, actividad_id: actividad_id.id});
-                    encontrada = true;
-                }
-            }
-
-            // Al no haberla encontrado, miramos si es no asistida de una reprogramación
-            if (!encontrada) {
-                let excepciones_ids = (await getFromApi(`/excepciones/actividades/${actividad.id}`, res, true)).excepciones;
-
-                for (let k = 0; k < excepciones_ids.length; k++) {
-                    let excepcion = await getFromApi(`/excepciones/${excepciones_ids[k].id}`);
-                    
-                    // Hay una reprogamación no cancelada de esa actividad para el día de la no asistencia
-                    if (excepcion.esta_reprogramada == 'Sí' && excepcion.esta_cancelada == 'No' && 
-                        excepcion.fecha_inicio_ex == asistencia_info.fecha) {
-                        resultado.push({hora: actividad.tiempo_inicio + ' - ' + actividad.tiempo_fin, clase: clase_strings, docente: docente.nombre + ' ' + docente.apellidos});
-                        req.session.user.no_asistidas.push({asistencia_id: noJustificadas[i].id, actividad_id: actividad_id.id});
-                        encontrada = true;
-                        break;
                     }
                 }
             }

@@ -77,7 +77,7 @@ export async function getEspaciosOfUsuario(db, idUsuario, opcion) {
         const actividades = await db.sequelize.models.Actividad.findAll({
             attributes: ['id', 'tiempo_inicio', 'tiempo_fin', 'es_recurrente', 'fecha_inicio', 'fecha_fin'],
             include: { model: db.sequelize.models.Docente, as: 'impartida_por', where: { id: idUsuario } },
-            where: { tiempo_inicio: { [Op.lte]: currentHour }, tiempo_fin: { [Op.gte]: currentHour } }
+            //where: { tiempo_inicio: { [Op.lte]: currentHour }, tiempo_fin: { [Op.gte]: currentHour } }
         });
 
         const actividadesIds = actividades.map((act) => act.dataValues.id);
