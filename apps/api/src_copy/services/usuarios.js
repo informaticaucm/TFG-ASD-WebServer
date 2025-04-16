@@ -36,8 +36,8 @@ export async function authenticateUser(req, db) {
         throw err;
     }
 
-    //const valid = spices.some((spice) => bcrypt.compareSync(spice + password, query.password));
-    const valid = true;
+    const valid = spices.some((spice) => bcrypt.compareSync(spice + password, query.password));
+    //const valid = true;
     console.log('valid:', valid);
     if (!valid) {
         let err = {};
