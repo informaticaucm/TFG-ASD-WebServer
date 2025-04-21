@@ -94,25 +94,38 @@ export async function getEspaciosOfUsuario(db, idUsuario, opcion) {
 
         respuesta.espacios = mapEspacios(espacios);
     } else if (opcion === 'espacios_irregularidad') {
-        const espacios = await db.sequelize.models.Espacio.findAll({
-            attributes: ['id'],
-            where: {
-                [Op.not]: {
-                    id: db.sequelize.models.Actividad.findAll({
-                        attributes: ['id'],
-                        include: {
-                            model: db.sequelize.models.Docente,
-                            as: 'impartida_por',
-                            where: { id: idUsuario }
-                        }
-                    }).map((act) => act.dataValues.id)
-                }
-            },
-            order: [['edificio'], ['tipo'], ['numero']]
-        });
 
-        respuesta.espacios = mapEspacios(espacios);
-    } else {
+        const actividadesDelDocente = await db.sequelize.models.Actividad.findAll({
+            attributes: ['id'],
+            include: {
+                model: db.sequelize.models.Docente,
+                as: 'impartida_por',
+                where: { id: idUsuario }
+            }
+        });
+    
+        const idsActividadesDocente = actividadesDelDocente.map(act => act.dataValues.id);
+    
+        if(actividadesDelDocente.length===0){
+            respuesta.espacios=[];
+        }
+        
+        else{
+
+            const espacios = await db.sequelize.models.Espacio.findAll({
+                attributes: ['id'],
+                where: {
+                    id: {
+                        [Op.notIn]: idsActividadesDocente.length > 0 ? idsActividadesDocente : [null]  // previene error si está vacío
+                    }
+                },
+                order: [['edificio'], ['tipo'], ['numero']]
+            });
+            
+            respuesta.espacios = mapEspacios(espacios);
+        }
+    } 
+    else {
         throw new Error('Opción no válida');
     }
 
