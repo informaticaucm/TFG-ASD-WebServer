@@ -536,7 +536,6 @@ export async function getMacsBLE(req, res, next, db) {
 }
 
 export async function getAsistencias(req, res, next, db) {
-    console.log('HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 
     let filtroEstado = req.body.estado || null;
     let filtroMotivo = req.body.motivo || null;
