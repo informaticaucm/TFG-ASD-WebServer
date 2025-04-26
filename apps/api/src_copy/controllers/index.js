@@ -23,3 +23,4 @@ export * from './gruposController.js'; //done
 export * from './qrsController.js'; //done
 export * from './recurrenciasController.js'; //done
 export * from './usuariosController.js'; //done
+export * from './departamentosController.js'; //done
