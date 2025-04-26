@@ -77,7 +77,7 @@ export async function getExcepcionesOfActividad(req, db) {
         throw validationError('Id suministrado no válido');
     }
 
-    apiLogger.info(`Fetching excepciones for actividad ${idActividad}`);
+    apiLogger.info(`Fetching excepciones for actividad ${idActividad} in getExcepcionesOfActividad`);
     const actividad = await db.sequelize.models.Actividad.findOne({
         attributes: ['id'],
         where: { id: idActividad }
