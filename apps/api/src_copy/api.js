@@ -717,6 +717,18 @@ app.get(configApi.path + '/recurrencias/:idRecurrencia', authenticateClient, asy
 */
 app.get(configApi.path + '/recurrencias/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.recurrenciaControllerFactory(db).getRecurrenciaByActividad(req, res, next));
 
+/* /departamentos
+    tags:
+        - departamentos
+      summary: Devuelve todos los departamentos
+      description: Devuelve una lista con todos los nombres de los departamentos disponibles.
+      operationId: getDepartamentos
+      responses:
+        '200':
+          $ref: '#/components/responses/DepartamentosListaData'
+*/
+app.get(configApi.path + '/departamentos', authenticateClient, async (req, res, next) => await api_controllers.departamentosControllerFactory(db).getAllDepartamentos(req, res, next));
+
 // Middleware to handle 404 and 405 errors (page not found and method not allowed)
 app.use((req, res, next) => {
   // Comprobamos si existe la ruta buscada, y miramos si el método no existe

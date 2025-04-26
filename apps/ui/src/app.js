@@ -177,8 +177,24 @@ app.get('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkCle
     apellidos: '',
     password: ''
   }
-  res.render('crear-usuario', {resultado: resultado, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}, 
-      roles: valoresRol});
+  try {
+    await app_controllers.getAllDepartamentos(req, res);
+    console.log(req.departamentos)
+    res.render('crear-usuario', {resultado: resultado, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}, 
+      roles: valoresRol, departamentos: req.departamentos});
+  }
+  catch (error) {
+    let redo = {
+      email: req.body.email,
+      nombre: req.body.nombre,
+      apellidos: req.body.apellidos,
+      password: req.body.password
+    }
+    res.render('crear-usuario', {resultado: redo, error: error.message, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}, roles: valoresRol});
+    return;
+  }
+
+  
 });
 
 app.post('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkClearanceDecanato, middleware.keepCookies([]),

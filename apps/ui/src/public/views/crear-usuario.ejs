@@ -140,6 +140,14 @@
                                                 <label for="rol">Rol</label>
                                             </div>
                                             <div class="form-floating mb-3">
+                                                <select class="select form-control" name="departamento" id="departamento">
+                                                    <% departamentos.forEach(function(departamento) { %>
+                                                        <option value="<%= departamento.nombre %>"><%= departamento.nombre %></option>
+                                                    <% }); %>
+                                                </select>
+                                                <label for="departamento">departamento</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
                                                 <input type="password" class="form-control" name="password" id="password" placeholder="Ingrese una contraseña" required minlength="6"/>
                                                 <label for="password">Contraseña</label>
                                             </div>
