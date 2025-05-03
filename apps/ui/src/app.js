@@ -179,7 +179,6 @@ app.get('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkCle
   }
   try {
     await app_controllers.getAllDepartamentos(req, res);
-    console.log(req.departamentos)
     res.render('crear-usuario', {resultado: resultado, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}, 
       roles: valoresRol, departamentos: req.departamentos});
   }
@@ -198,7 +197,7 @@ app.get('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkCle
 });
 
 app.post('/crear-usuario', [checkSesion, checkClearanceAdministracion || checkClearanceDecanato, middleware.keepCookies([]),
-    middleware.escapeRequest, middleware.checkRequest(['nombre', 'apellidos', 'email', 'rol', 'password'])], 
+    middleware.escapeRequest, middleware.checkRequest(['nombre', 'apellidos', 'email', 'rol', 'password', 'departamento'])], 
     async (req, res) => {
   uiLogger.info(`Got a POST in crear-usuario with ${JSON.stringify(req.body)}`);
   

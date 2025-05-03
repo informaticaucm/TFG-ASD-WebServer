@@ -57,6 +57,7 @@ export async function createUser(req, res) {
     apellidos: req.body.apellidos,
     password: req.body.password,
     rol: req.body.rol,
+    departamento: req.body.departamento,
     creador: req.session.user.id
   }
 

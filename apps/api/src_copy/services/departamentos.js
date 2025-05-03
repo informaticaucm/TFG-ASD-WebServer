@@ -13,7 +13,7 @@ function mapDepartamentos(query) {
 export async function getDepartamentos(db) {
     apiLogger.info(`Fetching all departaments`);
     const departamentos = await db.sequelize.models.Departamento.findAll({
-        attributes: ['nombre']
+        attributes: ['nombre', 'id']
     });
 
     if (!departamentos || Object.keys(departamentos).length === 0) {
