@@ -1,4 +1,5 @@
 import { uiConfig } from './config/server.js';
+import { mailer } from './config/mail.js';
 import { uiLogger } from '@informaticaucm/seguimiento-logger';
 import { console_morgan, file_morgan } from '@informaticaucm/seguimiento-logger';
 import express from 'express';
