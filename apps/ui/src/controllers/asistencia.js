@@ -144,11 +144,14 @@ export async function filtrarAsistencias(req, res) {
         estado: 'No Asistida',
         motivo: 'No',
         fecha: req.body.fecha || moment().utc().format('YYYY-MM-DD'),
-        espacioId: req.body.espacio || 1
+        espacio_id: req.body.espacio || 1
     }
 
     // Sacamos de la base de datos todas las asistencias no justificadas (no asistidas y sin motivo) en esa fecha y espacio
     const noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
+if (!noJustificadas) {
+    noJustificadas = [];
+}
 
     console.log(noJustificadas);
     req.session.user.no_asistidas = [];
