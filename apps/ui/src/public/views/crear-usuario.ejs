@@ -11,7 +11,7 @@
         <%- include('Plantillas/plantilla-nav-var.ejs') %>
         <div id="layoutSidenav">
             <!-- Plantilla de sidevar-->
-            <%- include(Plantillas/plantilla-layout.sidevar.ejs)%>
+            <%- include('Plantillas/plantilla-layout-sidevar.ejs')%>
             <div id="layoutSidenav_content">
                 <main>
                     <!-- espacio necesario para que el navbar no se coma parte de los datos -->
@@ -53,7 +53,7 @@
                                             <div class="form-floating mb-3">
                                                 <select class="select form-control" name="departamento" id="departamento">
                                                     <% departamentos.forEach(function(departamento) { %>
-                                                        <option value="<%= departamento.nombre %>"><%= departamento.nombre %></option>
+                                                        <option value="<%= departamento.id %>"><%= departamento.nombre %></option>
                                                     <% }); %>
                                                 </select>
                                                 <label for="departamento">departamento</label>

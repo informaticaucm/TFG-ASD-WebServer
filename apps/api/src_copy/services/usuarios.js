@@ -56,7 +56,7 @@ export async function authenticateUser(req, db) {
 }
 
 export async function createUser(req, db) {
-    const { creador, email, nombre, apellidos, password, rol } = req.body;
+    const { creador, email, nombre, apellidos, password, rol, departamento } = req.body;
 
     const entidad_creador = await db.sequelize.models.Docente.findOne({ where: { id: creador } });
     if (!entidad_creador) {
@@ -77,7 +77,7 @@ export async function createUser(req, db) {
 
     const [usuario, nuevo] = await db.sequelize.models.Docente.findOrCreate({
         where: { email },
-        defaults: { nombre, apellidos, email, password: spicedPassword, rol: rol || 'Usuario' }
+        defaults: { nombre, apellidos, email, password: spicedPassword, rol: rol || 'Usuario'}
     });
 
     if (!nuevo) {
@@ -86,6 +86,12 @@ export async function createUser(req, db) {
         err.message = `El docente con el email ${email} ya existe en la base de datos`;
         throw err;
     }
+
+    const departamentoModel = await db.sequelize.models.Departamento.findOne({
+        where: {id: departamento}
+    })
+
+    usuario.addDepartamento(departamentoModel)
 }
 
 export async function getUsuarios(db) {
