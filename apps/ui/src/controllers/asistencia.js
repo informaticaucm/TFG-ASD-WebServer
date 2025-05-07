@@ -365,7 +365,7 @@ export async function generarAvisos(req, res) {
     
     const fecha_busqueda = req.body.fecha || moment().format('YYYY-MM-DD');
     const fecha_max_busqueda = req.body.fecha_max || moment().format('YYYY-MM-DD');
-    const asistencia_ids = (await sendToApiJSON({ estado: 'No Asistida', fecha: fecha_busqueda, fecha_max: fecha_max_busqueda }, '/seguimiento/asistencias', res, true)).asistencias;
+    const asistencia_ids = (await sendToApiJSON({ estado: 'No Asistida', fecha: fecha_busqueda/*, fecha_max: fecha_max_busqueda */}, '/seguimiento/asistencias', res, true));
 
     let asistencias = [];
 
@@ -417,9 +417,9 @@ export async function generarAvisos(req, res) {
 export async function enviarAvisos(req, res) {
     const fecha_inicio = req.body.fecha_min;
     const fecha_fin = req.body.fecha_max;
-    const data = {fecha: fecha_inicio, max: fecha_fin, estado: 'No Asistida'};
+    const data = {fecha: fecha_inicio, /*max: fecha_fin,*/ estado: 'No Asistida'};
 
-    const asistencias_ids = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true)).asistencias;
+    const asistencias_ids = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true));
 
     const port_spec = (uiConfig.port_spec) ? ':' + uiConfig.port : ''
     const url_justificaciones = `${uiConfig.protocol}://${uiConfig.host}${port_spec}/lista-registro-motivo-falta`;
