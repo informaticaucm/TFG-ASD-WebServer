@@ -1,6 +1,7 @@
 import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import { AppError, notFoundError, notExpectedError, validationError } from '../errors/errors.js';
-
+import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 /**
  * Registra una nueva asistencia en la base de datos.
  */
@@ -34,6 +35,16 @@ export async function registroAsistencia(db, asistenciaData) {
  */
 export async function getAsistencias(db, filter) {
     try {
+        // Construimos el rango de fechas si se proporciona una fecha
+        if (filter.fecha) {
+            const startOfDay = `${filter.fecha} 00:00:00`;
+            const endOfDay = `${filter.fecha} 23:59:59`;
+
+            filter.fecha = {
+                [Op.between]: [startOfDay, endOfDay]
+            };
+        }
+
         const asistencias = await db.sequelize.models.Asistencia.findAll({
             attributes: ['id', 'docente_id', 'fecha', 'estado'], // Solo traemos los campos relevantes
             where: filter
