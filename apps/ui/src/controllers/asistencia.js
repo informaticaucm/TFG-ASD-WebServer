@@ -148,7 +148,7 @@ export async function filtrarAsistencias(req, res) {
     }
 
     // Sacamos de la base de datos todas las asistencias no justificadas (no asistidas y sin motivo) en esa fecha y espacio
-    const noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
+    let noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
 if (!noJustificadas) {
     noJustificadas = [];
 }
@@ -455,7 +455,7 @@ export async function enviarAvisos(req, res) {
 
             const message = {
                 from: process.env.MAIL_USER,
-                to: `${docente.email}`,
+                to: `diemon01@ucm.es`,
                 subject: `Justificación de faltas necesaria`,
                 text: `No hemos detectado tu presencia a las ${actividad.fecha_inicio} en el aula ${espacio.nombre}. Puedes hacernos saber porqué en ${url_justificaciones}.`
             };
