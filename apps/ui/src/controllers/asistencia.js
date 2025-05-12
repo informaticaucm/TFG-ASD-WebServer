@@ -140,29 +140,31 @@ export async function justificar(req, res) {
 
 export async function filtrarAsistencias(req, res) {
     
-    const data = {
-        estado: 'No Asistida',
-        motivo: 'No',
-        fecha: req.body.fecha || moment().utc().format('YYYY-MM-DD'),
-        espacio_id: req.body.espacio || 1
-    }
+    const fecha = req.body.fecha || moment().utc().format('YYYY-MM-DD');
 
-    // Sacamos de la base de datos todas las asistencias no justificadas (no asistidas y sin motivo) en esa fecha y espacio
-    let noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true)).asistencias;
-if (!noJustificadas) {
-    noJustificadas = [];
-}
+        const data = {
+            estado: 'No Asistida',
+            motivo: 'No',
+            fecha, // Pasamos solo la fecha, el servicio se encarga del rango
+            espacio_id: req.body.espacio || 1
+        };
 
-    console.log(noJustificadas);
+        // Llamamos al servicio con los datos "crudos"
+        let noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true));
+        console.log('Respuesta del servicio:', noJustificadas);
+
+        if (!noJustificadas) {
+            uiLogger.error('La API no devolvió asistencias válidas:', noJustificadas);
+            noJustificadas = [];
+        }
     req.session.user.no_asistidas = [];
     let resultado = [];
     if (noJustificadas.length != 0) {
         for(let i = 0; i < noJustificadas.length; i++) {
             let asistencia = noJustificadas[i];
             let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
-
-            let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
-            let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
+            let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
+            let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
 
             let actividades_ids = actividades_ids_docente.filter(x => {
                 for(let j = 0; j < actividades_ids_espacio.length; j++) {
@@ -191,7 +193,7 @@ if (!noJustificadas) {
                         clase_strings.push(`${asignatura_info.nombre} ${grupo_info.curso}º${grupo_info.letra}`);
                     }
 
-                    let docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
+                    let docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
                     if (actividad.es_recurrente == 'Sí') {
                         let recurrencias_actividad = (await getFromApi(`/recurrencias/actividades/${actividad_id.id}`, res, true)).recurrencias;
         
@@ -272,7 +274,7 @@ if (!noJustificadas) {
 export async function confirmarFirma(req, res) {
     
     const ids = req.session.user.no_asistidas[Number(req.body.pos)];
-    
+
     let data = null;
     if (req.body.sustituto != 'no') {
 
@@ -282,13 +284,14 @@ export async function confirmarFirma(req, res) {
         data = {
             tipo_registro: 'RegistroSeguimientoFormulario',
             estado: 'Asistida con Irregularidad',
-            usuarioId: req.session.user.sustituto_ids[req.body.sustituto],
+            docente_id: req.session.user.sustituto_ids[req.body.sustituto],
             fecha: moment(req.session.user.resultado_firma.fecha).hours(mmt_inicio.hours()).minutes(mmt_inicio.minutes()).utc().format('YYYY-MM-DD HH:mm:00[Z]'),
-            espacioId: req.session.user.espacio_firma,
+            espacio_id: req.session.user.espacio_firma,
             motivo: 'Sustitución, Firma'
         };
         
-        await sendToApiJSON(data, '/seguimiento', res, true);
+        await sendToApiJSON(data, `/seguimiento/asistencias/${ids.asistencia_id}`, res, true);
+        //await sendToApiJSON(data, '/seguimiento', res, true);
     }
     else {
         data = { estado: 'Asistida', motivo: 'Firma' };
