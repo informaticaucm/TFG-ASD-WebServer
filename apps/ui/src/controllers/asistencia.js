@@ -458,7 +458,7 @@ export async function enviarAvisos(req, res) {
 
             const message = {
                 from: process.env.MAIL_USER,
-                to: `diemon01@ucm.es`,
+                to: `${docente.email}`,
                 subject: `Justificación de faltas necesaria`,
                 text: `No hemos detectado tu presencia a las ${actividad.fecha_inicio} en el aula ${espacio.nombre}. Puedes hacernos saber porqué en ${url_justificaciones}.`
             };
