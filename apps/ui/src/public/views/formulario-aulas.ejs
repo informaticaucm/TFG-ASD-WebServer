@@ -25,15 +25,22 @@
                                 <form method="post">
                                     <% espacios.forEach(function(edificio) { %>
                                         <div class="py-3">
-                                        <h3>Edificio <%= edificio.edificio %></h3>
-                                        <% edificio.espacios.forEach(function(espacio) { %>
+                                        <% if (edificio.espacios.length>1 && !all) { %>
+                                            <h3>Tus aulas de clases habituales en <%= edificio.edificio %></h3>
+                                        <%} else if(!all) { %>
+                                            <h3>Tu aula de clases habituales en <%= edificio.edificio %></h3>
+                                        <%} else { %>
+                                            <h3>Aulas de clases de <%= edificio.edificio %></h3>
+                                        <%} edificio.espacios.forEach(function(espacio) { %>
                                         <div class="row justify-content-center mt-4" id="formulario-feature">
                                             <button class="btn btn-primary btn-feature" name="espacio" type="submit" value="<%= espacio.id %>"><%= espacio.nombre %></button>
                                         </div>
+                                        <hr>
                                         <% }); %>
                                         </div>
                                     <% }); %>
                                     <% if (!all) { %>
+                                        <h3>Todas las aulas</h3>
                                         <div class="row justify-content-center mt-4 mb-4" id="formulario-feature">
                                             <button class="btn btn-primary btn-feature" name="espacio" type="submit" value="Otro">Otro</button>
                                         </div>

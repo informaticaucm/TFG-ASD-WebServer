@@ -11124,6 +11124,7 @@ body {
 }
 
 .datatable-info {
+  border:'1';
   margin: 7px 0;
 }
 
