@@ -37,8 +37,14 @@ export async function getAsistencias(db, filter) {
     try {
         // Construimos el rango de fechas si se proporciona una fecha
         if (filter.fecha) {
-            const startOfDay = `${filter.fecha} 00:00:00`;
-            const endOfDay = `${filter.fecha} 23:59:59`;
+            let fech = filter.fecha
+            const startOfDay = `${fech} 00:00:00`;
+            //comprobamos si se recive una fecha maxima 
+            if (filter.fecha_max != undefined){
+                fech = filter.fecha_max;
+                delete filter.fecha_max;
+            }
+            const endOfDay = `${fech} 23:59:59`;
 
             filter.fecha = {
                 [Op.between]: [startOfDay, endOfDay]
