@@ -55,7 +55,7 @@
                 let asist = new_content[i];
                 let clases = asist.clase[0];
                 if (asist.motivo == null) asist.motivo = ''; // asist.clase es un array de todas las clases que pueden ser, no sé si eso cambia algo. No
-                for (let j = 1; j < asist.clase.length; j++) {clases += ', ' + asist.clase[j]}
+                for (let j = 1; j < asist.clase.length; j++) {clases += '<br> ' + asist.clase[j]}
                 tabla.row.add([asist.hora, asist.espacio, clases, asist.docente, asist.estado, asist.motivo]);
             }
             tabla.draw(false);
