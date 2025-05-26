@@ -380,9 +380,9 @@ export async function generarAvisos(req, res) {
 
     for (let i = 0; i < asistencia_ids.length; i++) {
         const asistencia_info = (await getFromApi(`/seguimiento/asistencias/${asistencia_ids[i].id}`, res, true));
-        const docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
-        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
-        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
+        const docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
+        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
 
         let actividades_ids = actividades_doc.filter(x => {
             for(let j = 0; j < actividades_esp.length; j++) {
@@ -435,10 +435,10 @@ export async function enviarAvisos(req, res) {
 
     for (let i = 0; i < asistencias_ids.length; i++) {
         const asistencia_info = (await getFromApi(`/seguimiento/asistencias/${asistencias_ids[i].id}`, res, true));
-        const docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
-        const espacio = await getFromApi(`/espacios/${asistencia_info.espacioId}`, res, true);
-        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
-        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
+        const docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
+        const espacio = await getFromApi(`/espacios/${asistencia_info.espacio_id}`, res, true);
+        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
 
         let actividades_ids = actividades_doc.filter(x => {
             for(let j = 0; j < actividades_esp.length; j++) {
