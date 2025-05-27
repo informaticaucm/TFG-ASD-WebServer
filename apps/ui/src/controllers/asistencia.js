@@ -373,15 +373,15 @@ export async function generarAvisos(req, res) {
     
     const fecha_busqueda = req.body.fecha || moment().format('YYYY-MM-DD');
     const fecha_max_busqueda = req.body.fecha_max || moment().format('YYYY-MM-DD');
-    const asistencia_ids = (await sendToApiJSON({ estado: 'No Asistida', fecha: fecha_busqueda/*, fecha_max: fecha_max_busqueda */}, '/seguimiento/asistencias', res, true));
+    const asistencia_ids = (await sendToApiJSON({ estado: 'No Asistida', fecha: fecha_busqueda, fecha_max: fecha_max_busqueda }, '/seguimiento/asistencias', res, true));
 
     let asistencias = [];
 
     for (let i = 0; i < asistencia_ids.length; i++) {
         const asistencia_info = (await getFromApi(`/seguimiento/asistencias/${asistencia_ids[i].id}`, res, true));
-        const docente = await getFromApi(`/usuarios/${asistencia_info.docenteId}`, res, true);
-        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacioId}`, res, true)).actividades;
-        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docenteId}`, res, true)).actividades;
+        const docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
+        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
 
         let actividades_ids = actividades_doc.filter(x => {
             for(let j = 0; j < actividades_esp.length; j++) {
@@ -425,7 +425,69 @@ export async function generarAvisos(req, res) {
 export async function enviarAvisos(req, res) {
     const fecha_inicio = req.body.fecha_min;
     const fecha_fin = req.body.fecha_max;
-    const data = {fecha: fecha_inicio, /*max: fecha_fin,*/ estado: 'No Asistida'};
+    const data = {fecha: fecha_inicio, fecha_max: fecha_fin, estado: 'No Asistida'};
+
+    const asistencias_ids = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true));
+
+    const port_spec = (uiConfig.port_spec) ? ':' + uiConfig.port : ''
+    const url_justificaciones = `${uiConfig.protocol}://${uiConfig.host}${port_spec}/lista-registro-motivo-falta`;
+
+    for (let i = 0; i < asistencias_ids.length; i++) {
+        const asistencia_info = (await getFromApi(`/seguimiento/asistencias/${asistencias_ids[i].id}`, res, true));
+        const docente = await getFromApi(`/usuarios/${asistencia_info.docente_id}`, res, true);
+        const espacio = await getFromApi(`/espacios/${asistencia_info.espacio_id}`, res, true);
+        const actividades_esp = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
+        const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
+
+        let actividades_ids = actividades_doc.filter(x => {
+            for(let j = 0; j < actividades_esp.length; j++) {
+              if (x.id == actividades_esp[j].id) {
+                return true;
+              }
+            }
+            return false;
+        });
+
+        for (let j = 0; j < actividades_ids.length; j++) {
+            const actividad_id = actividades_ids[j];
+            const actividad = await getFromApi(`/actividades/${actividad_id.id}`, res, true);
+            let clase = [];
+
+            for(let k = 0; k < actividad.clase_ids.length; k++) {
+                const clase_info = await getFromApi(`/clases/${actividad.clase_ids[k].id}`, res, true);
+                const grupo_info = await getFromApi(`/grupos/${clase_info.grupo_id}`, res, true);
+                const asignatura_info = await getFromApi(`/asignaturas/${clase_info.asignatura_id}`, res, true);
+
+                clase.push(asignatura_info.nombre + ' ' + grupo_info.curso + 'º' + grupo_info.letra);                
+            }
+
+            const message = {
+                from: process.env.MAIL_USER,
+                to: `${docente.email}`,
+                subject: `Justificación de faltas necesaria`,
+                text: `No hemos detectado tu presencia a las ${actividad.fecha_inicio} en el aula ${espacio.nombre}. Puedes hacernos saber porqué en ${url_justificaciones}.`
+            };
+            
+            mailer.sendMail(message, (err, info) => {
+                if (err) {
+                    uiLogger.warn(`No se ha podido enviar el correo a ${docente.email}`);
+                    res.render('error', { error: 'Ha ocurrido un error al enviar los avisos', redirect: 'generar-avisos'});
+                    return;
+                }
+                uiLogger.info(`Se ha enviado un aviso por falta de asistencia a ${docente.email} correctamente`);
+            });
+        }
+    }
+
+    res.render('exito', {mensaje: 'Todos los correos se han enviado con éxito'});
+}
+
+export async function enviarAvisosAutomaticos(inicio, fin) {
+    const fecha_inicio = inicio;
+    const fecha_fin = fin;
+    const data = {fecha: fecha_inicio, fecha_max: fecha_fin, estado: 'No Asistida'};
+
+    let res = {};
 
     const asistencias_ids = (await sendToApiJSON(data, `/seguimiento/asistencias`, res, true));
 
@@ -471,15 +533,14 @@ export async function enviarAvisos(req, res) {
             mailer.sendMail(message, (err, info) => {
                 if (err) {
                     uiLogger.warn(`No se ha podido enviar el correo a ${docente.email}`);
-                    res.render('error', { error: 'Ha ocurrido un error al enviar los avisos', redirect: 'generar-avisos'});
-                    return;
+                    return false;
                 }
                 uiLogger.info(`Se ha enviado un aviso por falta de asistencia a ${docente.email} correctamente`);
             });
         }
     }
 
-    res.render('exito', {mensaje: 'Todos los correos se han enviado con éxito'});
+    return true;
 }
 
 export async function verProfesoresInfracciones(req, res) {

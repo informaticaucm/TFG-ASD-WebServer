@@ -12,6 +12,8 @@ import MemoryStoreBuilder from 'memorystore';
 import { valoresAsistencia } from '@informaticaucm/seguimiento-api-client';
 import * as app_controllers from './controllers/index.js';
 
+import cron from 'node-cron';
+
 const memory_store = MemoryStoreBuilder(session);
 const app = express();
 
@@ -43,6 +45,45 @@ app.use(session({
     checkPeriod: 30 * 60 * 1000 // 30 minutos en milisegundos
   })
 }));
+
+// Envía un correo todos los días a las 9 AM
+console.log("Envio automatico configurado para " + process.env.CRON_LINE)
+cron.schedule(process.env.CRON_LINE, async() => {
+  console.log("Envio automático")
+  const today = new Date();
+
+  // Clonar la fecha de hoy para restar días
+  const lastWeek = new Date(today);
+  lastWeek.setDate(today.getDate() - 7);
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses van de 0 a 11
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  };
+
+  const todayFormatted = formatDate(today);
+  const lastWeekFormatted = formatDate(lastWeek);
+
+  let resultado = false
+
+  try {
+    resultado = await app_controllers.enviarAvisosAutomaticos(todayFormatted, lastWeekFormatted);
+  } catch (error) {
+    console.log("Se ha producido un error al enviar los mensajes");
+    console.log(error);
+    resultado = false
+  }
+  
+
+  if (resultado) {
+    console.log("Mensajes enviados correctamente")
+  } else {
+    console.log("Se ha producido un error al enviar los mensajes")
+  }
+
+});
 
 // Página web
 app.get('/', checkSesion, (req, res) => {
