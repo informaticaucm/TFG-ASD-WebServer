@@ -11,8 +11,10 @@ import * as middleware from './middleware/index.js';
 import MemoryStoreBuilder from 'memorystore';
 import { valoresAsistencia } from '@informaticaucm/seguimiento-api-client';
 import * as app_controllers from './controllers/index.js';
+import ejs from 'ejs';
 
 import cron from 'node-cron';
+import puppeteer from 'puppeteer';
 
 const memory_store = MemoryStoreBuilder(session);
 const app = express();
@@ -191,6 +193,49 @@ app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, mid
   let resultado = await app_controllers.verAsistencias(req, res);
   res.setHeader('Content-Type', 'application/json');
   res.status(200).send({asistencias: resultado.asistencias});
+});
+
+app.get('/reporte-docencias/pdf', [checkSesion, checkClearanceAdministracion], async (req, res) => {
+  try {
+      // Obtén los datos necesarios
+      const fecha = req.query.fecha || 'No especificada';
+      const estado = req.query.estado || 'Todos';
+      const resultado = await app_controllers.verAsistencias(req, res);
+
+      // Captura el HTML generado por res.render
+      const htmlContent = await new Promise((resolve, reject) => {
+          res.render('ver-docencias-reporte', {
+              fechaActual: new Date().toLocaleDateString('es-ES'),
+              fechaSeleccionada: fecha,
+              filtroEstado: estado,
+              asistencias: resultado.asistencias
+          }, (err, html) => {
+              if (err) reject(err);
+              else resolve(html);
+          });
+      });
+
+      // Genera el PDF con Puppeteer
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true
+    });
+
+      await browser.close();
+
+      // Envía el PDF como respuesta
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="reporte-docencias.pdf"');
+      res.end(pdfBuffer); // ✅ esto es lo correcto para enviar un buffer binario
+
+  } catch (error) {
+      console.error('Error al generar el PDF:', error);
+      res.status(500).send('Error al generar el PDF');
+  }
 });
 
 app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {

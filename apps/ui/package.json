@@ -44,6 +44,7 @@
     "pino": "^8.20.0",
     "pino-pretty": "^11.0.0",
     "pm2": "^5.4.2",
+    "puppeteer": "^24.9.0",
     "qrcode": "^1.5.3",
     "trustproxy": "^1.1.1"
   },

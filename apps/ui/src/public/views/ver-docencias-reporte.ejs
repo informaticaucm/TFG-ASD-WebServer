@@ -3,64 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <title>Reporte de Docencias</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            color: #000;
-        }
-        h2 {
-            text-align: center;
-        }
-        .info {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        th, td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: left;
-        }
-        .no-print {
-            display: none;
-        }
+.table-report {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.table-report th, .table-report td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-report th {
+    background-color: #990033; /* Color de fondo del encabezado */
+    color: #fff; /* Color del texto del encabezado */
+    font-weight: bold;
+}
+
+.table-report tr:nth-child(even) {
+    background-color: #f9f9f9; /* Color de fondo para filas pares */
+}
+
+.table-report tr:hover {
+    background-color: #f1f1f1; /* Color de fondo al pasar el mouse */
+}
+
+/* Encabezado del reporte */
+.report-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #990033;
+}
+
+/* Pie de página del reporte */
+.report-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Título principal del reporte */
+.report-title {
+    font-family: 'QuattrocentoBold';
+    font-size: 24px;
+    text-align: center;
+    color: #990033;
+    margin-bottom: 10px;
+}
+
+/* Texto descriptivo */
+.report-text {
+    font-family: 'Quattrocento';
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
     </style>
 </head>
-<body onload="window.print()">
-    <h2>Reporte de Docencias</h2>
-
-    <div class="info">
-        <p><strong>Fecha del reporte:</strong> <%= fechaActual %></p>
-        <p><strong>Fecha seleccionada:</strong> <%= fechaSeleccionada %></p>
-        <p><strong>Filtro aplicado:</strong> <%= filtroEstado %></p>
+<body>
+    <div class="report-header">
+        <h1 class="report-title">Reporte de Docencias</h1>
+        <p class="report-text"><strong>Fecha actual:</strong> <%= fechaActual %></p>
+        <p class="report-text"><strong>Fecha seleccionada:</strong> <%= fechaSeleccionada %></p>
+        <p class="report-text"><strong>Estado filtrado:</strong> <%= filtroEstado %></p>
     </div>
 
-    <table>
+    <table class="table-report">
         <thead>
             <tr>
                 <th>Hora</th>
-                <th>Espacio</th>
                 <th>Clase</th>
                 <th>Docente</th>
+                <th>Espacio</th>
                 <th>Estado</th>
                 <th>Motivo</th>
             </tr>
         </thead>
         <tbody>
-            <% asistencias.forEach(function(asistencia) { %>
+            <% asistencias.forEach(asistencia => { %>
                 <tr>
                     <td><%= asistencia.hora %></td>
-                    <td><%= asistencia.espacio %></td>
-                    <td><%= asistencia.clase %></td>
+                    <td><%= asistencia.clase.join(', ') %></td>
                     <td><%= asistencia.docente %></td>
+                    <td><%= asistencia.espacio %></td>
                     <td><%= asistencia.estado %></td>
                     <td><%= asistencia.motivo %></td>
                 </tr>
-            <% }); %>
+            <% }) %>
         </tbody>
     </table>
 </body>

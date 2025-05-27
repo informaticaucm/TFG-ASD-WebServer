@@ -153,3 +153,66 @@ a:hover {
 * {
     font-family: 'Quattrocento'; 
 }
+
+/* ----------- PDF - DESCARGA -----------*/
+/* Estilos para la tabla del reporte */
+.table-report {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.table-report th, .table-report td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-report th {
+    background-color: #990033; /* Color de fondo del encabezado */
+    color: #fff; /* Color del texto del encabezado */
+    font-weight: bold;
+}
+
+.table-report tr:nth-child(even) {
+    background-color: #f9f9f9; /* Color de fondo para filas pares */
+}
+
+.table-report tr:hover {
+    background-color: #f1f1f1; /* Color de fondo al pasar el mouse */
+}
+
+/* Encabezado del reporte */
+.report-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #990033;
+}
+
+/* Pie de página del reporte */
+.report-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Título principal del reporte */
+.report-title {
+    font-family: 'QuattrocentoBold';
+    font-size: 24px;
+    text-align: center;
+    color: #990033;
+    margin-bottom: 10px;
+}
+
+/* Texto descriptivo */
+.report-text {
+    font-family: 'Quattrocento';
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
