@@ -21,9 +21,29 @@
                             <li class="breadcrumb-item"><a href="/gestion-cambio-clase">Gestión de cambio de clases</a></li>
                             <li class="breadcrumb-item active">Asignar profesor sustituto</li>
                         </ol>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                
+                        <div class="row justify-content-center" id="feature-div">
+                        <!-- separar de arriba, en xs 11 columnas, en s 10 columnas, etc. -->
+                            <div class="col-11 col-sm-10 col-md-8 col-lg-6">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-3">Formulario</h3></div>
+                                    <div class="card-body">
+                                        <% if (typeof error != 'undefined') { %>
+                                        <p class="text-error"><%= error %></p>
+                                        <% } %>
+                                        <form method="post"> 
+                                           
+                                            <div class="form-floating mb-3">
+                                                <input type="email" class="form-control" name="email" id="email"/>
+                                                <label for="email">Email del profesor suplente</label>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                                <a class="btn btn-primary" href="/gestion-cambio-clase">Atrás</a>
+                                                <button class="btn btn-primary" type="submit">OK</a>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
