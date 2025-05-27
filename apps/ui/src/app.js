@@ -354,6 +354,27 @@ app.get('/profesores-infracciones', [checkSesion, checkClearanceDecanato, middle
   await app_controllers.verProfesoresInfracciones(req, res);
 });
 
+// Modificaciones de 20250527
+app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], (req, res) => {
+  uiLogger.info('Got a GET in gestion-cambio-clase');
+  res.render('gestion-cambio-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+});
+
+app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
+  uiLogger.info('Got a GET in gestion-cambio-clases/intercambio-horario');
+  res.render('intercambio-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+});
+
+app.get('/sustitucion-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
+  uiLogger.info('Got a GET in gestion-cambio-clases/sustitucion-horario');
+  res.render('sustitucion-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+});
+
+app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], (req, res) => {
+  uiLogger.info('Got a GET in gestion-cambio-clases/asignar-profesor-clase');
+  res.render('asignar-profesor-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+});
+// Modificaciones de 20250527
 app.listen(uiConfig.port, () => {
   const port_spec = (uiConfig.port_spec) ? ':' + uiConfig.port : ''
   uiLogger.info(`App listening on port ${uiConfig.port} at ${uiConfig.protocol}://${uiConfig.host}${port_spec}`);

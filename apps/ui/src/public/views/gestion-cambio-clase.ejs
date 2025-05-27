@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Gestión de cambio de clases- ASD</title>
+                <!--Cabecera comun de head-->
+        <%- include('Plantillas/plantilla-head-html.ejs') %>
+        <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
+        
+    </head>
+    <body class="sb-nav-fixed">
+        <!--barra de navegacion -->
+        <%- include('Plantillas/plantilla-nav-var.ejs') %>
+        <div id="layoutSidenav">
+            <!-- Plantilla de sidevar-->
+            <%- include('Plantillas/plantilla-layout-sidevar.ejs')%>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <ol class="breadcrumb mb-4 py-4">
+                            <li class="breadcrumb-item"><a href="/">Página principal</a></li>
+                            <li class="breadcrumb-item active">Gestión de cambio de clases</li>
+                        </ol>
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row">     
+                                    <div class="col-xl-4 col-lg-6 col-auto mb-4 mx-auto my-auto">
+                                        <a class="btn btn-primary btn-menu"  href="/intercambio-horario">
+                                            <div class="row justify-content-center"><i class="py-1 fas fa-repeat link-icon d-none d-md-block"></i></div>
+                                            <div class="justify-content-center"> 
+                                                <p class="btn-text">Cambio de clase organizado</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-6 col-auto mb-4 mx-auto ">
+                                        <a class="btn btn-primary btn-menu"  href="/asignar-profesor-clase">
+                                            <div class="row justify-content-center"><i class="py-1 fas fa-user-plus link-icon d-none d-md-block"></i></div>
+                                            <div class="justify-content-center"> 
+                                                <p class="btn-text">Asignar profesor sustituto</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-6 col-auto mb-4 mx-auto ">
+                                        <a class="btn btn-primary btn-menu"  href="/sustitucion-horario">
+                                            <div class="row justify-content-center"><i class="py-1 fas fa-user-group link-icon d-none d-md-block"></i></div>
+                                            <div class="justify-content-center"> 
+                                                <p class="btn-text">Registro de sustitución inesperada</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="../assets/js/scripts.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
+        <script src="../assets/js/filtro-avisos-bundle.js"></script>
+    </body>
+</html>
