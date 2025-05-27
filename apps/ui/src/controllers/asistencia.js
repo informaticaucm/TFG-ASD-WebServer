@@ -1,4 +1,4 @@
-import { uiLogger } from '@informaticaucm/seguimiento-logger';
+import { apiLogger, uiLogger } from '@informaticaucm/seguimiento-logger';
 import { mailer } from '../config/mail.js';
 import { uiConfig } from '../config/server.js';
 import { sendToApiJSON, getFromApi } from '../seguimientoApi.js';
@@ -311,9 +311,12 @@ export async function confirmarFirma(req, res) {
 }
 
 export async function verAsistencias(req, res) {
-    
-    const fecha_busqueda = req.body.fecha || moment().format('YYYY-MM-DD');
+    // Prioriza req.body.fecha, pero usa req.query.fecha si no está disponible
+    const fecha_busqueda = req.body.fecha || req.query.fecha || moment().format('YYYY-MM-DD');
+    apiLogger.info('Fecha de búsqueda:' + fecha_busqueda);
+
     const asistencia_ids = (await sendToApiJSON({ fecha: fecha_busqueda }, '/seguimiento/asistencias', res, true));
+    apiLogger.info('Asistencias encontradas: ' + asistencia_ids.length);
 
     let asistencias = [];
 
@@ -325,10 +328,10 @@ export async function verAsistencias(req, res) {
         const actividades_doc = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
 
         let actividades_ids = actividades_doc.filter(x => {
-            for(let j = 0; j < actividades_esp.length; j++) {
-              if (x.id == actividades_esp[j].id) {
-                return true;
-              }
+            for (let j = 0; j < actividades_esp.length; j++) {
+                if (x.id == actividades_esp[j].id) {
+                    return true;
+                }
             }
             return false;
         });
@@ -338,24 +341,26 @@ export async function verAsistencias(req, res) {
             const actividad = await getFromApi(`/actividades/${actividad_id.id}`, res, true);
             let clase = [];
 
-            for(let k = 0; k < actividad.clase_ids.length; k++) {
+            for (let k = 0; k < actividad.clase_ids.length; k++) {
                 const clase_info = await getFromApi(`/clases/${actividad.clase_ids[k].id}`, res, true);
                 const grupo_info = await getFromApi(`/grupos/${clase_info.grupo_id}`, res, true);
                 const asignatura_info = await getFromApi(`/asignaturas/${clase_info.asignatura_id}`, res, true);
 
-                clase.push(asignatura_info.nombre + ' ' + grupo_info.curso + 'º' + grupo_info.letra);                
+                clase.push(asignatura_info.nombre + ' ' + grupo_info.curso + 'º' + grupo_info.letra);
             }
 
-            asistencias.push({hora: actividad.tiempo_inicio + " - " + actividad.tiempo_fin, 
-                         clase: clase, 
-                         docente: docente.nombre + ' ' + docente.apellidos,
-                         espacio: espacio.nombre + ' ' + espacio.edificio,
-                         estado: asistencia_info.estado,
-                         motivo: asistencia_info.motivo });
+            asistencias.push({
+                hora: actividad.tiempo_inicio + " - " + actividad.tiempo_fin,
+                clase: clase,
+                docente: docente.nombre + ' ' + docente.apellidos,
+                espacio: espacio.nombre + ' ' + espacio.edificio,
+                estado: asistencia_info.estado,
+                motivo: asistencia_info.motivo
+            });
         }
     }
 
-    let resultado = { 
+    let resultado = {
         asistencias: asistencias,
         fecha: fecha_busqueda,
         fecha_max: moment().format("YYYY-MM-DD")
