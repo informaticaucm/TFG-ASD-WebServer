@@ -374,6 +374,11 @@ app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], (r
   uiLogger.info('Got a GET in gestion-cambio-clases/asignar-profesor-clase');
   res.render('asignar-profesor-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
+
+app.get('/solicitar-cambio', [checkSesion, middleware.keepCookies([])], (req, res) => {
+  uiLogger.info('Got a GET in gestion-cambio-clases/solicitar-cambio');
+  res.render('solicitar-cambio', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+});
 // Modificaciones de 20250527
 app.listen(uiConfig.port, () => {
   const port_spec = (uiConfig.port_spec) ? ':' + uiConfig.port : ''
