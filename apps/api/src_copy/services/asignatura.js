@@ -8,7 +8,6 @@ export async function getAsignaturaById(db, idAsignatura) {
         where: { id: idAsignatura }
     });
 
-
     // Si no encontramos la asignatura, lanzamos un error.
     if (!asignatura) {
         //console.log("ERROR")
