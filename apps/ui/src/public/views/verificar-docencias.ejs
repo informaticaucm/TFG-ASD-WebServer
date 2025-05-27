@@ -38,6 +38,9 @@
                                                 <option value="<%= val %>"><%= val %></option>
                                             <% }); %>
                                         </select>
+                                        <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
+                                            Descargar PDF
+                                        </a>                                               
                                     </div>
                                     <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                     <thead>
@@ -81,5 +84,22 @@
                 var select2 = $('.select').select2();
             });
         </script>
+        <script>
+            $(document).ready(function () {
+                function updatePDFLink() {
+                    const fecha = $('#date-filter').val();
+                    const estado = $('#status-filter').val();
+                    const url = `/ver-docencias/descargar?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
+                    $('#btn-descargar').attr('href', url);
+                }
+        
+                // Actualizar enlace cuando cambia el filtro o la fecha
+                $('#status-filter, #date-filter').on('change', updatePDFLink);
+        
+                // También actualizarlo al cargar por primera vez
+                updatePDFLink();
+            });
+        </script>
+        
     </body>
 </html>

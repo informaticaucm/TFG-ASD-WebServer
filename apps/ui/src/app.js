@@ -138,6 +138,7 @@ app.post('/anular-clase', [checkSesion, middleware.keepCookies([]), middleware.e
 
 app.get('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in verificar-docencias`);
+  uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.body)}`);
   let resultado = await app_controllers.verAsistencias(req, res);
   res.render('verificar-docencias', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos},
     fecha: resultado.fecha, fecha_max: resultado.fecha_max, asistencias: resultado.asistencias, valores_asist: valoresAsistencia
@@ -149,6 +150,22 @@ app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, mid
   let resultado = await app_controllers.verAsistencias(req, res);
   res.setHeader('Content-Type', 'application/json');
   res.status(200).send({asistencias: resultado.asistencias});
+});
+
+app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
+  const { fecha, estado } = req.query;
+  uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.query)}`);
+
+  let resultado = await app_controllers.verAsistencias(req, res);
+  console.log("Resultado de verAsistencias: " + JSON.stringify(resultado));
+  
+  const fechaActual = new Date().toLocaleDateString('es-ES');
+  res.render('ver-docencias-reporte', {
+    fechaActual,
+    fechaSeleccionada: fecha,
+    filtroEstado: estado,
+    asistencias: resultado.asistencias
+  });
 });
 
 app.get('/registrar-firmas', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
