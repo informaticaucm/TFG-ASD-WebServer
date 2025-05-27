@@ -89,7 +89,10 @@
                 function updatePDFLink() {
                     const fecha = $('#date-filter').val();
                     const estado = $('#status-filter').val();
-                    const url = `/ver-docencias/descargar?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
+                    // Genera la URL dinámica para el PDF
+                    const url = `/reporte-docencias/pdf?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
+
+                    // Actualiza el atributo href del botón
                     $('#btn-descargar').attr('href', url);
                 }
         

@@ -16,8 +16,6 @@ import ejs from 'ejs';
 import cron from 'node-cron';
 import puppeteer from 'puppeteer';
 
-import cron from 'node-cron';
-
 const memory_store = MemoryStoreBuilder(session);
 const app = express();
 
