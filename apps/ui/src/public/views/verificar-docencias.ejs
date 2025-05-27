@@ -38,9 +38,9 @@
                                                 <option value="<%= val %>"><%= val %></option>
                                             <% }); %>
                                         </select>
-                                        <a id="btn-descargar" href="#" class="btn btn-primary">
+                                        <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
                                             Descargar PDF
-                                        </a>                                            
+                                        </a>                                               
                                     </div>
                                     <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                     <thead>
@@ -87,21 +87,16 @@
         <script>
             $(document).ready(function () {
                 function updatePDFLink() {
-                    // Obtén los valores de los filtros
                     const fecha = $('#date-filter').val();
                     const estado = $('#status-filter').val();
-
-                    // Genera la URL dinámica para el PDF
-                    const url = `/reporte-docencias/pdf?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
-
-                    // Actualiza el atributo href del botón
+                    const url = `/ver-docencias/descargar?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
                     $('#btn-descargar').attr('href', url);
                 }
-
-                // Actualiza el enlace cuando cambian los filtros
+        
+                // Actualizar enlace cuando cambia el filtro o la fecha
                 $('#status-filter, #date-filter').on('change', updatePDFLink);
-
-                // También actualiza el enlace al cargar la página
+        
+                // También actualizarlo al cargar por primera vez
                 updatePDFLink();
             });
         </script>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Gestión de intercambio de clases- ASD</title>
+                <!--Cabecera comun de head-->
+        <%- include('Plantillas/plantilla-head-html.ejs') %>
+        <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
+        
+    </head>
+    <body class="sb-nav-fixed">
+        <!--barra de navegacion -->
+        <%- include('Plantillas/plantilla-nav-var.ejs') %>
+        <div id="layoutSidenav">
+            <!-- Plantilla de sidevar-->
+            <%- include('Plantillas/plantilla-layout-sidevar.ejs')%>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <ol class="breadcrumb mb-4 py-4">
+                            <li class="breadcrumb-item"><a href="/">Página principal</a></li>
+                            <li class="breadcrumb-item"><a href="/gestion-cambio-clase">Gestión de cambio de clases</a></li>
+                            <li class="breadcrumb-item active">Asignar profesor sustituto</li>
+                        </ol>
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="../assets/js/scripts.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
+        <script src="../assets/js/filtro-avisos-bundle.js"></script>
+    </body>
+</html>

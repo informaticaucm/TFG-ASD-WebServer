@@ -149,7 +149,6 @@ export async function filtrarAsistencias(req, res) {
             espacio_id: req.body.espacio || 1
         };
 
-
         // Llamamos al servicio con los datos "crudos"
         let noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true));
         console.log('Respuesta del servicio:', noJustificadas);
