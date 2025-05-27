@@ -322,6 +322,22 @@ export async function postForm(req, res) {
   res.render('exito', {mensaje: "Asistencia registrada con éxito"});
 }
 
+export async function getAllDepartamentos(req, res) {
+  let query_dep_all = await getFromApi('/departamentos', res, true);
+
+  let departamentos_todos = [];
+  let departamento = null;
+  query_dep_all.forEach((dep) => {
+    if (dep != undefined) {
+      departamento = dep;
+      departamentos_todos.push(departamento);
+    }
+  });
+  
+  // Todos los departamentos
+  req.departamentos = departamentos_todos
+}
+
 /*async function getActividadesPosibles(res, currentHour, actividades_ids) {
   
   let actividades_data = [];

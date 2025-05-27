@@ -87,16 +87,16 @@
             </tr>
         </thead>
         <tbody>
-            <% asistencias.forEach(asistencia => { %>
+            <% asistencias.forEach(function(asistencia) { %>
                 <tr>
                     <td><%= asistencia.hora %></td>
-                    <td><%= asistencia.clase.join(', ') %></td>
-                    <td><%= asistencia.docente %></td>
                     <td><%= asistencia.espacio %></td>
+                    <td><%= asistencia.clase %></td>
+                    <td><%= asistencia.docente %></td>
                     <td><%= asistencia.estado %></td>
                     <td><%= asistencia.motivo %></td>
                 </tr>
-            <% }) %>
+            <% }); %>
         </tbody>
     </table>
 </body>
