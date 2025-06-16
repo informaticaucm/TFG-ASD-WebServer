@@ -7,7 +7,8 @@
         <%- include('Plantillas/plantilla-head-html.ejs') %>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet">
         <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
-        </head>
+    </head>
+
     <body class="sb-nav-fixed">
         <!--barra de navegacion -->
         <%- include('Plantillas/plantilla-nav-var.ejs') %>
@@ -37,10 +38,13 @@
                                             <% valores_asist.forEach(function(val) { %>
                                                 <option value="<%= val %>"><%= val %></option>
                                             <% }); %>
-                                        </select>
+                                        </select>       
                                         <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
                                             Descargar PDF
-                                        </a>                                               
+                                        </a> 
+                                        <a href="/ver-docencias/descargar?fecha=2025-05-27&estado=Asistida" class="btn btn-primary">
+                                            Ver Reporte
+                                        </a>                                    
                                     </div>
                                     <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                     <thead>
@@ -89,10 +93,7 @@
                 function updatePDFLink() {
                     const fecha = $('#date-filter').val();
                     const estado = $('#status-filter').val();
-                    // Genera la URL dinámica para el PDF
-                    const url = `/reporte-docencias/pdf?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
-
-                    // Actualiza el atributo href del botón
+                    const url = `/ver-docencias/descargar?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
                     $('#btn-descargar').attr('href', url);
                 }
         

@@ -320,10 +320,9 @@ export async function verAsistencias(req, res) {
 
     // Construye el objeto de búsqueda dinámicamente
     const filtro = { fecha: fecha_busqueda };
-    if (estado_busqueda) {
+    if (estado_busqueda && estado_busqueda != 'Todas') {
         filtro.estado = estado_busqueda; // Agrega el estado si está presente
     }
-
     const asistencia_ids = (await sendToApiJSON(filtro, '/seguimiento/asistencias', res, true));
     apiLogger.info('Asistencias encontradas: ' + asistencia_ids.length);
 

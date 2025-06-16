@@ -182,9 +182,23 @@ app.post('/anular-clase', [checkSesion, middleware.keepCookies([]), middleware.e
 app.get('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info(`Got a GET in verificar-docencias`);
   uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.body)}`);
+
   let resultado = await app_controllers.verAsistencias(req, res);
-  res.render('verificar-docencias', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos},
-    fecha: resultado.fecha, fecha_max: resultado.fecha_max, asistencias: resultado.asistencias, valores_asist: valoresAsistencia
+
+  // Define un valor predeterminado para filtroEstado
+  const filtroEstado = req.query.estado || "";
+
+  res.render('verificar-docencias', {
+    usuario: {
+      rol: req.session.user.rol,
+      nombre: req.session.user.nombre,
+      apellidos: req.session.user.apellidos
+    },
+    fecha: resultado.fecha,
+    fecha_max: resultado.fecha_max,
+    asistencias: resultado.asistencias,
+    valores_asist: valoresAsistencia,
+    filtroEstado // Incluye filtroEstado en los datos enviados a la vista
   });
 });
 
@@ -195,7 +209,7 @@ app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, mid
   res.status(200).send({asistencias: resultado.asistencias});
 });
 
-app.get('/reporte-docencias/pdf', [checkSesion, checkClearanceAdministracion], async (req, res) => {
+/*app.get('/reporte-docencias/pdf', [checkSesion, checkClearanceAdministracion], async (req, res) => {
   try {
       // Obtén los datos necesarios
       const fecha = req.query.fecha || 'No especificada';
@@ -236,7 +250,7 @@ app.get('/reporte-docencias/pdf', [checkSesion, checkClearanceAdministracion], a
       console.error('Error al generar el PDF:', error);
       res.status(500).send('Error al generar el PDF');
   }
-});
+});*/
 
 app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   const { fecha, estado } = req.query;

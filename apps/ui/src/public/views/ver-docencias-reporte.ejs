@@ -67,7 +67,7 @@
 }
     </style>
 </head>
-<body>
+<body onload="window.print()">
     <div class="report-header">
         <h1 class="report-title">Reporte de Docencias</h1>
         <p class="report-text"><strong>Fecha actual:</strong> <%= fechaActual %></p>
@@ -87,16 +87,16 @@
             </tr>
         </thead>
         <tbody>
-            <% asistencias.forEach(function(asistencia) { %>
+            <% asistencias.forEach(asistencia => { %>
                 <tr>
                     <td><%= asistencia.hora %></td>
-                    <td><%= asistencia.espacio %></td>
-                    <td><%= asistencia.clase %></td>
+                    <td><%= asistencia.clase.join(', ') %></td>
                     <td><%= asistencia.docente %></td>
+                    <td><%= asistencia.espacio %></td>
                     <td><%= asistencia.estado %></td>
                     <td><%= asistencia.motivo %></td>
                 </tr>
-            <% }); %>
+            <% }) %>
         </tbody>
     </table>
 </body>
