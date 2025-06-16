@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
     <head>
-        <title>Gestión de intercambio de clases- ASD</title>
-                <!--Cabecera comun de head-->
+        <title>Gestión de intercambio de clases - ASD</title>
         <%- include('Plantillas/plantilla-head-html.ejs') %>
         <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
-        
     </head>
     <body class="sb-nav-fixed">
-        <!--barra de navegacion -->
         <%- include('Plantillas/plantilla-nav-var.ejs') %>
         <div id="layoutSidenav">
-            <!-- Plantilla de sidevar-->
-            <%- include('Plantillas/plantilla-layout-sidevar.ejs')%>
+            <%- include('Plantillas/plantilla-layout-sidevar.ejs') %>
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
@@ -21,20 +17,114 @@
                             <li class="breadcrumb-item"><a href="/gestion-cambio-clase">Gestión de cambio de clases</a></li>
                             <li class="breadcrumb-item active">Intercambio de clase organizado</li>
                         </ol>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                
-                                
+                        <div class="row justify-content-center" id="feature-div">
+                            <div class="col-11 col-sm-10 col-md-8 col-lg-6">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                    <div class="card-header">
+                                        <h3 class="text-center font-weight-light my-3">Cambio de horario</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <% if (typeof error != 'undefined') { %>
+                                            <p class="text-error"><%= error.error %></p>
+                                        <% } %>
+                                        <form method="post">
+                                            <p>Datos clase a cambiar</p>
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="meeting_time" name="meeting_time" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
+                                                <label for="meeting_time">Fecha</label>
+                                            </div>
+
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" id="clase_filter" name="clase_filter" required>
+                                                    <% clases.forEach(function(clase) { %>
+                                                        <option value="<%= clase.id %> <%= clase.nombre %>" fecha="<%= clase.fecha %>"><%= clase.nombre %></option>
+                                                    <% }); %>
+                                                </select>
+                                                <label for="clase_filter">Asignatura y Grupo</label>
+                                            </div>
+                                            <div id="no-clases-msg" class="text-danger mb-3" style="display: none;">
+                                                No hay asignaturas disponibles para la fecha seleccionada.
+                                            </div>
+
+                                            <p>Motivo</p>
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" id="motivo" type="text" name="motivo" required/>
+                                                <label for="motivo">Motivo</label>
+                                            </div>
+
+                                            <p>Datos clase de sustitución</p>
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="meeting_time_sustitucion" name="meeting_time_sustitucion" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
+                                                <label for="meeting_time_sustitucion">Fecha</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input type="time" class="form-control" id="meeting_time_sustitucion_hora_init" name="meeting_time_sustitucion_hora_init" value="<%= fecha.hora_inicio %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
+                                                <label for="meeting_time_sustitucion_hora_init">Hora de inicio</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input type="time" class="form-control" id="meeting_time_sustitucion_hora_end" name="meeting_time_sustitucion_hora_end" value="<%= fecha.hora_fin %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
+                                                <label for="meeting_time_sustitucion_hora_end">Hora de fin</label>
+                                            </div>
+
+                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                                <a class="btn btn-primary" href="/">Atrás</a>
+                                                <button class="btn btn-primary" type="submit">Solicitar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
         </div>
+
+        <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="../assets/js/scripts.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
         <script src="../assets/js/filtro-avisos-bundle.js"></script>
+
+        <!-- Script de filtrado dinámico por fecha -->
+        <script>
+            const originalOptions = Array.from(document.querySelectorAll('#clase_filter option')).map(option => ({
+                value: option.value,
+                text: option.textContent,
+                fecha: option.getAttribute('fecha')
+            }));
+
+            document.getElementById('meeting_time').addEventListener('change', function () {
+                const selectedDate = this.value;
+                const select = document.getElementById('clase_filter');
+                const msg = document.getElementById('no-clases-msg');
+
+                // Limpiar el select
+                select.innerHTML = '';
+
+                // Filtrar asignaturas por fecha
+                const filtered = originalOptions.filter(opt => opt.fecha === selectedDate);
+
+                if (filtered.length === 0) {
+                    msg.style.display = 'block';
+                    select.disabled = true;
+                } else {
+                    msg.style.display = 'none';
+                    select.disabled = false;
+                    filtered.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.value;
+                        option.textContent = opt.text;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // Ejecutar al cargar la página
+            window.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('meeting_time').dispatchEvent(new Event('change'));
+            });
+        </script>
     </body>
 </html>

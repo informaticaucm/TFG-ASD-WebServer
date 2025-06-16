@@ -405,9 +405,16 @@ app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], (req
   res.render('gestion-cambio-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
-app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
+app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/intercambio-horario');
-  res.render('intercambio-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+  let listadeClases = await app_controllers.getClasesNoUI(req, res);
+  console.log(listadeClases);
+  if (listadeClases.error) {  
+    res.render('error', {error: listadeClases.error});
+    return;
+  }
+  res.render('intercambio-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}, clases: listadeClases.clases,
+     fecha:listadeClases.fecha, max: listadeClases.max});
 });
 
 app.get('/sustitucion-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
