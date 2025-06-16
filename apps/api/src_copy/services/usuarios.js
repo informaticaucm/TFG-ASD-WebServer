@@ -19,10 +19,6 @@ const spices = [
 export async function authenticateUser(req, db) {
     const { email, password } = req.body;
 
-    //console.log('db:', db);
-    //console.log('db.models:', db.models);
-    //console.log('db.sequelize:', db.sequelize);
-
     const query = await db.sequelize.models.Docente.findOne({
         attributes: ['id', 'email', 'password', 'nombre', 'apellidos', 'rol'],
         where: { email }
