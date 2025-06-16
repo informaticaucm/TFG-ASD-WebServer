@@ -4,6 +4,7 @@ import {
     createUser,
     getUsuarios,
     getUsuarioById,
+    getUsuariosByName,
     registerMACToUsuario,
     registerNFCToUsuario
 } from '../services/usuarios.js';
@@ -53,6 +54,18 @@ export function usuariosControllerFactory(db) {
                 const usuario = await getUsuarioById(db, idUsuario);
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).json(usuario);
+            } catch (error) {
+                const err = error instanceof AppError ? error : notExpectedError({ cause: error });
+                next(err);
+            }
+        },
+
+        async getUsuariosByNames(req, res, next) {
+            const nombreUsuario = String(req.params.nombreUsuario);
+            try {
+                const usuarios = await getUsuariosByName(db, nombreUsuario);
+                res.setHeader('Content-Type', 'application/json');
+                res.status(200).json(usuarios);
             } catch (error) {
                 const err = error instanceof AppError ? error : notExpectedError({ cause: error });
                 next(err);

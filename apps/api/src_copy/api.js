@@ -404,6 +404,25 @@ app.post(configApi.path + '/usuarios', authenticateClient, async (req, res, next
 */
 app.get(configApi.path + '/usuarios/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).getUsuarioById(req, res, next));
 
+/* /usuarios/nombre/:nombreUsuario
+
+    tags:
+      - usuarios
+    summary: Devuelve los usuarios cuyos nombres y apellidos se asemejen al filtro
+    description: Devuelve los usuarios cuyos nombres y apellidos se asemejen al filtro
+    operationId: getUsuarioById
+    parameters:
+      - $ref: '#/components/parameters/nombreUsuario'
+    responses:
+      '200':
+        $ref: '#/components/responses/Usuario'
+      '400':
+        description: Id suministrado no válido
+      '404':
+        description: Usuario no encontrado
+*/
+app.get(configApi.path + '/usuarios/nombre/:nombreUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).getUsuariosByNames(req, res, next));
+
 /*   /usuarios/macs/{idUsuario}:
 
       tags:

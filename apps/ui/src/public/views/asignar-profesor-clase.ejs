@@ -4,6 +4,7 @@
         <title>Gestión de intercambio de clases- ASD</title>
                 <!--Cabecera comun de head-->
         <%- include('Plantillas/plantilla-head-html.ejs') %>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet">
         <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
         
     </head>
@@ -31,10 +32,16 @@
                                         <p class="text-error"><%= error %></p>
                                         <% } %>
                                         <form method="post"> 
-                                           
+                                            <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                             <div class="form-floating mb-3">
-                                                <input type="email" class="form-control" name="email" id="email"/>
-                                                <label for="email">Email del profesor suplente</label>
+                                                <input type="text" class="select form-control"  name="inputName" id="inputName" list="listaSuplentes" onkeyup=""/>
+                                                <datalist id="listaSuplentes">
+                                                    <option value="Pen">Pen</option>
+                                                    <option value="Pencil">Pencil</option>
+                                                    <option value="Paper">Paper</option>
+                                                </datalist>
+                                                <label for="inputName">Nombre del profesor suplente</label>
+                                                <ul id="suggestions" style="border:1px solid #ccc; display:none; position:absolute; background:#fff; list-style:none; margin:0; padding:0; width:200px;"></ul>
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <a class="btn btn-primary" href="/gestion-cambio-clase">Atrás</a>
@@ -54,6 +61,7 @@
         <script src="../assets/js/scripts.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
-        <script src="../assets/js/filtro-avisos-bundle.js"></script>
+        <script src="../assets/js/filtro-sustitucion.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     </body>
 </html>

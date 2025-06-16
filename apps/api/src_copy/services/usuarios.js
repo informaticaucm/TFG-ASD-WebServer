@@ -1,6 +1,7 @@
 // services/usuarios.js
 import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import bcrypt from 'bcrypt';
+import {Op, Sequelize} from 'sequelize';
 
 const spices = [
     "inOPPh4IThFNhRF0",
@@ -113,6 +114,25 @@ export async function getUsuarioById(db, idUsuario) {
     }
 
     return usuario.dataValues;
+}
+
+export async function getUsuariosByName(db, nombreUsuario) {
+    const usuario = await db.sequelize.models.Docente.findAll({
+        attributes: ['id', 'nombre', 'apellidos', 'email'],
+        where: Sequelize.where(
+            Sequelize.fn("UPPER", Sequelize.col('nombre'), ' ', Sequelize.col('apellidos')),
+            {like: '%'+nombreUsuario+'%'}
+        )
+    });
+
+    if (!usuario) {
+        let err = {};
+        err.status = 404;
+        err.message = 'Usuarios no encontrado';
+        throw err;
+    }
+
+    return usuario.map((user) => user.dataValues);;
 }
 
 export async function registerMACToUsuario(req, db, idUsuario) {

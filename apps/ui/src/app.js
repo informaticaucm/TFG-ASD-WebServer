@@ -420,6 +420,20 @@ app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], (r
   res.render('asignar-profesor-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
+app.post('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest,
+  middleware.checkRequest(['nfc1'])], async (req, res) => {
+  uiLogger.info(`Got a POST in registro-nfc with ${JSON.stringify(req.body)}`);
+  const filtro = req.body.filtro
+  try {
+    const result = await app_controllers.getDocentesByName(req, res, filtro);
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).send({listado: result});
+  }
+  catch (error) {
+    
+  }
+});
+
 app.get('/solicitar-cambio', [checkSesion, middleware.keepCookies([])], (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/solicitar-cambio');
   res.render('solicitar-cambio', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
