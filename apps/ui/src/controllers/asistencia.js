@@ -26,15 +26,15 @@ export async function getAJustificar(req, res) {
     for(let i = 0; i < noJustificadas.length; i++) {
         let asistencia = noJustificadas[i];
         let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
-        console.log('asistencia_info', asistencia_info);
+        //console.log('asistencia_info', asistencia_info);
 
         if (asistencia_info.docente_id == req.session.user.id) {
             // Sacar actividades de este docente en el espacio
             let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
             let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
 
-            console.log('actividades_ids_docente', actividades_ids_docente);
-            console.log('actividades_ids_espacio', actividades_ids_espacio);
+            //console.log('actividades_ids_docente', actividades_ids_docente);
+            //console.log('actividades_ids_espacio', actividades_ids_espacio);
 
             let actividades_ids = actividades_ids_docente.filter(x => {
                 for(let j = 0; j < actividades_ids_espacio.length; j++) {
@@ -311,11 +311,20 @@ export async function confirmarFirma(req, res) {
 }
 
 export async function verAsistencias(req, res) {
-    // Prioriza req.body.fecha, pero usa req.query.fecha si no está disponible
-    const fecha_busqueda = req.body.fecha || req.query.fecha || moment().format('YYYY-MM-DD');
-    apiLogger.info('Fecha de búsqueda:' + fecha_busqueda);
+    // Prioriza req.body.fecha y req.body.estado, pero usa req.query si no están disponibles
+    console.log('Ver asistencias');
+    console.log(req.body, req.query);
 
-    const asistencia_ids = (await sendToApiJSON({ fecha: fecha_busqueda }, '/seguimiento/asistencias', res, true));
+    const fecha_busqueda = req.body.fecha || req.query.fecha || moment().format('YYYY-MM-DD');
+    const estado_busqueda = req.body.estado || req.query.estado || null; // Estado opcional
+
+    // Construye el objeto de búsqueda dinámicamente
+    const filtro = { fecha: fecha_busqueda };
+    if (estado_busqueda) {
+        filtro.estado = estado_busqueda; // Agrega el estado si está presente
+    }
+
+    const asistencia_ids = (await sendToApiJSON(filtro, '/seguimiento/asistencias', res, true));
     apiLogger.info('Asistencias encontradas: ' + asistencia_ids.length);
 
     let asistencias = [];

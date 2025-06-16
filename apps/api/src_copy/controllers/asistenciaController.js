@@ -21,9 +21,11 @@ export function asistenciasControllerFactory(db) {
 
         async getAsistencias(req, res, next) {
             try {
-                // Usamos req.query en lugar de req.body para filtros
-                console.log('req.query', req.body);
-                const result = await getAsistencias(db, req.body);
+                const filtrado = req.body || req.query || {};
+                console.log('Filtrado recibido:\n');
+                console.log('req.body', req.body);
+                console.log('req.query', req.query);
+                const result = await getAsistencias(db, filtrado);
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
