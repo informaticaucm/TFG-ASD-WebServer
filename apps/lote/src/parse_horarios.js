@@ -1,11 +1,16 @@
-const uiLogger = require('./config/uiLogger.config').child({"process": "horarios_parser"});
+import { logger } from '../../../packages/logger/src/logger.js';
+const uiLogger = logger;
+import csv from 'csv-parser';
+import path from 'path';
+import fs from 'fs';
+import * as db from '../../api/src_copy/models/index.js';
+import moment from 'moment';
+import readline from 'readline';
+import { fileURLToPath } from 'node:url';
+import { resolve, dirname } from 'node:path';
 
-const csv = require('csv-parser');
-const path = require('path');
-const fs = require('fs');
-const db = require('./models');
-const moment = require('moment');
-const readline = require('readline');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const tiempo_periodos = {
     1: {inicio: "2023-09-11 09:00:00", fin: "2023-12-21 21:00:00"},
@@ -59,7 +64,11 @@ async function parseHorarios(filename) {
         parseFusiones('fusiones.txt');
         let clases_fusiones = {};
         let actividades_fusiones = {};
+        console.log(keys[7])
         for (let i = 0; i < results.length; i++) {
+            console.log(i)
+            console.log(results[i])
+            console.log("done")
             
             while (results[i][keys[7]].includes('UPM') || results[i][keys[7]].includes('IMDEA')) { // Recursión externa a la UCM
                 i++;
@@ -567,17 +576,13 @@ async function parseHorarios(filename) {
 }
 
 
-async function generarHorarios(archivo_fusiones, archivo_horario) {
+export async function generarHorarios(archivo_fusiones, archivo_horario) {
     await parseFusiones(archivo_fusiones);
     await parseHorarios(archivo_horario);
 }
 
-module.exports = {
-    generarHorarios
-}
-
 // Por línea de comandos (solo cuando este archivo se ejecute directamente, no como import)
 // El primer parámetro es la ruta al archivo de fusiones, y el segundo la ruta al archivo del horario
-if (require.main === module) {
+//if (require.main === module) {
     generarHorarios(process.argv[2], process.argv[3]);
-}
+//}
