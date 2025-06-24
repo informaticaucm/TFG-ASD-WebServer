@@ -209,49 +209,6 @@ app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, mid
   res.status(200).send({asistencias: resultado.asistencias});
 });
 
-/*app.get('/reporte-docencias/pdf', [checkSesion, checkClearanceAdministracion], async (req, res) => {
-  try {
-      // Obtén los datos necesarios
-      const fecha = req.query.fecha || 'No especificada';
-      const estado = req.query.estado || 'Todos';
-      const resultado = await app_controllers.verAsistencias(req, res);
-
-      // Captura el HTML generado por res.render
-      const htmlContent = await new Promise((resolve, reject) => {
-          res.render('ver-docencias-reporte', {
-              fechaActual: new Date().toLocaleDateString('es-ES'),
-              fechaSeleccionada: fecha,
-              filtroEstado: estado,
-              asistencias: resultado.asistencias
-          }, (err, html) => {
-              if (err) reject(err);
-              else resolve(html);
-          });
-      });
-
-      // Genera el PDF con Puppeteer
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true
-    });
-
-      await browser.close();
-
-      // Envía el PDF como respuesta
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="reporte-docencias.pdf"');
-      res.end(pdfBuffer); // ✅ esto es lo correcto para enviar un buffer binario
-
-  } catch (error) {
-      console.error('Error al generar el PDF:', error);
-      res.status(500).send('Error al generar el PDF');
-  }
-});*/
-
 app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
   const { fecha, estado } = req.query;
   uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.query)}`);
@@ -266,6 +223,32 @@ app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, 
     filtroEstado: estado,
     asistencias: resultado.asistencias
   });
+});
+
+app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
+    uiLogger.info(`Got a GET in estadisticas-docencias`);
+
+    const intervalo = req.query.intervalo || 'cuatrimestral';
+    const fechaBusqueda = req.query.fecha || moment().format('YYYY-MM-DD'); // Fecha proporcionada o actual
+
+    try {
+        const { fechaInicio, fechaFin, estadisticas } = await app_controllers.obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, res);
+        console.log(`Estadísticas obtenidas en app.js de UI: ${JSON.stringify(estadisticas)}`);
+        res.render('estadisticas-docencias', {
+            fechaBusqueda, // Fecha de búsqueda proporcionada
+            fechaInicio,
+            fechaFin,
+            datosAsistencias: estadisticas, // Aquí se pasan las estadísticas
+            usuario: {
+                rol: req.session.user.rol,
+                nombre: req.session.user.nombre,
+                apellidos: req.session.user.apellidos
+            }
+        });
+    } catch (error) {
+        console.error('Error en la ruta /estadisticas-docencias:', error);
+        res.render('error', { error: 'Ocurrió un error al obtener las estadísticas de asistencias.' });
+    }
 });
 
 app.get('/registrar-firmas', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {

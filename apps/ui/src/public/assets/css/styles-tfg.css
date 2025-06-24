@@ -216,3 +216,11 @@ a:hover {
     color: #333;
     margin-bottom: 20px;
 }
+
+/* Estilos para los gráficos */
+#asistenciasChart, #faltasPorClaseChart {
+    width: 500px; /* Ancho del gráfico */
+    height: 300px; /* Alto del gráfico */
+    margin: 0 auto; /* Centrar los gráficos */
+    display: block; /* Asegurar que se comporten como bloques */
+}

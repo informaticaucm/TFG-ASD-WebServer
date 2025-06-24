@@ -73,6 +73,51 @@ export function asistenciasControllerFactory(db) {
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
             }
+        },
+
+        async getEstadisticasAsistencias(req, res, next) {
+            try {
+                // Obtén el rango de fechas desde los parámetros de la solicitud
+                const { fechaInicio, fechaFin } = req.query;
+
+                if (!fechaInicio || !fechaFin) {
+                    return next(validationError('Faltan parámetros requeridos: fechaInicio, fechaFin'));
+                }
+
+                // Llama al servicio para obtener las asistencias en el rango de fechas
+                const asistencias = await getAsistencias(db, { fechaInicio, fechaFin });
+
+                // Procesa las asistencias para calcular estadísticas
+                const estadisticas = {
+                    total: asistencias.length,
+                    asistidas: 0,
+                    noAsistidas: 0,
+                    irregularidades: 0,
+                    faltasPorClase: {}
+                };
+
+                asistencias.forEach(asistencia => {
+                    if (asistencia.estado === 'Asistida') {
+                        estadisticas.asistidas++;
+                    } else if (asistencia.estado === 'No asistida') {
+                        estadisticas.noAsistidas++;
+                    } else {
+                        estadisticas.irregularidades++;
+                    }
+
+                    // Contabiliza las faltas por clase
+                    const clase = asistencia.clase || 'Desconocida';
+                    if (!estadisticas.faltasPorClase[clase]) {
+                        estadisticas.faltasPorClase[clase] = 0;
+                    }
+                    estadisticas.faltasPorClase[clase]++;
+                });
+
+                // Devuelve las estadísticas como respuesta
+                res.status(200).json(estadisticas);
+            } catch (error) {
+                next(error instanceof AppError ? error : notExpectedError({ cause: error }));
+            }
         }
     };
 }

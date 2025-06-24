@@ -591,3 +591,37 @@ export async function verProfesoresInfracciones(req, res) {
 
     res.render('profesores-infracciones', resultado);
 }
+
+export async function obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, res) {
+    try {
+        const fechaActual = moment(fechaBusqueda, 'YYYY-MM-DD'); // Usamos la fecha proporcionada
+
+        let fechaInicio, fechaFin;
+
+        if (intervalo === 'mensual') {
+            // Si es mensual, ajusta el intervalo al mes de la fecha proporcionada
+            fechaInicio = fechaActual.startOf('month').format('YYYY-MM-DD');
+            fechaFin = fechaActual.endOf('month').format('YYYY-MM-DD');
+        } else if (intervalo === 'cuatrimestral') {
+            // Si es cuatrimestral, ajusta el intervalo al cuatrimestre correspondiente
+            const mesActual = fechaActual.month(); // Mes actual (0-11)
+            if (mesActual >= 8 && mesActual <= 11) {
+                // Primer cuatrimestre: septiembre-diciembre
+                fechaInicio = fechaActual.month(8).startOf('month').format('YYYY-MM-DD'); // Septiembre
+                fechaFin = fechaActual.month(11).endOf('month').format('YYYY-MM-DD'); // Diciembre
+            } else {
+                // Segundo cuatrimestre: enero-mayo
+                fechaInicio = fechaActual.startOf('year').format('YYYY-MM-DD'); // Enero
+                fechaFin = fechaActual.month(4).endOf('month').format('YYYY-MM-DD'); // Mayo
+            }
+        }
+
+        // Llama al controlador de la API para obtener las estadísticas usando GET
+        const estadisticas = await getFromApi(`/asistencias/estadisticas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, res, true);
+        console.log('Estadísticas obtenidas:', estadisticas);
+        return { fechaInicio, fechaFin, estadisticas };
+    } catch (error) {
+        console.error('Error al obtener estadísticas de asistencias:', error);
+        throw new Error('Ocurrió un error al obtener las estadísticas de asistencias.');
+    }
+}

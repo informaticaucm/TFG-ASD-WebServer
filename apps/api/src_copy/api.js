@@ -334,6 +334,61 @@ tags:
 */
 app.post(configApi.path + '/pla', authenticateClient, async (req, res, next) => await api_controllers.asistenciasControllerFactory(db).registroPLA(req, res, next, db));
 
+/* /asistencias/estadisticas
+    tags:
+        - asistencias
+    summary: Devuelve estadísticas de asistencias en un rango de fechas
+    description: Devuelve estadísticas como el total de asistencias, asistidas, no asistidas, irregularidades y faltas por clase en un rango de fechas.
+    operationId: getEstadisticasAsistencias
+    parameters:
+        - in: query
+          name: fechaInicio
+          schema:
+              type: string
+              format: date
+          required: true
+          description: Fecha de inicio del rango (YYYY-MM-DD)
+        - in: query
+          name: fechaFin
+          schema:
+              type: string
+              format: date
+          required: true
+          description: Fecha de fin del rango (YYYY-MM-DD)
+    responses:
+        '200':
+            description: Estadísticas de asistencias
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            total:
+                                type: integer
+                                description: Total de asistencias
+                            asistidas:
+                                type: integer
+                                description: Total de asistencias marcadas como asistidas
+                            noAsistidas:
+                                type: integer
+                                description: Total de asistencias marcadas como no asistidas
+                            irregularidades:
+                                type: integer
+                                description: Total de asistencias marcadas como irregularidades
+                            faltasPorClase:
+                                type: object
+                                additionalProperties:
+                                    type: integer
+                                description: Faltas agrupadas por clase
+        '400':
+            description: Parámetros no válidos
+        '404':
+            description: No se encontraron asistencias en el rango de fechas
+*/
+app.get(configApi.path + '/asistencias/estadisticas', authenticateClient, async (req, res, next) => {
+    await api_controllers.asistenciasControllerFactory(db).getEstadisticasAsistencias(req, res, next);
+});
+
 /* /login
 
     tags:

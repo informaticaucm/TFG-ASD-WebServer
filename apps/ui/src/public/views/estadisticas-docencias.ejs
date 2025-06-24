@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas de Docencias</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/assets/css/styles-tfg.css">
+</head>
+<body>
+    <h1>Estadísticas de Docencias</h1>
+    <p>Periodo: <%= fechaInicio %> a <%= fechaFin %></p>
+
+    <h2>Porcentaje de Asistencias</h2>
+    <canvas id="asistenciasChart"></canvas>
+
+    <h2>Faltas por Clase</h2>
+    <canvas id="faltasPorClaseChart"></canvas>
+
+    <script>
+        console.log('Datos de asistencias:', <%- JSON.stringify(datosAsistencias) %>);
+    </script>
+
+    <script>
+        // Datos para el gráfico de asistencias
+        const asistenciasData = {
+            labels: ['Asistidas', 'No Asistidas', 'Irregularidades'],
+            datasets: [{
+                data: [<%- datosAsistencias.asistidas %>, <%- datosAsistencias.noAsistidas %>, <%- datosAsistencias.irregularidades %>],
+                backgroundColor: ['#4CAF50', '#F44336', '#FFC107']
+            }]
+        };
+
+        const asistenciasConfig = {
+            type: 'pie',
+            data: asistenciasData
+        };
+
+        new Chart(document.getElementById('asistenciasChart'), asistenciasConfig);
+
+        // Datos para el gráfico de faltas por clase
+        const faltasPorClaseData = {
+            labels: <%- JSON.stringify(Object.keys(datosAsistencias.faltasPorClase)) %>,
+            datasets: [{
+                data: <%- JSON.stringify(Object.values(datosAsistencias.faltasPorClase)) %>,
+                backgroundColor: '#2196F3'
+            }]
+        };
+
+        const faltasPorClaseConfig = {
+            type: 'bar',
+            data: faltasPorClaseData
+        };
+
+        new Chart(document.getElementById('faltasPorClaseChart'), faltasPorClaseConfig);
+    </script>
+</body>
+</html>

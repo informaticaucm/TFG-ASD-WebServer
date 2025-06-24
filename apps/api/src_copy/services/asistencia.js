@@ -35,16 +35,17 @@ export async function registroAsistencia(db, asistenciaData) {
  */
 export async function getAsistencias(db, filter) {
     try {
-        // Construimos el rango de fechas si se proporciona una fecha
-        if (filter.fecha) {
-            let fech = filter.fecha
-            const startOfDay = `${fech} 00:00:00`;
-            //comprobamos si se recive una fecha maxima 
-            if (filter.fecha_max != undefined){
-                fech = filter.fecha_max;
-                delete filter.fecha_max;
-            }
-            const endOfDay = `${fech} 23:59:59`;
+        // Construimos el rango de fechas si se proporcionan fechaInicio y fechaFin
+        if (filter.fechaInicio && filter.fechaFin) {
+            filter.fecha = {
+                [Op.between]: [`${filter.fechaInicio} 00:00:00`, `${filter.fechaFin} 23:59:59`]
+            };
+            delete filter.fechaInicio;
+            delete filter.fechaFin;
+        } else if (filter.fecha) {
+            // Si solo se proporciona una fecha específica, usamos el rango del día
+            const startOfDay = `${filter.fecha} 00:00:00`;
+            const endOfDay = `${filter.fecha} 23:59:59`;
 
             filter.fecha = {
                 [Op.between]: [startOfDay, endOfDay]

@@ -42,9 +42,15 @@
                                         <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
                                             Descargar PDF
                                         </a> 
-                                        <a href="/ver-docencias/descargar?fecha=2025-05-27&estado=Asistida" class="btn btn-primary">
-                                            Ver Reporte
-                                        </a>                                    
+                                        <div class="dropdown">
+                                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Generar Informe
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <li><a class="dropdown-item" id="mensual-link" href="#">Mensual</a></li>
+                                                <li><a class="dropdown-item" id="cuatrimestral-link" href="#">Cuatrimestral</a></li>
+                                            </ul>
+                                        </div>                                 
                                     </div>
                                     <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                     <thead>
@@ -88,6 +94,27 @@
                 var select2 = $('.select').select2();
             });
         </script>
+
+        <script>
+            $(document).ready(function () {
+                function updateDropdownLinks() {
+                    const fecha = $('#date-filter').val(); // Obtén la fecha seleccionada
+                    const mensualUrl = `/estadisticas-docencias?intervalo=mensual&fecha=${encodeURIComponent(fecha)}`;
+                    const cuatrimestralUrl = `/estadisticas-docencias?intervalo=cuatrimestral&fecha=${encodeURIComponent(fecha)}`;
+
+                    // Actualiza los enlaces del menú desplegable
+                    $('#mensual-link').attr('href', mensualUrl);
+                    $('#cuatrimestral-link').attr('href', cuatrimestralUrl);
+                }
+
+                // Actualizar los enlaces cuando cambia la fecha
+                $('#date-filter').on('change', updateDropdownLinks);
+
+                // También actualizar los enlaces al cargar la página
+                updateDropdownLinks();
+            });
+        </script>
+
         <script>
             $(document).ready(function () {
                 function updatePDFLink() {
