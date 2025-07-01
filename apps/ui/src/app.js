@@ -414,6 +414,18 @@ app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async 
      fecha:listadeClases.fecha, max: listadeClases.max});
 });
 
+app.post('/intercambio-horario', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest], async (req, res) => {
+  uiLogger.info(`Got a POST in intercambio-horario with ${JSON.stringify(req.body)}`);
+  try { 
+    console.log(req.body);
+    const result = await app_controllers.reprogramarClase(req, res);
+  }
+  catch (error) {
+    uiLogger.error(`Error in intercambio-horario: ${error.message}`);
+    res.status(500).send({error: error.message});
+  }
+});
+
 app.get('/sustitucion-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/sustitucion-horario');
   res.render('sustitucion-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});

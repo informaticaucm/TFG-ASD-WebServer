@@ -12,9 +12,9 @@ export async function createExcepcion(req, db) {
         throw validationError('Id suministrado no válido');
     }
     if (esta_cancelado == null && esta_reprogramado == null) {
-        throw validationError('Datos no válidos');
+        throw validationError('Datos no válidos - debe especificar si está cancelado o reprogramado');
     }
-
+ 
     const transaction = await db.sequelize.transaction();
     try {
         apiLogger.info('Fetching actividad details for excepcion creation');
@@ -120,7 +120,7 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
                 esta_reprogramado: 'No'
             });
         } else {
-            throw validationError('Datos no válidos');
+            throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleCancelExcepcion');
         }
     }
 }
@@ -147,8 +147,8 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
             { where: { id: match.id } }
         );
     } else {
-        const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
-        if (validActividad) {
+        //const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
+        //if (validActividad) {
             await db.sequelize.models.Excepcion.create({
                 fecha_inicio_act: `${fecha_inicio_act}Z`,
                 fecha_fin_act: `${fecha_fin_act}Z`,
@@ -158,9 +158,9 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí'
             });
-        } else {
-            throw validationError('Datos no válidos');
-        }
+        //} else {
+        //    throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleRescheduleExcepcion');
+        //}
     }
 }
 
@@ -177,7 +177,7 @@ export async function verifyActividad(db, fecha_inicio_act, actividad, actividad
                 where: { id: actividadId }
             }
         });
-
+        
         return recurrencias.some((recurrencia) =>
             recurrence_tool.isInRecurrencia(actividad, recurrencia, moment(fecha_inicio_act + 'Z').utc().format('YYYY-MM-DD[T]HH:mm'))
         );

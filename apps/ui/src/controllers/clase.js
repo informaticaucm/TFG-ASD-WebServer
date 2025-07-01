@@ -275,79 +275,116 @@ export async function getClasesNoUI(req, res) {
     max: max_fecha.utcOffset(req.session.user.offset).format('YYYY-MM-DD')}};
 }
 
-export async function reprogramarClase(req, res) {
 
-  const { actividadId, nueva_fecha, nueva_hora_inicio, nueva_hora_fin } = req.body;
+function parseUTC(date, time) {
+  return moment(`${date}T${time}:00Z`, moment.ISO_8601, true);
+}
+
+export async function reprogramarClase(req, res) {
+  const {
+    actividadId,
+    motivo,
+    nueva_fecha,
+    nueva_hora_inicio,
+    nueva_hora_fin
+  } = req.body;
 
   const usuarioId = req.session.user.id;
-
   const ahora = moment().utc();
-  const nuevaInicio = moment(`${nueva_fecha} ${nueva_hora_inicio}`, "YYYY-MM-DD HH:mm").utc();
-  const nuevaFin = moment(`${nueva_fecha} ${nueva_hora_fin}`, "YYYY-MM-DD HH:mm").utc();
 
-  if (!nuevaInicio.isAfter(ahora)) {
-    return res.status(400).send("La nueva fecha y hora debe ser posterior a la actual");
+  // Parseo estricto de nueva fecha/hora en UTC
+  const nuevaInicio = parseUTC(nueva_fecha, nueva_hora_inicio);
+  const nuevaFin    = parseUTC(nueva_fecha, nueva_hora_fin);
+
+  // Validaciones de formato y orden
+  if (!nuevaInicio.isValid() || !nuevaFin.isValid()) {
+    return res.status(400).send("Formato de fecha/hora inválido");
   }
 
-  // Obtenemos la actividad original
-  const actividad = await getFromApi(`/actividades/${actividadId}`, res, true);
+  if (!nuevaInicio.isAfter(ahora)) {
+    return res.status(400).send("La nueva fecha debe ser posterior a la actual");
+  }
 
+  if (!nuevaFin.isAfter(nuevaInicio)) {
+    return res.status(400).send("La hora de fin debe ser posterior al inicio");
+  }
+
+  const actividad = await getFromApi(
+    `/actividades/${actividadId}`,
+    res,
+    true
+  );
   if (!actividad) {
     return res.status(404).send("Actividad no encontrada");
   }
-
-  // Verificamos que la actividad no esté cancelada
-  if (actividad.es_cancelada === 'Sí') {
+  if (actividad.es_cancelada === "Sí") {
     return res.status(400).send("La actividad ya está cancelada");
   }
-  // Verificamos que la nueva fecha no esté en el pasado
-  if (nuevaInicio.isBefore(ahora)) {
-    return res.status(400).send("La nueva fecha no puede estar en el pasado");
-  }
 
-  // Verificamos que la nueva fecha no esté en el mismo horario de otra actividad del usuario
-  const actividadesUsuario = await getFromApi(`/actividades/usuarios/${usuarioId}`, res, true);
+
+  const actividadesUsuario = await getFromApi(
+    `/actividades/usuarios/${usuarioId}`,
+    res,
+    true
+  );
+
   for (const act of actividadesUsuario.actividades) {
-    if (act.id !== actividadId && 
-        moment(act.fecha_inicio + 'Z').utc().isBetween(nuevaInicio, nuevaFin, null, '[]')) {
-      return res.status(400).send("La nueva fecha coincide con otra actividad del usuario");
+    if (act.id === actividadId) continue;
+
+    const actInicio = moment(act.fecha_inicio, moment.ISO_8601, true);
+    const actFin    = moment(act.fecha_fin,    moment.ISO_8601, true);
+
+    
+    const overlap =
+    // nuevo inicio dentro de la actividad existente
+    nuevaInicio.isBetween(actInicio, actFin, null, "[)") ||
+    // nuevo fin dentro de la actividad existente
+    nuevaFin.isBetween(actInicio, actFin, null, "(]") ||
+    // abarca totalmente la actividad existente
+    (nuevaInicio.isSameOrBefore(actInicio) && nuevaFin.isSameOrAfter(actFin));
+    
+    if (overlap) {
+      return res.status(400).send("La nueva fecha coincide con otra actividad");
     }
   }
+  
+
+  const dataExcepcion = {
+    esta_reprogramado: "Sí",
+    esta_cancelado:    "No",
+    fecha_inicio_act:  actividad.fecha_inicio,
+    fecha_fin_act:     actividad.fecha_fin,
+    fecha_inicio_ex:   nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00"),
+    fecha_fin_ex:      nuevaFin.utc().format("YYYY-MM-DD HH:mm:00"),
+    es_todo_el_dia:    actividad.es_todo_el_dia,
+    creado_por:        usuarioId,
+    actividad_id:      actividad.id,
+    creado_en:         ahora.format("YYYY-MM-DD HH:mm:00"),
+    actualizado_en:    ahora.format("YYYY-MM-DD HH:mm:00")
+  };
+  await sendToApiJSON(dataExcepcion, "/excepciones", res, true);
+
+  const dataActividad = {
+    es_cancelada: "Sí",
+    fecha_inicio: nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00"),
+    fecha_fin:    nuevaFin.utc().format("YYYY-MM-DD HH:mm:00")
+  };
 
 
-  // Creamos la excepción de reprogramación
-  const data_excepcion = {
-    actividad_id: actividad.id,
-    esta_cancelado: 'No',
-    esta_reprogramado: 'Sí',
-    fecha_inicio_ex: nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00"),
-    fecha_fin_ex: nuevaFin.utc().format("YYYY-MM-DD HH:mm:00"),
-    es_todo_el_día: actividad.es_todo_el_dia,
-    creado_por: usuarioId
-  };
-  // Enviamos la excepción a la API
-  await sendToApiJSON(data_excepcion, '/excepciones', res, true);
-  // Actualizamos la actividad original para que esté cancelada
-  const data_actividad = {
-    es_cancelada: 'Sí',
-    fecha_fin: nuevaFin.utc().format("YYYY-MM-DD HH:mm:00"),
-    fecha_inicio: nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00")
-  };
-  await sendToApiJSON(data_actividad, `/actividades/${actividadId}`, res, true);
-  // Añadimos el registro de seguimiento de la reprogramación
-  const data_asist = {
-    tipo_registro: 'RegistroSeguimientoFormulario',
-    usuarioId: usuarioId,
+  const dataSeguimiento = {
+    tipo_registro: "RegistroSeguimientoFormulario",
+    usuarioId,
     espacioId: actividad.espacio_id,
-    motivo: req.body.motivo,
-    fecha: nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00[Z]"),
-    estado: 'Reprogramada'
+    motivo,
+    fecha:   nuevaInicio.utc().format("YYYY-MM-DD HH:mm:00"),
+    estado:  "Reprogramada"
   };
-  await sendToApiJSON(data_asist, '/seguimiento', res, true);
-  // Enviamos la respuesta de éxito
-  res.render('exito', { mensaje: 'Clase reprogramada con éxito' });
+  //await sendToApiJSON(dataSeguimiento, "/seguimiento", res, true);
 
+ 
+  res.render("exito", { mensaje: "Clase reprogramada con éxito" });
 }
+
 
 function strMax(str1, str2) {
   if (str1 >= str2) return str1;
