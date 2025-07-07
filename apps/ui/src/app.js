@@ -15,6 +15,7 @@ import ejs from 'ejs';
 
 import cron from 'node-cron';
 import puppeteer from 'puppeteer';
+//import { obtenerExcepcionesPorIntervalo } from './controllers/excepciones.js'; // Asegúrate de tener esta importación
 
 const memory_store = MemoryStoreBuilder(session);
 const app = express();
@@ -229,16 +230,20 @@ app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, m
     uiLogger.info(`Got a GET in estadisticas-docencias`);
 
     const intervalo = req.query.intervalo || 'cuatrimestral';
-    const fechaBusqueda = req.query.fecha || moment().format('YYYY-MM-DD'); // Fecha proporcionada o actual
+    const fechaBusqueda = req.query.fecha || moment().format('YYYY-MM-DD');
 
     try {
         const { fechaInicio, fechaFin, estadisticas } = await app_controllers.obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, res);
-        console.log(`Estadísticas obtenidas en app.js de UI: ${JSON.stringify(estadisticas)}`);
+
+        // Nuevo: obtener resumen de excepciones ya procesado
+        const resumenExcepciones = await app_controllers.obtenerResumenExcepciones(fechaInicio, fechaFin, res);
+        console.log('Resumen de excepciones:', resumenExcepciones);
         res.render('estadisticas-docencias', {
-            fechaBusqueda, // Fecha de búsqueda proporcionada
+            fechaBusqueda,
             fechaInicio,
             fechaFin,
-            datosAsistencias: estadisticas, // Aquí se pasan las estadísticas
+            datosAsistencias: estadisticas,
+            ...resumenExcepciones,
             usuario: {
                 rol: req.session.user.rol,
                 nombre: req.session.user.nombre,
@@ -487,3 +492,27 @@ function checkClearanceAdministracion(req, res, next) {
     return false;
   }
 }
+
+/*app.get('/estadisticas-excepciones', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
+    uiLogger.info(`Got a GET in estadisticas-excepciones`);
+
+    const fechaInicio = req.query.fechaInicio || moment().startOf('month').format('YYYY-MM-DD');
+    const fechaFin = req.query.fechaFin || moment().endOf('month').format('YYYY-MM-DD');
+
+    try {
+        const { excepciones } = await obtenerExcepcionesPorIntervalo(fechaInicio, fechaFin, res);
+        res.render('estadisticas-excepciones', {
+            fechaInicio,
+            fechaFin,
+            excepciones,
+            usuario: {
+                rol: req.session.user.rol,
+                nombre: req.session.user.nombre,
+                apellidos: req.session.user.apellidos
+            }
+        });
+    } catch (error) {
+        console.error('Error en la ruta /estadisticas-excepciones:', error);
+        res.render('error', { error: 'Ocurrió un error al obtener las excepciones.' });
+    }
+});*/

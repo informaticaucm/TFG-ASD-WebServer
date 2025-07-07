@@ -16,6 +16,17 @@
     <h2>Faltas por Clase</h2>
     <canvas id="faltasPorClaseChart"></canvas>
 
+    <div style="display: flex; gap: 40px; justify-content: center; align-items: flex-start;">
+        <div>
+            <h2>Excepciones en el periodo</h2>
+            <canvas id="excepcionesTipoChart" width="300" height="300"></canvas>
+        </div>
+        <div>
+            <h2>Top 5 asignaturas con más excepciones</h2>
+            <canvas id="topActividadesChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
     <script>
         console.log('Datos de asistencias:', <%- JSON.stringify(datosAsistencias) %>);
     </script>
@@ -52,6 +63,35 @@
         };
 
         new Chart(document.getElementById('faltasPorClaseChart'), faltasPorClaseConfig);
+
+        // Gráfico de donut: Canceladas vs Reprogramadas
+        const datosExcepciones = <%- JSON.stringify(datosExcepciones) %>;
+        const excepcionesTipoData = {
+            labels: Object.keys(datosExcepciones),
+            datasets: [{
+                data: Object.values(datosExcepciones),
+                backgroundColor: ['#F44336', '#FFC107']
+            }]
+        };
+        new Chart(document.getElementById('excepcionesTipoChart'), {
+            type: 'doughnut',
+            data: excepcionesTipoData
+        });
+
+        // Gráfico de barras: Top asignaturas con más excepciones
+        const topActividadesLabels = <%- JSON.stringify(topActividadesLabels) %>;
+        const topActividadesData = <%- JSON.stringify(topActividadesData) %>;
+        new Chart(document.getElementById('topActividadesChart'), {
+            type: 'bar',
+            data: {
+                labels: topActividadesLabels,
+                datasets: [{
+                    label: 'Nº de excepciones',
+                    data: topActividadesData,
+                    backgroundColor: '#3f51b5'
+                }]
+            }
+        });
     </script>
 </body>
 </html>

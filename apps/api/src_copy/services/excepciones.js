@@ -3,6 +3,7 @@ import { apiLogger } from '../../../../packages/logger/src/logger.js';
 import moment from 'moment';
 import * as recurrence_tool from '@informaticaucm/seguimiento-events';
 import { notFoundError, validationError } from '../errors/errors.js';
+import { Op } from 'sequelize';
 
 export async function createExcepcion(req, db) {
     const { actividad_id, esta_cancelado, esta_reprogramado, fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex } = req.body;
@@ -93,6 +94,34 @@ export async function getExcepcionesOfActividad(req, db) {
     });
 
     return { excepciones: excepciones.map((exc) => ({ id: exc.id })) };
+}
+
+export async function getExcepcionesByIntervalo(req, db) {
+    const { fechaInicio, fechaFin } = req.query;
+
+    if (!fechaInicio || !fechaFin) {
+        throw validationError('Faltan parámetros requeridos: fechaInicio, fechaFin');
+    }
+    console.log("Estamos en EXCEPCIONES DE API/SRC_COPY/SERVICES/EXCEPCIONES.JS");
+    const excepciones = await db.sequelize.models.Excepcion.findAll({
+        where: {
+            fecha_inicio_act: {
+                [Op.between]: [fechaInicio, fechaFin]
+            }
+        },
+        attributes: [
+            'id',
+            'actividad_id',
+            'esta_cancelado',
+            'esta_reprogramado',
+            'fecha_inicio_act',
+            'fecha_fin_act',
+            'fecha_inicio_ex',
+            'fecha_fin_ex'
+        ]
+    });
+
+    return { excepciones };
 }
 
 // Lógica para manejar excepciones canceladas

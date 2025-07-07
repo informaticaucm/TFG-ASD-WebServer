@@ -637,6 +637,47 @@ app.post(configApi.path + '/excepciones', authenticateClient, async (req, res, n
         '404':
           description: Excepción no encontrada
 */
+/* /excepciones/intervalo
+    tags:
+        - excepciones
+    summary: Devuelve todas las excepciones en un rango de fechas
+    description: Devuelve todas las excepciones entre fechaInicio y fechaFin
+    operationId: getExcepcionesByIntervalo
+    parameters:
+        - in: query
+          name: fechaInicio
+          schema:
+              type: string
+              format: date
+          required: true
+          description: Fecha de inicio del rango (YYYY-MM-DD)
+        - in: query
+          name: fechaFin
+          schema:
+              type: string
+              format: date
+          required: true
+          description: Fecha de fin del rango (YYYY-MM-DD)
+    responses:
+        '200':
+            description: Lista de excepciones en el intervalo
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            excepciones:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Excepcion'
+        '400':
+            description: Parámetros no válidos
+*/
+app.get(configApi.path + '/excepciones/intervalo', authenticateClient, async (req, res, next) => {
+        await api_controllers.excepcionesControllerFactory(db).getExcepcionesByIntervalo(req, res, next);
+    }
+);
+
 app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionById(req, res, next));
 
 /* /excepciones/actividades/{idActividad}:

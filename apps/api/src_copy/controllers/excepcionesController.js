@@ -2,7 +2,8 @@
 import {
     createExcepcion,
     getExcepcionById,
-    getExcepcionesOfActividad
+    getExcepcionesOfActividad,
+    getExcepcionesByIntervalo
 } from '../services/excepciones.js';
 import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
@@ -38,6 +39,16 @@ export function excepcionesControllerFactory(db) {
             } catch (error) {
                 const err = error instanceof AppError ? error : notExpectedError({ cause: error });
                 next(err);
+            }
+        },
+
+        async getExcepcionesByIntervalo(req, res, next) {
+            console.log('CONTROLADOR: getExcepcionesByIntervalo');
+            try {
+                const resultado = await getExcepcionesByIntervalo(req, db);
+                res.status(200).json(resultado);
+            } catch (error) {
+                next(error);
             }
         }
     };
