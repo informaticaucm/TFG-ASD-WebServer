@@ -1,16 +1,24 @@
 import { logger } from '../../../packages/logger/src/logger.js';
 const uiLogger = logger;
+import dotenv from 'dotenv';
+dotenv.config();
 import csv from 'csv-parser';
 import path from 'path';
 import fs from 'fs';
-import * as db from '../../api/src_copy/models/index.js';
+import { getConnection, connect } from '../../api/src_copy/config/db.js';
+import { initializeModels } from '../../api/src_copy/models/index.js';
+//import * as db from '../../api/src_copy/models/index.js';
 import moment from 'moment';
 import readline from 'readline';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const sequelize = getConnection();
+const db = await connect(sequelize).then(initializeModels);
 
 const tiempo_periodos = {
     1: {inicio: "2023-09-11 09:00:00", fin: "2023-12-21 21:00:00"},
@@ -64,11 +72,7 @@ async function parseHorarios(filename) {
         parseFusiones('fusiones.txt');
         let clases_fusiones = {};
         let actividades_fusiones = {};
-        console.log(keys[7])
         for (let i = 0; i < results.length; i++) {
-            console.log(i)
-            console.log(results[i])
-            console.log("done")
             
             while (results[i][keys[7]].includes('UPM') || results[i][keys[7]].includes('IMDEA')) { // Recursión externa a la UCM
                 i++;
@@ -84,6 +88,7 @@ async function parseHorarios(filename) {
             const departamentos = row[keys[5]];
             const periodo = row[keys[6]];
             const docencia = row[keys[7]];
+
 
             const transaction = await db.sequelize.transaction();
 
@@ -586,3 +591,4 @@ export async function generarHorarios(archivo_fusiones, archivo_horario) {
 //if (require.main === module) {
     generarHorarios(process.argv[2], process.argv[3]);
 //}
+//pnpm exec node src/parse_horarios.js 'fusiones.xlsx' 'HORARIOSFDI2024-2025CSV.csv'

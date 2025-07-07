@@ -103,6 +103,11 @@ app.post('/login', [middleware.escapeRequest, middleware.checkRequest(['usuario'
   await app_controllers.login(req, res);
 });
 
+app.post('/proceso', middleware.escapeRequest, (req, res) => {
+  req.session.sustitucion = req.body;
+  res.redirect('/login'); 
+})
+
 app.get('/logout', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in logout');
   await app_controllers.logout(req, res);
@@ -419,20 +424,32 @@ app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async 
      fecha:listadeClases.fecha, max: listadeClases.max});
 });
 
+app.post('/intercambio-horario', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest], async (req, res) => {
+  uiLogger.info(`Got a POST in intercambio-horario with ${JSON.stringify(req.body)}`);
+  try { 
+    console.log(req.body);
+    const result = await app_controllers.reprogramarClase(req, res);
+  }
+  catch (error) {
+    uiLogger.error(`Error in intercambio-horario: ${error.message}`);
+    res.status(500).send({error: error.message});
+  }
+});
+
 app.get('/sustitucion-horario', [checkSesion, middleware.keepCookies([])], (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/sustitucion-horario');
   res.render('sustitucion-horario', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
-app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], (req, res) => {
+app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/asignar-profesor-clase');
-  res.render('asignar-profesor-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+  const docentes = await app_controllers.getAllDocentes(res)
+  let listadeClases = await app_controllers.getClasesNoUI(req, res);
+  res.render('asignar-profesor-clase', {clases: listadeClases.clases, docentes: docentes, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
-app.post('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest,
-  middleware.checkRequest(['nfc1'])], async (req, res) => {
+app.post('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest, middleware.checkRequest(['sustituto'])], async (req, res) => {
   uiLogger.info(`Got a POST in registro-nfc with ${JSON.stringify(req.body)}`);
-  const filtro = req.body.filtro
   try {
     const result = await app_controllers.getDocentesByName(req, res, filtro);
     res.setHeader('Content-Type', 'application/json');

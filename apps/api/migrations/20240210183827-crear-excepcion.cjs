@@ -56,6 +56,13 @@ module.exports = {
           key: 'id'
         }
       },      
+      suplente_id: {
+        type: Sequelize.DataTypes.INTEGER,
+        references: {
+          model: 'Docente',
+          key: 'id'
+        }
+      },      
       //Timestamps
       creadoEn: {
         type: Sequelize.DataTypes.DATE,

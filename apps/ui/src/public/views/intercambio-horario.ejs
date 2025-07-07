@@ -35,12 +35,16 @@
                                             </div>
 
                                             <div class="form-floating mb-3">
-                                                <select class="form-control" id="clase_filter" name="clase_filter" required>
+                                                <select class="form-control" id="actividadId" name="actividadId" required>
                                                     <% clases.forEach(function(clase) { %>
-                                                        <option value="<%= clase.id %> <%= clase.nombre %>" fecha="<%= clase.fecha %>"><%= clase.nombre %></option>
+                                                        <option 
+                                                            value="<%= clase.id %>"
+                                                            meeting_fecha="<%= clase.fecha%>"> 
+                                                            <%= clase.nombre %>
+                                                        </option>
                                                     <% }); %>
                                                 </select>
-                                                <label for="clase_filter">Asignatura y Grupo</label>
+                                                <label for="actividadId">Asignatura y Grupo</label>
                                             </div>
                                             <div id="no-clases-msg" class="text-danger mb-3" style="display: none;">
                                                 No hay asignaturas disponibles para la fecha seleccionada.
@@ -54,16 +58,16 @@
 
                                             <p>Datos clase de sustitución</p>
                                             <div class="form-floating mb-3">
-                                                <input type="date" class="form-control" id="meeting_time_sustitucion" name="meeting_time_sustitucion" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
-                                                <label for="meeting_time_sustitucion">Fecha</label>
+                                                <input type="date" class="form-control" id="nueva_fecha" name="nueva_fecha" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
+                                                <label for="nueva_fecha">Fecha</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input type="time" class="form-control" id="meeting_time_sustitucion_hora_init" name="meeting_time_sustitucion_hora_init" value="<%= fecha.hora_inicio %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
-                                                <label for="meeting_time_sustitucion_hora_init">Hora de inicio</label>
+                                                <input type="time" class="form-control" id="nueva_hora_inicio" name="nueva_hora_inicio" value="<%= fecha.hora_inicio %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
+                                                <label for="nueva_hora_inicio">Hora de inicio</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input type="time" class="form-control" id="meeting_time_sustitucion_hora_end" name="meeting_time_sustitucion_hora_end" value="<%= fecha.hora_fin %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
-                                                <label for="meeting_time_sustitucion_hora_end">Hora de fin</label>
+                                                <input type="time" class="form-control" id="nueva_hora_fin" name="nueva_hora_fin" value="<%= fecha.hora_fin %>" min="<%= fecha.hora_inicio %>" max="<%= fecha.hora_fin %>"/>
+                                                <label for="nueva_hora_fin">Hora de fin</label>
                                             </div>
 
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
@@ -89,42 +93,44 @@
 
         <!-- Script de filtrado dinámico por fecha -->
         <script>
-            const originalOptions = Array.from(document.querySelectorAll('#clase_filter option')).map(option => ({
-                value: option.value,
-                text: option.textContent,
-                fecha: option.getAttribute('fecha')
+            //Capturamos el select y guardamos todas las opciones
+            const selectActividad = document.getElementById('actividadId');
+            const originalOptions = Array.from(selectActividad.options).map(opt => ({
+              value: opt.value,
+              text:  opt.textContent.trim(),
+              fecha: opt.getAttribute('meeting_fecha')
             }));
-
-            document.getElementById('meeting_time').addEventListener('change', function () {
-                const selectedDate = this.value;
-                const select = document.getElementById('clase_filter');
-                const msg = document.getElementById('no-clases-msg');
-
-                // Limpiar el select
-                select.innerHTML = '';
-
-                // Filtrar asignaturas por fecha
-                const filtered = originalOptions.filter(opt => opt.fecha === selectedDate);
-
-                if (filtered.length === 0) {
-                    msg.style.display = 'block';
-                    select.disabled = true;
-                } else {
-                    msg.style.display = 'none';
-                    select.disabled = false;
-                    filtered.forEach(opt => {
-                        const option = document.createElement('option');
-                        option.value = opt.value;
-                        option.textContent = opt.text;
-                        select.appendChild(option);
-                    });
-                }
+          
+            //Repoblación del select según la fecha seleccionada
+            function filtrarClasesPorFecha(fecha) {
+              selectActividad.innerHTML = '';
+              const filtradas = originalOptions.filter(o => o.fecha === fecha);
+          
+              if (filtradas.length === 0) {
+                document.getElementById('no-clases-msg').style.display = 'block';
+                selectActividad.disabled = true;
+              } else {
+                document.getElementById('no-clases-msg').style.display = 'none';
+                selectActividad.disabled = false;
+                filtradas.forEach(o => {
+                  const opt = document.createElement('option');
+                  opt.value       = o.value;
+                  opt.textContent = o.text;
+                  selectActividad.appendChild(opt);
+                });
+              }
+            }
+          
+            //comprobamos camvios en meeting_time
+            document.getElementById('meeting_time').addEventListener('change', e => {
+              filtrarClasesPorFecha(e.target.value);
             });
-
-            // Ejecutar al cargar la página
+          
+            //agregamos el listener al cargar la página
             window.addEventListener('DOMContentLoaded', () => {
-                document.getElementById('meeting_time').dispatchEvent(new Event('change'));
+              filtrarClasesPorFecha(document.getElementById('meeting_time').value);
             });
-        </script>
+          </script>
+          
     </body>
 </html>
