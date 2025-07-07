@@ -32,16 +32,30 @@
                                         <p class="text-error"><%= error %></p>
                                         <% } %>
                                         <form method="post"> 
-                                            <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="select form-control"  name="inputName" id="inputName" list="listaSuplentes" onkeyup=""/>
-                                                <datalist id="listaSuplentes">
-                                                    <option value="Pen">Pen</option>
-                                                    <option value="Pencil">Pencil</option>
-                                                    <option value="Paper">Paper</option>
-                                                </datalist>
-                                                <label for="inputName">Nombre del profesor suplente</label>
-                                                <ul id="suggestions" style="border:1px solid #ccc; display:none; position:absolute; background:#fff; list-style:none; margin:0; padding:0; width:200px;"></ul>
+                                                <div class="form-floating mb-3">
+                                                    <div class="form-floating mb-3">
+                                                    <input type="date" class="form-control" id="meeting_time" name="meeting_time" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
+                                                    <label for="meeting_time">Fecha</label>
+                                                </div>
+
+                                                <div class="form-floating mb-3">
+                                                    <select class="form-control" id="actividadId" name="actividadId" required>
+                                                        <% clases.forEach(function(clase) { %>
+                                                            <option value="<%= clase.id %>" fecha="<%= clase.fecha %>"> <%= clase.nombre %></option>
+                                                        <% }); %>
+                                                    </select>
+                                                    <label for="actividadId">Asignatura y Grupo</label>
+                                                </div>
+                                                <div class="form-floating mb-3">
+                                                    <select class="select form-control" name="sustituto" id="inputName">
+                                                        <% docentes.forEach(function(docente) { %>
+                                                            <option value="<%= docente.id %>"><%= docente.nombre %> <%= docente.apellidos %></option>
+                                                        <% }); %>
+                                                    </select>
+                                                    <label for="inputName">Nombre del profesor suplente</label>
+                                                    <ul id="suggestions" style="border:1px solid #ccc; display:none; position:absolute; background:#fff; list-style:none; margin:0; padding:0; width:200px;"></ul>
+                                                </div>
+                                                
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <a class="btn btn-primary" href="/gestion-cambio-clase">Atrás</a>

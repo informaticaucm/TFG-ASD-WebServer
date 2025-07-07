@@ -59,6 +59,7 @@ export function model(sequelize) {
 
     Excepcion.associate = function (models) {
         models.Excepcion.belongsTo(models.Actividad, { as: 'excepcion_de', foreignKey: 'actividad_id', allowNull: false }); //Una excepcion altera una actividad
+        models.Excepcion.belongsTo(models.Docente, { as: 'suplente_de', foreignKey: 'suplente_id', allowNull: true }); //Una excepcion altera una actividad
     };
 
     return Excepcion;

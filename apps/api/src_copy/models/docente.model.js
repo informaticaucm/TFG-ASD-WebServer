@@ -42,6 +42,7 @@ export function model(sequelize) {
         models.Docente.hasMany(models.Macs, { as: 'con_mac', foreignKey: { name: 'usuario_id', allowNull: false }}); // Un docente puede tener varias Macs asociadas
         models.Docente.hasMany(models.Nfcs, { as: 'con_nfc', foreignKey: { name: 'usuario_id', allowNull: false }}); // Un docente puede tener varios Nfcs asociados
         models.Docente.belongsToMany(models.Departamento, { through: models.Join_Departamento_Docentes, foreignKey: 'docente_id', otherKey: 'departamento_id', as: 'departamentos'});
+        models.Docente.hasMany(models.Excepcion, { as: 'con_suplencia', foreignKey: { name: 'suplente_id', allowNull: true }}); //Un profesor puede ser suplente de varias excepciones o ninguna
     };
 
     return Docente;

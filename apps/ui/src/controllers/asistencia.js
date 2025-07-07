@@ -551,6 +551,10 @@ export async function enviarAvisosAutomaticos(inicio, fin) {
     return true;
 }
 
+export async function solicitarSustitución(req, res){
+    
+}
+
 export async function verProfesoresInfracciones(req, res) {
 
     const data = {estado: 'No Asistida'};

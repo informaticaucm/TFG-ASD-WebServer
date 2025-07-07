@@ -65,6 +65,20 @@ export async function getDocentesByName(req, res, filtro) {
   res.render('formulario-aulas', { espacios: espacios_todos, all: true, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 }
 
+export async function getAllDocentes(res) {
+  let docentes = await getFromApi('/usuarios', res, true);
+
+  let docentes_todos = [];
+  let edifx = null;
+  for(let id of docentes){
+    let docente = await getFromApi('/usuarios/'+id.id, res, true)
+    docentes_todos.push(docente)
+  }
+  
+  // Todos los espacios
+  return docentes_todos
+}
+
 export async function getAllEspacios(req, res) {
   let query_esp_all = await getFromApi('/espacios', res, true);
 

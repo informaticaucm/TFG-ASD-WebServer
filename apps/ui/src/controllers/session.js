@@ -4,6 +4,11 @@ import { sendToApiJSON } from '../seguimientoApi.js';
 export async function login(req, res) {
   const redirectTo = req.session.redirectTo || '/';
   delete req.session.redirectTo;
+  if(req.session.hasOwnProperty('sustitucion')){
+    redirectTo = '/confirmar_sustitucion'
+    const sustitucion = req.sesion.sustitucion
+    delete req.session.sustitucion;
+  }
 
   let data = { 
     email: req.body.usuario,
