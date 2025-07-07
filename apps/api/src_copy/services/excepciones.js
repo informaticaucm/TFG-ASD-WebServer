@@ -107,7 +107,7 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
     if (match) {
         await db.sequelize.models.Excepcion.update(
             { esta_cancelado: 'Sí' },
-            { where: { id: match.id } }
+            { where: { id: match.id }, transaction }
         );
     } else {
         const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
@@ -133,18 +133,20 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
         (excep) =>
             excep.fecha_inicio_act === fecha_inicio_act &&
             excep.fecha_fin_act === fecha_fin_act &&
-            excep.esta_cancelado === 'Sí'
+            excep.esta_reprogramado === 'Sí' &&
+            excep.esta_cancelado === 'No'
     );
-
+    
+ 
     if (match) {
         await db.sequelize.models.Excepcion.update(
             {
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí',
-                fecha_inicio_ex: `${fecha_inicio_ex}`,
-                fecha_fin_ex: `${fecha_fin_ex}`
+                fecha_inicio_ex,
+                fecha_fin_ex
             },
-            { where: { id: match.id } }
+            { where: { id: match.id },transaction }
         );
     } else {
         //const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
@@ -157,7 +159,7 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
                 actividad_id: actividad.id,
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí'
-            });
+            },{transaction});
         //} else {
         //    throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleRescheduleExcepcion');
         //}
