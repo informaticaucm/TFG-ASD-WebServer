@@ -107,14 +107,14 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
     if (match) {
         await db.sequelize.models.Excepcion.update(
             { esta_cancelado: 'Sí' },
-            { where: { id: match.id } }
+            { where: { id: match.id }, transaction }
         );
     } else {
         const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
         if (validActividad) {
             await db.sequelize.models.Excepcion.create({
-                fecha_inicio_act: `${fecha_inicio_act}Z`,
-                fecha_fin_act: `${fecha_fin_act}Z`,
+                fecha_inicio_act: `${fecha_inicio_act}`,
+                fecha_fin_act: `${fecha_fin_act}`,
                 actividad_id: actividad.id,
                 esta_cancelado: 'Sí',
                 esta_reprogramado: 'No'
@@ -133,31 +133,33 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
         (excep) =>
             excep.fecha_inicio_act === fecha_inicio_act &&
             excep.fecha_fin_act === fecha_fin_act &&
-            excep.esta_cancelado === 'Sí'
+            excep.esta_reprogramado === 'Sí' &&
+            excep.esta_cancelado === 'No'
     );
-
+    
+ 
     if (match) {
         await db.sequelize.models.Excepcion.update(
             {
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí',
-                fecha_inicio_ex: `${fecha_inicio_ex}Z`,
-                fecha_fin_ex: `${fecha_fin_ex}Z`
+                fecha_inicio_ex,
+                fecha_fin_ex
             },
-            { where: { id: match.id } }
+            { where: { id: match.id },transaction }
         );
     } else {
         //const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
         //if (validActividad) {
             await db.sequelize.models.Excepcion.create({
-                fecha_inicio_act: `${fecha_inicio_act}Z`,
-                fecha_fin_act: `${fecha_fin_act}Z`,
-                fecha_inicio_ex: `${fecha_inicio_ex}Z`,
-                fecha_fin_ex: `${fecha_fin_ex}Z`,
+                fecha_inicio_act: `${fecha_inicio_act}`,
+                fecha_fin_act: `${fecha_fin_act}`,
+                fecha_inicio_ex: `${fecha_inicio_ex}`,
+                fecha_fin_ex: `${fecha_fin_ex}`,
                 actividad_id: actividad.id,
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí'
-            });
+            },{transaction});
         //} else {
         //    throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleRescheduleExcepcion');
         //}
@@ -166,7 +168,7 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
 
 // Verifica la validez de una actividad en una fecha específica
 export async function verifyActividad(db, fecha_inicio_act, actividad, actividadId) {
-    const fecha = moment(fecha_inicio_act + 'Z').format('YYYY-MM-DD');
+    const fecha = moment(fecha_inicio_act ).format('YYYY-MM-DD');
     const mmt_inicio = moment(fecha + 'T' + actividad.tiempo_inicio, 'YYYY-MM-DDTHH:mm').utc();
 
     if (actividad.es_recurrente === 'Sí') {
@@ -179,9 +181,9 @@ export async function verifyActividad(db, fecha_inicio_act, actividad, actividad
         });
         
         return recurrencias.some((recurrencia) =>
-            recurrence_tool.isInRecurrencia(actividad, recurrencia, moment(fecha_inicio_act + 'Z').utc().format('YYYY-MM-DD[T]HH:mm'))
+            recurrence_tool.isInRecurrencia(actividad, recurrencia, moment(fecha_inicio_act ).utc().format('YYYY-MM-DD[T]HH:mm'))
         );
     }
 
-    return mmt_inicio.format('YYYY-MM-DD HH:mm') === moment(fecha_inicio_act + 'Z').format('YYYY-MM-DD HH:mm');
+    return mmt_inicio.format('YYYY-MM-DD HH:mm') === moment(fecha_inicio_act).format('YYYY-MM-DD HH:mm');
 }
