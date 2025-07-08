@@ -218,9 +218,75 @@ a:hover {
 }
 
 /* Estilos para los gráficos */
-#asistenciasChart, #faltasPorClaseChart {
-    width: 500px; /* Ancho del gráfico */
-    height: 300px; /* Alto del gráfico */
-    margin: 0 auto; /* Centrar los gráficos */
-    display: block; /* Asegurar que se comporten como bloques */
+/* Gráficos generales */
+#asistenciasChart, #excepcionesTipoChart {
+    width: 340px;
+    height: 260px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Gráficos más anchos */
+#topActividadesChart, #faltasPorClaseChart {
+    width: 520px;
+    height: 300px;
+    margin: 0 auto;
+    display: block;
+    padding-right: 0; /* Elimina el padding si no lo necesitas */
+}
+
+/* Cards adaptadas para gráficos anchos */
+.estadistica-card {
+    min-width: 340px;
+    max-width: 520px; /* Ajusta para que quepan dos en la mayoría de pantallas */
+    flex: 1 1 340px;  /* Permite que crezcan pero no bajen de 340px */
+    min-height: 420px;
+    max-height: 420px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 24px 20px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+    justify-content: flex-start;
+}
+.estadistica-card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+        color: #3f51b5;
+        text-align: center;
+    }
+    .estadistica-card canvas {
+        margin-bottom: 8px;
+        width: 100% !important;
+        height: 260px !important;
+        max-width: 340px;
+        max-height: 260px;
+        min-height: 200px;
+        min-width: 200px;
+        display: block;
+    }
+
+.estadisticas-row {
+    display: flex;
+    flex-wrap: wrap; /* Permite que bajen si no caben */
+    gap: 40px;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 32px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.estadisticas-titulos {
+    margin-top: 50px !important; /* O el espacio que prefieras */
+}
+.titulo-centrado {
+    text-align: center;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }

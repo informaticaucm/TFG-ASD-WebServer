@@ -3,27 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Estadísticas de Docencias</title>
+        <%- include('Plantillas/plantilla-head-html.ejs') %>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/assets/css/styles-tfg.css">
 </head>
-<body>
-    <h1>Estadísticas de Docencias</h1>
-    <p>Periodo: <%= fechaInicio %> a <%= fechaFin %></p>
+<body class="sb-nav-fixed">
+     <!--barra de navegacion -->
+    <%- include('Plantillas/plantilla-nav-var.ejs') %>
+    <div id="layoutSidenav">
+        <!-- Plantilla de sidevar-->
+        <%- include('Plantillas/plantilla-layout-sidevar.ejs')%>
+        <div id="layoutSidenav_content">
 
-    <h2>Porcentaje de Asistencias</h2>
-    <canvas id="asistenciasChart"></canvas>
+            <main>
+                <div class="estadisticas-titulos">
+                    <h1 class="titulo-centrado">Estadísticas de Docencias</h1>
+                    <p class="titulo-centrado">Periodo: <%= fechaInicio %> a <%= fechaFin %></p>
+                </div>
 
-    <h2>Faltas por Clase</h2>
-    <canvas id="faltasPorClaseChart"></canvas>
+                <div class="estadisticas-row">
+                    <div class="estadistica-card">
+                        <h2>Porcentaje de Asistencias</h2>
+                        <canvas id="asistenciasChart"></canvas>
+                    </div>
+                    <div class="estadistica-card barra">
+                        <h2>Faltas por Clase</h2>
+                        <canvas id="faltasPorClaseChart"></canvas>
+                    </div>
+                </div>
 
-    <div style="display: flex; gap: 40px; justify-content: center; align-items: flex-start;">
-        <div>
-            <h2>Excepciones en el periodo</h2>
-            <canvas id="excepcionesTipoChart" width="300" height="300"></canvas>
-        </div>
-        <div>
-            <h2>Top 5 asignaturas con más excepciones</h2>
-            <canvas id="topActividadesChart" width="400" height="300"></canvas>
+                <div class="estadisticas-row">
+                    <div class="estadistica-card">
+                        <h2>Excepciones en el periodo</h2>
+                        <canvas id="excepcionesTipoChart" width="300" height="300"></canvas>
+                    </div>
+                    <div class="estadistica-card barra">
+                        <h2>Top 5 asignaturas con más excepciones</h2>
+                        <canvas id="topActividadesChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
