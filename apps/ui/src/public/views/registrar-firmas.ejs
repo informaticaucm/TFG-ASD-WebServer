@@ -35,6 +35,7 @@
                                         <input class="datatable-selector" type="date" id="date-filter" name="fecha" value="<%= fecha %>" min="2023-09-11" max="2030-07-31" />
                                         <label class="ms-2 me-1" for="espacio-filter">Espacio</label>
                                         <select class="select datatable-selector dt-status-filter" id="espacio-filter" name="espacio">
+                                            <option value="-1" selected="selected">Todos</option>
                                             <% espacios.forEach(function(espacio) { %>
                                                 <% if (espacio.seleccionado) { %>
                                                     <option value="<%= espacio.id %>" selected="selected"><%= espacio.nombre %></option>
