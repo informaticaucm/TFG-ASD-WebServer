@@ -406,10 +406,13 @@ app.get('/profesores-infracciones', [checkSesion, checkClearanceDecanato, middle
   await app_controllers.verProfesoresInfracciones(req, res);
 });
 
-// Modificaciones de 20250527
-app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], (req, res) => {
+// Modificaciones de 20250804
+app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clase');
-  res.render('gestion-cambio-clase', {usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+  let Id_docente = req.session.user.id;
+  let excepciones_docente= await app_controllers.getExcepcionesByDocente(Id_docente, res); 
+  console.log(excepciones_docente);
+  res.render('gestion-cambio-clase', {Id_docente: Id_docente ,excepciones: excepciones_docente ,usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
 app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async (req, res) => {
