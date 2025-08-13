@@ -58,8 +58,8 @@
                                         <table id="tabla-excepciones" class="table table-striped table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th>ID</th>
-                                                    <th>Id de Actividad </th>
+                                                    <th>Id de reprogramación</th>
+                                                    <th>Nombre de asignatura </th>
                                                     <th>Fecha inicio original</th>
                                                     <th>Fecha fin original</th>
                                                     <th>Fecha de inicio nueva</th>
@@ -71,7 +71,7 @@
                                                 <% excepciones.forEach(function(excepcion) { %>
                                                     <tr>
                                                         <td><%= excepcion.id %></td>
-                                                        <td><%= excepcion.actividad_id %></td>
+                                                        <td><%= excepcion.nombre_asignatura %></td>
                                                         <td><%= excepcion.fecha_inicio_act %></td>
                                                         <td><%= excepcion.fecha_fin_act %></td>
                                                         <td><%= excepcion.fecha_inicio_ex %></td>

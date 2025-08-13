@@ -412,7 +412,7 @@ app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], asyn
   let Id_docente = req.session.user.id;
   let excepciones_docente= await app_controllers.getExcepcionesByDocente(Id_docente, res); 
   console.log(excepciones_docente);
-  res.render('gestion-cambio-clase', {Id_docente: Id_docente ,excepciones: excepciones_docente ,usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
+  res.render('gestion-cambio-clase', {Id_docente: req.session.user.id ,excepciones: excepciones_docente ,usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
 app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async (req, res) => {

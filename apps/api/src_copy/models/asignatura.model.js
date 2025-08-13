@@ -33,6 +33,7 @@ export function model(sequelize) {
     Asignatura.associate = function (models) {
         models.Asignatura.belongsToMany(models.Grupo, { as: 'para_grupos', through: { model: models.Clase, foreignKey: 'asignatura_id' }, foreignKey: 'asignatura_id' }); //Una asignatura tiene uno o más grupos
         models.Asignatura.belongsTo(models.Plan, { as: 'de_plan', foreignKey: 'plan_id', allowNull: false }); //Una asignatura es contenida en un plan
+        models.Asignatura.belongsToMany(models.Clase, { as: 'de_clase', through:{model:models.Clase}, foreignKey: 'id' }); 
     };
 
     return Asignatura;

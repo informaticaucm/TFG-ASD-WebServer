@@ -145,8 +145,27 @@ export async function getExcepcionByDocente(req, db) {
         include: {
             model: db.sequelize.models.Actividad,
             as: 'excepcion_de',
-            where: {responsable_id: idDocente },
+            where: { responsable_id: idDocente },
+            include: {
+                model: db.sequelize.models.Clase,
+                as: 'sesion_de',
+                required:false,
+                attributes: ['id'],
+                include: {
+                    model: db.sequelize.models.Asignatura,
+                    as: 'de_asignatura',
+                    required: false,
+                    attributes: ['nombre']
+                }
+            },
             attributes: ['responsable_id']
+            
+        },
+        where: {
+            [Op.and]: [
+                { creado_por: idDocente },
+                { suplente_id: null }
+            ]
         },
         attributes: [
             'id',
@@ -164,7 +183,16 @@ export async function getExcepcionByDocente(req, db) {
         include: {
             model: db.sequelize.models.Actividad,
             as: 'excepcion_de',
-            attributes: ['responsable_id']
+            include: {
+                model: db.sequelize.models.Clase,
+                as: 'sesion_de',
+                attributes: ['id'],
+                include: {
+                    model: db.sequelize.models.Asignatura,
+                    as: 'de_asignatura',
+                    attributes: ['nombre']
+                }
+            }
         },
         where: {
             suplente_id: idDocente 
@@ -181,8 +209,6 @@ export async function getExcepcionByDocente(req, db) {
             'suplente_id'
         ]
     });
-
-
     console.log(`Excepciones programadas encontradas: ${excepciones_programadas.length}`);
     console.log(`Excepciones de sustitución encontradas: ${excepciones_sustitucion.length}`);
 
@@ -191,6 +217,7 @@ export async function getExcepcionByDocente(req, db) {
     console.log(`Total de excepciones encontradas: ${excepciones_programadas} + ${excepciones_sustitucion}`);
 
     return excepciones.map((excepcion) => ({
+        nombre_asignatura: excepcion.excepcion_de.sesion_de[0].de_asignatura.nombre,
         id: excepcion.id,
         actividad_id: excepcion.actividad_id,
         esta_cancelado: excepcion.esta_cancelado,
@@ -236,7 +263,7 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
 
 // Lógica para manejar excepciones reprogramadas
 async function handleRescheduleExcepcion(excepciones, db, req, actividad, transaction) {
-    const { fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex } = req.body;
+    const { fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex, creado_por } = req.body;
 
     const match = excepciones.find(
         (excep) =>
@@ -266,6 +293,7 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
             fecha_inicio_ex: `${fecha_inicio_ex}`,
             fecha_fin_ex: `${fecha_fin_ex}`,
             actividad_id: actividad.id,
+            creado_por: `${creado_por}`,
             esta_cancelado: 'No',
             esta_reprogramado: 'Sí'
         }, { transaction });
