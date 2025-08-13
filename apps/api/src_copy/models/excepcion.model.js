@@ -43,6 +43,14 @@ export function model(sequelize) {
             type: DataTypes.DATE,
             allowNull: true
         },
+        motivo: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        fecha_original: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
         es_todo_el_día: {
             type: DataTypes.ENUM('Sí', 'No'),
             allowNull: false,

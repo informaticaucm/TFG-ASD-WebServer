@@ -60,10 +60,10 @@
                                                 <tr>
                                                     <th>Id de reprogramación</th>
                                                     <th>Nombre de asignatura </th>
-                                                    <th>Fecha inicio original</th>
-                                                    <th>Fecha fin original</th>
+                                                    <th>Fecha original</th>
                                                     <th>Fecha de inicio nueva</th>
                                                     <th>Fecha de fin nueva</th>
+                                                    <th>Motivo</th>
                                                     <th>Es una sustitución</th>
                                                 </tr>
                                             </thead>
@@ -72,10 +72,10 @@
                                                     <tr>
                                                         <td><%= excepcion.id %></td>
                                                         <td><%= excepcion.nombre_asignatura %></td>
-                                                        <td><%= excepcion.fecha_inicio_act %></td>
-                                                        <td><%= excepcion.fecha_fin_act %></td>
+                                                        <td><%= excepcion.fecha_original %></td>
                                                         <td><%= excepcion.fecha_inicio_ex %></td>
                                                         <td><%= excepcion.fecha_fin_ex %></td>
+                                                        <td><%= excepcion.motivo %></td>
                                                         <td><%= excepcion.suplente_id != null ? 'Sí' : 'No' %></td>
                                                     </tr>
                                                 <% }); %>

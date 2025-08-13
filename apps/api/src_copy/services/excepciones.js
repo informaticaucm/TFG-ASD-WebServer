@@ -6,7 +6,7 @@ import { notFoundError, validationError } from '../errors/errors.js';
 import { Op, or, where } from 'sequelize';
 
 export async function createExcepcion(req, db) {
-    const { actividad_id, esta_cancelado, esta_reprogramado, fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex } = req.body;
+    const { actividad_id, esta_cancelado, esta_reprogramado, fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex, fecha_original, motivo } = req.body;
 
     // Validación de entrada
     if (!Number.isInteger(actividad_id)) {
@@ -67,6 +67,8 @@ export async function getExcepcionById(req, db) {
         esta_cancelado: excepcion.esta_cancelado,
         fecha_inicio_act: excepcion.fecha_inicio_act,
         fecha_fin_act: excepcion.fecha_fin_act,
+        motivo: excepcion.motivo,
+        fecha_original: excepcion.fecha_original,
         fecha_inicio_ex: excepcion.fecha_inicio_ex,
         fecha_fin_ex: excepcion.fecha_fin_ex
     };
@@ -116,8 +118,11 @@ export async function getExcepcionesByIntervalo(req, db) {
             'esta_reprogramado',
             'fecha_inicio_act',
             'fecha_fin_act',
+            'fecha_original',
+            'motivo',
             'fecha_inicio_ex',
-            'fecha_fin_ex'
+            'fecha_fin_ex',
+            'suplente_id'
         ]
     });
 
@@ -127,7 +132,6 @@ export async function getExcepcionesByIntervalo(req, db) {
 export async function getExcepcionByDocente(req, db) {
 
     console.log("Estamos en EXCEPCIONES DE API/SRC_COPY/SERVICES/EXCEPCIONES.JS - getExcepcionByDocente");
-    console.log(req.params);
 
     const  idDocente = req.params.idDocente;
     
@@ -174,6 +178,8 @@ export async function getExcepcionByDocente(req, db) {
             'esta_reprogramado',
             'fecha_inicio_act',
             'fecha_fin_act',
+            'fecha_original',
+            'motivo',
             'fecha_inicio_ex',
             'fecha_fin_ex',
             'suplente_id'
@@ -204,6 +210,8 @@ export async function getExcepcionByDocente(req, db) {
             'esta_reprogramado',
             'fecha_inicio_act',
             'fecha_fin_act',
+            'fecha_original',
+            'motivo',
             'fecha_inicio_ex',
             'fecha_fin_ex',
             'suplente_id'
@@ -223,9 +231,11 @@ export async function getExcepcionByDocente(req, db) {
         esta_cancelado: excepcion.esta_cancelado,
         esta_reprogramado: excepcion.esta_reprogramado,
         fecha_inicio_act: excepcion.fecha_inicio_act,
+        motivo: excepcion.motivo,
         fecha_fin_act: excepcion.fecha_fin_act,
-        fecha_inicio_ex: excepcion.fecha_inicio_ex,
-        fecha_fin_ex: excepcion.fecha_fin_ex,
+        fecha_original: moment(excepcion.fecha_original).format('DD-MM-YYYY'),
+        fecha_inicio_ex: moment(excepcion.fecha_inicio_ex).format('DD-MM-YYYY HH:mm'),
+        fecha_fin_ex: moment(excepcion.fecha_fin_ex).format('DD-MM-YYYY HH:mm'),
         suplente_id: excepcion.suplente_id 
     }))
 };
@@ -233,7 +243,7 @@ export async function getExcepcionByDocente(req, db) {
 
 // Lógica para manejar excepciones canceladas
 async function handleCancelExcepcion(excepciones, db, req, actividad, transaction) {
-    const { fecha_inicio_act, fecha_fin_act } = req.body;
+    const { fecha_inicio_act, fecha_fin_act, motivo } = req.body;
 
     const match = excepciones.find(
         (excep) =>
@@ -252,6 +262,7 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
                 fecha_inicio_act: `${fecha_inicio_act}`,
                 fecha_fin_act: `${fecha_fin_act}`,
                 actividad_id: actividad.id,
+                motivo: `${motivo}`,
                 esta_cancelado: 'Sí',
                 esta_reprogramado: 'No'
             });
@@ -263,7 +274,7 @@ async function handleCancelExcepcion(excepciones, db, req, actividad, transactio
 
 // Lógica para manejar excepciones reprogramadas
 async function handleRescheduleExcepcion(excepciones, db, req, actividad, transaction) {
-    const { fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex, creado_por } = req.body;
+    const { fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex, creado_por, fecha_original, motivo } = req.body;
 
     const match = excepciones.find(
         (excep) =>
@@ -292,6 +303,8 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
             fecha_fin_act: `${fecha_fin_act}`,
             fecha_inicio_ex: `${fecha_inicio_ex}`,
             fecha_fin_ex: `${fecha_fin_ex}`,
+            fecha_original: `${fecha_original}`,
+            motivo: `${motivo}`,
             actividad_id: actividad.id,
             creado_por: `${creado_por}`,
             esta_cancelado: 'No',
