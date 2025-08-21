@@ -57,8 +57,8 @@ export async function getClases(req, res) {
     const act_data = actividades_data[i];
 
     // Si es recurrente solo la añadimos si no tiene fin o la recurrencia acaba después de ahora, y no empieza antes del máximo permitido
-    if (actividades_data[i].es_recurrente == 'Sí' && (actividades_data[i].fecha_fin == null || moment(actividades_data[i].fecha_fin + 'Z').utc() >= fechayhora)
-      && (moment(actividades_data[i].fecha_inicio + 'Z').utc() <= max_fecha)) {
+    if (actividades_data[i].es_recurrente == 'Sí' && (actividades_data[i].fecha_fin == null || moment(actividades_data[i].fecha_fin).utc() >= fechayhora)
+      && (moment(actividades_data[i].fecha_inicio ).utc() <= max_fecha)) {
       let recurrencias = (await getFromApi(`/recurrencias/actividades/${act.id}`)).recurrencias;
 
       let instancias_recurrencias = [];
@@ -101,8 +101,8 @@ export async function getClases(req, res) {
 
         reprogramadas.forEach((ex) => {
 
-          let mmt_inicio_ex = moment(ex.fecha_inicio_ex + 'Z', "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
-          let mmt_fin_ex = moment(ex.fecha_fin_ex + 'Z', "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
+          let mmt_inicio_ex = moment(ex.fecha_inicio_ex, "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
+          let mmt_fin_ex = moment(ex.fecha_fin_ex , "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
 
           // Añadimos el resultado
           resultado.push({
@@ -138,8 +138,8 @@ export async function getClases(req, res) {
         });
       }
     } // Si no es recurrente, solo la añadimos si se realiza después de ahora
-    else if (actividades_data[i].es_recurrente == 'No' && ((moment(actividades_data[i].fecha_inicio + 'Z').utc().format('DD/MM/YYYY') == fechayhora.format('DD/MM/YYYY') &&
-      moment(actividades_data[i].tiempo_inicio + 'Z').format('HH:mm') > fechayhora.format('HH:mm')) || moment(actividades_data[i].fecha_inicio + 'Z').utc().format('DD/MM/YYYY') > fechayhora.format('DD/MM/YYYY'))) {
+    else if (actividades_data[i].es_recurrente == 'No' && ((moment(actividades_data[i].fecha_inicio ).utc().format('DD/MM/YYYY') == fechayhora.format('DD/MM/YYYY') &&
+      moment(actividades_data[i].tiempo_inicio).format('HH:mm') > fechayhora.format('HH:mm')) || moment(actividades_data[i].fecha_inicio ).utc().format('DD/MM/YYYY') > fechayhora.format('DD/MM/YYYY'))) {
       for (let j = 0; j < actividades_data[i].clase_ids.length; j++) {
         const clase_id = actividades_data[i].clase_ids[j].id;
         const clase_data = await getFromApi(`/clases/${clase_id}`, res, true);
@@ -151,7 +151,7 @@ export async function getClases(req, res) {
           id: act.id, nombre: moment(actividades_data[i].tiempo_inicio).utcOffset(req.session.user.offset).format("HH:mm") + ' - '
             + moment(actividades_data[i].tiempo_fin).utcOffset(req.session.user.offset).format("HH:mm") + ' | ' +
             asig_data.nombre + " " + grupo_data.curso + "º" + grupo_data.letra,
-          fecha: moment(actividades_data[i].fecha_inicio + 'Z').utcOffset(req.session.user.offset).format('YYYY-MM-DD')
+          fecha: moment(actividades_data[i].fecha_inicio ).utcOffset(req.session.user.offset).format('YYYY-MM-DD')
         });
       }
     }
@@ -186,8 +186,8 @@ export async function getClasesNoUI(req, res) {
     const act_data = actividades_data[i];
 
     // Si es recurrente solo la añadimos si no tiene fin o la recurrencia acaba después de ahora, y no empieza antes del máximo permitido
-    if (actividades_data[i].es_recurrente == 'Sí' && (actividades_data[i].fecha_fin == null || moment(actividades_data[i].fecha_fin + 'Z').utc() >= fechayhora)
-      && (moment(actividades_data[i].fecha_inicio + 'Z').utc() <= max_fecha)) {
+    if (actividades_data[i].es_recurrente == 'Sí' && (actividades_data[i].fecha_fin == null || moment(actividades_data[i].fecha_fin ).utc() >= fechayhora)
+      && (moment(actividades_data[i].fecha_inicio  ).utc() <= max_fecha)) {
       let recurrencias = (await getFromApi(`/recurrencias/actividades/${act.id}`)).recurrencias;
 
       let instancias_recurrencias = [];
@@ -230,8 +230,8 @@ export async function getClasesNoUI(req, res) {
 
         reprogramadas.forEach((ex) => {
 
-          let mmt_inicio_ex = moment(ex.fecha_inicio_ex + 'Z', "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
-          let mmt_fin_ex = moment(ex.fecha_fin_ex + 'Z', "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
+          let mmt_inicio_ex = moment(ex.fecha_inicio_ex , "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
+          let mmt_fin_ex = moment(ex.fecha_fin_ex , "YYYY-MM-DD HH:mm:00Z").utcOffset(req.session.user.offset);
 
           // Añadimos el resultado
           resultado.push({
@@ -267,8 +267,8 @@ export async function getClasesNoUI(req, res) {
         });
       }
     } // Si no es recurrente, solo la añadimos si se realiza después de ahora
-    else if (actividades_data[i].es_recurrente == 'No' && ((moment(actividades_data[i].fecha_inicio + 'Z').utc().format('DD/MM/YYYY') == fechayhora.format('DD/MM/YYYY') &&
-      moment(actividades_data[i].tiempo_inicio + 'Z').format('HH:mm') > fechayhora.format('HH:mm')) || moment(actividades_data[i].fecha_inicio + 'Z').utc().format('DD/MM/YYYY') > fechayhora.format('DD/MM/YYYY'))) {
+    else if (actividades_data[i].es_recurrente == 'No' && ((moment(actividades_data[i].fecha_inicio ).utc().format('DD/MM/YYYY') == fechayhora.format('DD/MM/YYYY') &&
+      moment(actividades_data[i].tiempo_inicio ).format('HH:mm') > fechayhora.format('HH:mm')) || moment(actividades_data[i].fecha_inicio).utc().format('DD/MM/YYYY') > fechayhora.format('DD/MM/YYYY'))) {
       for (let j = 0; j < actividades_data[i].clase_ids.length; j++) {
         const clase_id = actividades_data[i].clase_ids[j].id;
         const clase_data = await getFromApi(`/clases/${clase_id}`, res, true);
@@ -280,7 +280,7 @@ export async function getClasesNoUI(req, res) {
           id: act.id, nombre: moment(actividades_data[i].tiempo_inicio).utcOffset(req.session.user.offset).format("HH:mm") + ' - '
             + moment(actividades_data[i].tiempo_fin).utcOffset(req.session.user.offset).format("HH:mm") + ' | ' +
             asig_data.nombre + " " + grupo_data.curso + "º" + grupo_data.letra,
-          fecha: moment(actividades_data[i].fecha_inicio + 'Z').utcOffset(req.session.user.offset).format('YYYY-MM-DD')
+          fecha: moment(actividades_data[i].fecha_inicio ).utcOffset(req.session.user.offset).format('YYYY-MM-DD')
         });
       }
     }

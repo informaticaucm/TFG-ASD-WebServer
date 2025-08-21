@@ -166,10 +166,12 @@ export async function getExcepcionByDocente(req, db) {
             
         },
         where: {
-            [Op.and]: [
-                { creado_por: idDocente },
-                { suplente_id: null }
-            ]
+            
+            creado_por: idDocente ,
+            fecha_inicio_ex:{[Op.gte]:  moment.utc().startOf('day').toDate()},
+            suplente_id: null 
+                
+            
         },
         attributes: [
             'id',
@@ -201,7 +203,12 @@ export async function getExcepcionByDocente(req, db) {
             }
         },
         where: {
-            suplente_id: idDocente 
+            
+            suplente_id: idDocente,
+            fecha_inicio_ex:{[Op.gte]:  moment.utc().startOf('day').toDate()}
+                    
+                
+           
         },
         attributes: [
             'id',
