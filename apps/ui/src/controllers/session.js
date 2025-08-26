@@ -2,11 +2,14 @@ import { uiLogger } from '@informaticaucm/seguimiento-logger';
 import { sendToApiJSON } from '../seguimientoApi.js';
 
 export async function login(req, res) {
-  const redirectTo = req.session.redirectTo || '/';
+  let redirectTo = req.session.redirectTo || '/';
   delete req.session.redirectTo;
-  if(req.session.hasOwnProperty('sustitucion')){
+  const haySustitucion =req.session.hasOwnProperty('sustitucion')
+  let sustitucion = null
+  if(haySustitucion){
+    console.log("Sustitucion")
     redirectTo = '/confirmar_sustitucion'
-    const sustitucion = req.sesion.sustitucion
+    sustitucion = req.session.sustitucion
     delete req.session.sustitucion;
   }
 
@@ -32,6 +35,8 @@ export async function login(req, res) {
 
     // Guardar info del usuario en session
     req.session.user = sesion;
+    if(haySustitucion)
+      req.session.sustitucion = sustitucion
 
     // Guardar la sesión y luego redirigir
     req.session.save(function (err) {

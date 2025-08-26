@@ -63,6 +63,38 @@ export async function verExcepciones(req, res) {
 }
 
 /**
+ * Genera una excepcion de sustitucion para que otro profesor pueda realizar la actividad
+ */
+export async function confirmarSustitucion(req, res) {
+    const sustitucion = req.session.sustitucion
+    console.log(sustitucion)
+    let data = {}
+    data.actividad_id = parseInt(sustitucion.id_actividad)
+
+    //asignamos el profesor sustituto de la sesión
+    data.sustituto_id = req.session.user.id;
+
+    try {
+        //obtenemos la actividad para establecer las horas
+        const actividad = await getFromApi('/actividades/'+data.actividad_id, res, true)
+        console.log(actividad)
+        data.fecha_inicio_act = `${sustitucion.fecha} ${actividad.tiempo_inicio}:00`
+        data.fecha_fin_act = `${sustitucion.fecha} ${actividad.tiempo_fin}:00`
+        data.fecha_inicio_ex = `${sustitucion.fecha} ${actividad.tiempo_inicio}:00`
+        data.fecha_fin_ex = `${sustitucion.fecha} ${actividad.tiempo_fin}:00`
+        data.esta_cancelado = 'No'
+        data.esta_reprogramado = 'No'
+
+        //Creamos la excepción para la sustitución
+        await sendToApiJSON(data, '/excepciones', res, true);
+        res.render('exito', {mensaje: 'Se ha confirmado la sustitución'});
+    } catch (error) {
+        uiLogger.warn(`No se ha podido confirmar la sustitución`);
+        res.render('error', `No se ha podido confirmar la sustitución`);
+    }
+}
+
+/**
  * Devuelve un resumen de excepciones y datos para gráficos, enriqueciendo con nombres de asignatura.
  */
 export async function obtenerResumenExcepciones(fechaInicio, fechaFin, res) {
@@ -117,6 +149,8 @@ export async function obtenerResumenExcepciones(fechaInicio, fechaFin, res) {
         topActividadesLabels.push(asignaturaNombre);
         topActividadesData.push(count);
     }
+
+    
 
     return {
         datosExcepciones,

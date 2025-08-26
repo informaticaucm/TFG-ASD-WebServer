@@ -33,15 +33,9 @@
                                         <% } %>
                                         <form method="post"> 
                                                 <div class="form-floating mb-3">
-                                                    <div class="form-floating mb-3">
-                                                    <input type="date" class="form-control" id="meeting_time" name="meeting_time" value="<%= fecha.hoy %>" min="<%= fecha.hoy %>" max="<%= fecha.max %>"/>
-                                                    <label for="meeting_time">Fecha</label>
-                                                </div>
-
-                                                <div class="form-floating mb-3">
                                                     <select class="form-control" id="actividadId" name="actividadId" required>
                                                         <% clases.forEach(function(clase) { %>
-                                                            <option value="<%= clase.id %>" fecha="<%= clase.fecha %>"> <%= clase.nombre %></option>
+                                                            <option value='<%- JSON.stringify({id:clase.id, fecha: clase.fecha}) %>'><%= clase.fecha %> | <%= clase.nombre %></option>
                                                         <% }); %>
                                                     </select>
                                                     <label for="actividadId">Asignatura y Grupo</label>
@@ -49,7 +43,7 @@
                                                 <div class="form-floating mb-3">
                                                     <select class="select form-control" name="sustituto" id="inputName">
                                                         <% docentes.forEach(function(docente) { %>
-                                                            <option value="<%= docente.id %>"><%= docente.nombre %> <%= docente.apellidos %></option>
+                                                            <option value='<%= docente.id %>'><%= docente.nombre %> <%= docente.apellidos %></option>
                                                         <% }); %>
                                                     </select>
                                                     <label for="inputName">Nombre del profesor suplente</label>

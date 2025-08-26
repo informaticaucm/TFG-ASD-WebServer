@@ -37,6 +37,8 @@ export async function createExcepcion(req, db) {
             await handleCancelExcepcion(excepcionesExistentes, db, req, actividad, transaction);
         } else if (esta_reprogramado === 'Sí') {
             await handleRescheduleExcepcion(excepcionesExistentes, db, req, actividad, transaction);
+        } else {
+            await handleSustitutionExcepcion(excepcionesExistentes, db, req, actividad, transaction)
         }
 
         await transaction.commit();
@@ -188,6 +190,48 @@ async function handleRescheduleExcepcion(excepciones, db, req, actividad, transa
                 actividad_id: actividad.id,
                 esta_cancelado: 'No',
                 esta_reprogramado: 'Sí'
+            },{transaction});
+        //} else {
+        //    throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleRescheduleExcepcion');
+        //}
+    }
+}
+
+// Lógica para manejar excepciones de sustitución
+async function handleSustitutionExcepcion(excepciones, db, req, actividad, transaction) {
+    const { fecha_inicio_act, fecha_fin_act, fecha_inicio_ex, fecha_fin_ex, sustituto_id } = req.body;
+
+    const match = excepciones.find(
+        (excep) =>
+            excep.fecha_inicio_act === fecha_inicio_act &&
+            excep.fecha_fin_act === fecha_fin_act &&
+            excep.esta_reprogramado === 'No' &&
+            excep.esta_cancelado === 'No'
+    );
+    
+ 
+    if (match) {
+        await db.sequelize.models.Excepcion.update(
+            {
+                esta_cancelado: 'No',
+                esta_reprogramado: 'No',
+                fecha_inicio_ex,
+                fecha_fin_ex,
+            },
+            { where: { id: match.id },transaction }
+        );
+    } else {
+        //const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
+        //if (validActividad) {
+            await db.sequelize.models.Excepcion.create({
+                fecha_inicio_act: `${fecha_inicio_act}`,
+                fecha_fin_act: `${fecha_fin_act}`,
+                fecha_inicio_ex: `${fecha_inicio_ex}`,
+                fecha_fin_ex: `${fecha_fin_ex}`,
+                actividad_id: actividad.id,
+                esta_cancelado: 'No',
+                esta_reprogramado: 'No',
+                suplente_id: sustituto_id
             },{transaction});
         //} else {
         //    throw validationError('Datos no válidos - la actividad no coincide con la fecha proporcionada - handleRescheduleExcepcion');

@@ -113,6 +113,12 @@ app.get('/logout', [checkSesion, middleware.keepCookies([])], async (req, res) =
   await app_controllers.logout(req, res);
 });
 
+app.get('/confirmar_sustitucion',[checkSesion, middleware.keepCookies([])], async (req, res) => {
+  uiLogger.info('Got a GET in confirmar_sustitucion-aulas');
+  await app_controllers.confirmarSustitucion(req, res);
+});
+
+
 app.get('/formulario-aulas', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in formulario-aulas');
   await app_controllers.getEspaciosPosibles(req, res);
@@ -445,18 +451,26 @@ app.get('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([])], as
   uiLogger.info('Got a GET in gestion-cambio-clases/asignar-profesor-clase');
   const docentes = await app_controllers.getAllDocentes(res)
   let listadeClases = await app_controllers.getClasesNoUI(req, res);
+  function compare( a, b ) {
+    if ( a.fecha < b.fecha ){
+      return -1;
+    }
+    if ( a.fecha > b.fecha ){
+      return 1;
+    }
+    return 0;
+  }
+  listadeClases.clases.sort( compare );
   res.render('asignar-profesor-clase', {clases: listadeClases.clases, docentes: docentes, usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
 app.post('/asignar-profesor-clase', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest, middleware.checkRequest(['sustituto'])], async (req, res) => {
-  uiLogger.info(`Got a POST in registro-nfc with ${JSON.stringify(req.body)}`);
+  uiLogger.info(`Got a POST in asignar-profesor-clase ${JSON.stringify(req.body)}`);
   try {
-    const result = await app_controllers.getDocentesByName(req, res, filtro);
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).send({listado: result});
+    const result = await app_controllers.solicitarSustitución(req, res);
   }
   catch (error) {
-    
+    res.render('error', {error: 'No se ha podido solicitar la sustitución'})
   }
 });
 

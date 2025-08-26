@@ -5,6 +5,8 @@ import { sendToApiJSON, getFromApi } from '../seguimientoApi.js';
 import * as recurrence_tool from '@informaticaucm/seguimiento-events';
 import moment from 'moment';
 
+
+
 export async function getAJustificar(req, res) {
 
     const data = {
@@ -552,7 +554,60 @@ export async function enviarAvisosAutomaticos(inicio, fin) {
 }
 
 export async function solicitarSustitución(req, res){
-    
+    let datos = req.body
+    const actividadDatos = JSON.parse(datos.actividadId.toString('utf8').replaceAll("&#x22;", '"'))
+    const profesorSustituto = datos.sustituto
+
+    const actividad = await getFromApi('/actividades/'+actividadDatos.id, res, true)
+    const sustituto = await getFromApi('/usuarios/'+profesorSustituto, res, true)
+
+    const url = uiConfig.host + ":" + uiConfig.port
+
+    const cuerpoEmail = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Solicitud de Suplencia</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
+            <table width="100%" style="max-width: 600px; margin: auto; background-color: #fff; border-collapse: collapse; border: 1px solid #ddd;">
+            <tr>
+                <td style="padding: 20px;">
+                <h2>Solicitud de Suplencia</h2>
+                <p>Estimado/a <strong>${sustituto.nombre} ${sustituto.apellidos}</strong>,</p>
+                <p>El profesor/a <strong>${req.session.user.nombre} ${req.session.user.apellidos}</strong> ha solicitado que realice una suplencia el dia <strong>${actividadDatos.fecha} de ${actividad.tiempo_inicio} a ${actividad.tiempo_fin}</strong></p>
+                <p>Puede confirmar la suplencia haciendo clic en el botón de abajo:</p>
+
+                <form action="http://${url}/proceso" method="POST" style="margin-top: 20px; text-align: center;">
+                    <input type="hidden" name="id_actividad" value="${actividadDatos.id}">
+                    <input type="hidden" name="fecha" value="${actividadDatos.fecha}">
+                    <button type="submit" style="background-color: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                    Confirmar Suplencia
+                    </button>
+                </form>
+                </td>
+            </tr>
+            </table>
+        </body>
+        </html>
+    `;
+
+    const message = {
+        from: process.env.MAIL_USER,
+        to: `${sustituto.email}`,
+        subject: `Solicitud de sustitución`,
+        html: cuerpoEmail
+    };
+
+    mailer.sendMail(message, (err, info) => {
+        if (err) {
+            uiLogger.warn(`No se ha podido enviar el correo a ${sustituto.email}`);
+            res.render('error', `No se ha podido enviar el correo a ${sustituto.email}`);
+        } else
+            res.render('exito', {mensaje: 'Solicitud de sustitución enviada con éxito'});
+    });
+
 }
 
 export async function verProfesoresInfracciones(req, res) {
