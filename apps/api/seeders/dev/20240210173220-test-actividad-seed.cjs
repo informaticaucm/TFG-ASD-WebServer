@@ -1,6 +1,4 @@
 'use strict';
-const { fechaFromActividadRecurrencia } = require('@informaticaucm/seguimiento-events');
-const moment = require('moment');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {

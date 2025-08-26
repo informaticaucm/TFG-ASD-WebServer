@@ -352,6 +352,7 @@ async function handleSustitutionExcepcion(excepciones, db, req, actividad, trans
         //const validActividad = await verifyActividad(db, fecha_inicio_act, actividad, actividad.id);
         //if (validActividad) {
             await db.sequelize.models.Excepcion.create({
+                fecha_original: `${fecha_inicio_act}`,
                 fecha_inicio_act: `${fecha_inicio_act}`,
                 fecha_fin_act: `${fecha_fin_act}`,
                 fecha_inicio_ex: `${fecha_inicio_ex}`,
@@ -359,6 +360,7 @@ async function handleSustitutionExcepcion(excepciones, db, req, actividad, trans
                 actividad_id: actividad.id,
                 esta_cancelado: 'No',
                 esta_reprogramado: 'No',
+                motivo: 'Sustitucion de otro docente',
                 suplente_id: sustituto_id
             },{transaction});
         //} else {
