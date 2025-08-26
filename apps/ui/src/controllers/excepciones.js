@@ -157,4 +157,21 @@ export async function obtenerResumenExcepciones(fechaInicio, fechaFin, res) {
         topActividadesLabels,
         topActividadesData
     };
+
+
+}
+
+export async function getExcepcionesByDocente(idDocente,res) {
+    apiLogger.info(`Fetching excepciones for docente ${idDocente} in getExcepcionesByDocente`);
+
+    try {
+
+        console.log(`Fetching excepciones for docente ${idDocente} in getExcepcionesByDocente in excepciones.js`);
+        const excepciones = await getFromApi(`/excepciones/docentes/${idDocente}`, res, true);
+        return excepciones;
+    }
+    catch (error) {
+        console.error('Error al obtener excepciones por docente:', error);
+        throw new Error('Ocurrió un error al obtener las excepciones del docente.');
+    }
 }

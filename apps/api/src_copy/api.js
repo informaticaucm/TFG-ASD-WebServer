@@ -386,7 +386,7 @@ app.post(configApi.path + '/pla', authenticateClient, async (req, res, next) => 
             description: No se encontraron asistencias en el rango de fechas
 */
 app.get(configApi.path + '/asistencias/estadisticas', authenticateClient, async (req, res, next) => {
-    await api_controllers.asistenciasControllerFactory(db).getEstadisticasAsistencias(req, res, next);
+  await api_controllers.asistenciasControllerFactory(db).getEstadisticasAsistencias(req, res, next);
 });
 
 /* /login
@@ -500,7 +500,7 @@ app.get(configApi.path + '/usuarios/nombre/:nombreUsuario', authenticateClient, 
           description: MAC ya registrada
 */
 app.post(configApi.path + '/usuarios/macs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).registerMACToUsuario(req, res, next));
- 
+
 /* /usuarios/nfcs/{idUsuario}:
 
       tags:
@@ -522,7 +522,7 @@ app.post(configApi.path + '/usuarios/macs/:idUsuario', authenticateClient, async
         '409':
           description: UID de NFC ya registrado
 */
-app.post(configApi.path  + '/usuarios/nfcs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).registerNFCToUsuario(req, res, next));
+app.post(configApi.path + '/usuarios/nfcs/:idUsuario', authenticateClient, async (req, res, next) => await api_controllers.usuariosControllerFactory(db).registerNFCToUsuario(req, res, next));
 
 /* /actividades/usuarios/:idUsuario
  
@@ -674,8 +674,8 @@ app.post(configApi.path + '/excepciones', authenticateClient, async (req, res, n
             description: Parámetros no válidos
 */
 app.get(configApi.path + '/excepciones/intervalo', authenticateClient, async (req, res, next) => {
-        await api_controllers.excepcionesControllerFactory(db).getExcepcionesByIntervalo(req, res, next);
-    }
+  await api_controllers.excepcionesControllerFactory(db).getExcepcionesByIntervalo(req, res, next);
+}
 );
 
 app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionById(req, res, next));
@@ -700,6 +700,27 @@ app.get(configApi.path + '/excepciones/:idExcepcion', authenticateClient, async 
 */
 app.get(configApi.path + '/excepciones/actividades/:idActividad', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionesOfActividad(req, res, next));
 
+
+/* excepciones/docentes/:idDocente
+    tags:
+        - excepciones
+    summary: Devuelve una lista de excepciones de un docente por su id
+    description: Devuelve una lista de excepciones asociadas al docente con id = {idDocente}
+    operationId: getExcepcionesByDocente
+    parameters:
+        - $ref: '#/components/parameters/idDocente'
+    responses:
+        '200':
+          $ref: '#/components/responses/ExcepcionListaData'
+        '400':      
+          description: Id suministrado no válido
+        '404':
+          description: Docente no encontrado
+*/
+app.get(configApi.path + '/excepciones/docentes/:idDocente', authenticateClient, async (req, res, next) => await api_controllers.excepcionesControllerFactory(db).getExcepcionesByDocente(req, res, next));
+
+
+
 /* /clases/:idClase
 
     tags:
@@ -717,6 +738,7 @@ app.get(configApi.path + '/excepciones/actividades/:idActividad', authenticateCl
         '404':
           description: Clase no encontrada      
 */
+
 app.get(configApi.path + '/clases/:idClase', authenticateClient, async (req, res, next) => await api_controllers.clasesControllerFactory(db).getClaseById(req, res, next));
 
 /* /clases/compose
@@ -756,7 +778,7 @@ app.post(configApi.path + '/clases/compose', authenticateClient, async (req, res
         '404':
           description: Asignatura no encontrada      
 */
-app.get(configApi.path + '/asignaturas/:idAsignatura',  authenticateClient, async (req, res, next) => await api_controllers.asignaturaControllerFactory(db).getAsignaturaById(req, res, next));
+app.get(configApi.path + '/asignaturas/:idAsignatura', authenticateClient, async (req, res, next) => await api_controllers.asignaturaControllerFactory(db).getAsignaturaById(req, res, next));
 
 /* /grupos/:idGrupo
 
@@ -871,10 +893,10 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   // Si se ha detectado algún error, usamos su código, si no 500
   const status = err.status || 500;
-  
+
   const error = {
-      error: err.message || 'Internal Server Error',
-      code: status
+    error: err.message || 'Internal Server Error',
+    code: status
   };
 
   // Enviamos el JSON con el código correspondiente

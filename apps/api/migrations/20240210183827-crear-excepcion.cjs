@@ -41,6 +41,14 @@ module.exports = {
         type: Sequelize.DataTypes.DATE,
         allowNull: true
       },
+      motivo: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false
+      },
+      fecha_original: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false
+      },
       es_todo_el_día: {
         type: Sequelize.DataTypes.ENUM('Sí', 'No'),
         allowNull: false,

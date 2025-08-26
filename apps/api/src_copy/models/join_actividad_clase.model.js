@@ -10,5 +10,10 @@ export function model(sequelize, DataTypes) {
         updatedAt: 'actualizadoEn'
     });
 
+    Join_Actividad_Clase.associate = function(models) {
+        models.Join_Actividad_Clase.belongsTo(models.Actividad, { as: 'sesion_de', foreignKey: 'actividad_id' }); //Una actividad puede tener varias clases
+        models.Join_Actividad_Clase.belongsTo(models.Clase, { as: 'clase_de', foreignKey: 'clase_id' }); //Una clase puede tener varias actividades
+    }
+
     return Join_Actividad_Clase;
 }

@@ -21,11 +21,6 @@ export function actividadesControllerFactory(db) {
                 // Obtenemos las actividades del usuario
                 const actividades = await getActividadesOfUsuario(db, idUsuario);
         
-                // Si el usuario no tiene actividades, devolvemos un error 404
-                if (actividades.length === 0) {
-                    return res.status(404).json({ error: 'El usuario no tiene actividades o no existe' });
-                }
-        
                 // Respondemos con los datos obtenidos
                 res.status(200).json({ actividades });
             } catch (error) {

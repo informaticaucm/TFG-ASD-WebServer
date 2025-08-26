@@ -51,7 +51,11 @@ export async function getAsistencias(db, filter) {
                 [Op.between]: [startOfDay, endOfDay]
             };
         }
+        if (filter.espacio_id == -1) {
+            delete filter.espacio_id;
+        }
 
+        apiLogger.info(`Obteniendo asistencias con filtro: ${JSON.stringify(filter)}`);
         const asistencias = await db.sequelize.models.Asistencia.findAll({
             attributes: ['id', 'docente_id', 'fecha', 'estado'], // Solo traemos los campos relevantes
             where: filter

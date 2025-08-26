@@ -3,7 +3,8 @@ import {
     createExcepcion,
     getExcepcionById,
     getExcepcionesOfActividad,
-    getExcepcionesByIntervalo
+    getExcepcionesByIntervalo,
+    getExcepcionByDocente
 } from '../services/excepciones.js';
 import { AppError, validationError, notExpectedError } from '../errors/errors.js';
 
@@ -27,6 +28,18 @@ export function excepcionesControllerFactory(db) {
                 res.status(200).send(response);
             } catch (error) {
                 const err = error instanceof AppError ? error : notExpectedError({ cause: error });
+                next(err);
+            }
+        },
+
+        async getExcepcionesByDocente(req, res, next) {
+            try {
+                const response = await getExcepcionByDocente(req, db); // Llama al servicio
+                res.setHeader('Content-Type', 'application/json');
+                res.status(200).send(response);
+            } catch (error) {
+                const err = error instanceof AppError ? error : notExpectedError({ cause: "error al recuperar excepcionesbydocente " + error });
+                console.log(`Error en getExcepcionByDocente: ${err.message}`);
                 next(err);
             }
         },

@@ -148,7 +148,7 @@ export async function filtrarAsistencias(req, res) {
             estado: 'No Asistida',
             motivo: 'No',
             fecha, // Pasamos solo la fecha, el servicio se encarga del rango
-            espacio_id: req.body.espacio || 1
+            espacio_id: req.body.espacio || -1
         };
 
         // Llamamos al servicio con los datos "crudos"

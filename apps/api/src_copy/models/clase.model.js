@@ -15,7 +15,9 @@ export function model(sequelize) {
 
     Clase.associate = function(models) {
         models.Clase.belongsToMany(models.Actividad, { as: 'con_sesiones', through: { model: models.Join_Actividad_Clase }, foreignKey: 'clase_id'}); //Una clase tiene varias actividades 
+        models.Clase.belongsTo(models.Asignatura, { as: 'de_asignatura', foreignKey: 'asignatura_id' }); //Una clase pertenece a varias asignatura
     };
 
+    
     return Clase;
 }
