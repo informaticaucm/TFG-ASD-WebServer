@@ -10,6 +10,7 @@ export * from './qrs.js'; //done
 export * from './recurrencias.js'; //done
 //export * from './seguimiento.js';
 export * from './usuarios.js'; //done
+export * from './departamentos.js'; //done
 
 /*
 export * from './actividadesController.js'; //done

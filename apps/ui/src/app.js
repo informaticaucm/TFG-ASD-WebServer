@@ -192,26 +192,30 @@ app.post('/anular-clase', [checkSesion, middleware.keepCookies([]), middleware.e
 });
 
 app.get('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
-  uiLogger.info(`Got a GET in verificar-docencias`);
-  uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.body)}`);
+    uiLogger.info(`Got a GET in verificar-docencias`);
+    uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.body)}`);
 
-  let resultado = await app_controllers.verAsistencias(req, res);
+    // Recoge las fechas del query o usa valores por defecto
+    const fechaInicio = req.query.fechaInicio || moment().startOf('month').format('YYYY-MM-DD');
+    const fechaFin = req.query.fechaFin || moment().endOf('month').format('YYYY-MM-DD');
 
-  // Define un valor predeterminado para filtroEstado
-  const filtroEstado = req.query.estado || "";
+    // Pasa las fechas al controlador
+    let resultado = await app_controllers.verAsistencias(req, res, fechaInicio, fechaFin);
 
-  res.render('verificar-docencias', {
-    usuario: {
-      rol: req.session.user.rol,
-      nombre: req.session.user.nombre,
-      apellidos: req.session.user.apellidos
-    },
-    fecha: resultado.fecha,
-    fecha_max: resultado.fecha_max,
-    asistencias: resultado.asistencias,
-    valores_asist: valoresAsistencia,
-    filtroEstado // Incluye filtroEstado en los datos enviados a la vista
-  });
+    const filtroEstado = req.query.estado || "";
+
+    res.render('verificar-docencias', {
+        usuario: {
+            rol: req.session.user.rol,
+            nombre: req.session.user.nombre,
+            apellidos: req.session.user.apellidos
+        },
+        fecha: fechaInicio,
+        fecha_max: fechaFin,
+        asistencias: resultado.asistencias,
+        valores_asist: valoresAsistencia,
+        filtroEstado
+    });
 });
 
 app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
@@ -222,16 +226,21 @@ app.post('/verificar-docencias', [checkSesion, checkClearanceAdministracion, mid
 });
 
 app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, middleware.keepCookies([])], async (req, res) => {
-  const { fecha, estado } = req.query;
-  uiLogger.info(`Got a GET in verificar-docencias with ${JSON.stringify(req.query)}`);
+  // Recoge el intervalo de fechas y estado del query
+  const fechaInicio = req.query.fechaInicio || moment().startOf('month').format('YYYY-MM-DD');
+  const fechaFin = req.query.fechaFin || moment().endOf('month').format('YYYY-MM-DD');
+  const estado = req.query.estado || "Todas";
 
-  let resultado = await app_controllers.verAsistencias(req, res);
+  uiLogger.info(`Got a GET in ver-docencias/descargar with ${JSON.stringify(req.query)}`);
+
+  // Pasa el intervalo al controlador
+  let resultado = await app_controllers.verAsistencias(req, res, fechaInicio, fechaFin, estado);
   console.log("Resultado de verAsistencias: " + JSON.stringify(resultado));
-  
+
   const fechaActual = new Date().toLocaleDateString('es-ES');
   res.render('ver-docencias-reporte', {
     fechaActual,
-    fechaSeleccionada: fecha,
+    fechaSeleccionada: `${fechaInicio} - ${fechaFin}`,
     filtroEstado: estado,
     asistencias: resultado.asistencias
   });
@@ -244,17 +253,37 @@ app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, m
     const fechaBusqueda = req.query.fecha || moment().format('YYYY-MM-DD');
 
     try {
+        // 1. Obtener estadísticas de asistencias (puedes mockear si quieres)
         const { fechaInicio, fechaFin, estadisticas } = await app_controllers.obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, res);
 
-        // Nuevo: obtener resumen de excepciones ya procesado
+        // 2. Obtener array de docentes con incidencias (puedes mockear si quieres)
+        const docentesIncidencias = estadisticas.noAsistidasPorDocente;
+
+        // 3. MOCK: Incidencias por departamento (mock fijo)
+        const incidenciasPorDepartamento = {
+            "Sistemas Informáticos y Computación": 12,
+            "Arquitectura de Computadores y Automática": 8,
+            "Ingeniería del Software e Inteligencia Artificial": 15,
+            "Álgebra, Geometría y Topología": 5,
+            "Análisis Matemático y Matemática Aplicada": 7,
+            "Administración Financiera y Contabilidad": 3,
+            "Estadística e Investigación Operativa": 9,
+            "Estructura de la Materia, Física Térmica y Electrónica": 4,
+            "Física de Materiales": 2,
+            "Dibujo y Grabado": 1
+        };
+
+        // 4. Obtener resumen de excepciones ya procesado
         const resumenExcepciones = await app_controllers.obtenerResumenExcepciones(fechaInicio, fechaFin, res);
-        console.log('Resumen de excepciones:', resumenExcepciones);
+
+        // 5. Renderizar la vista con todos los datos
         res.render('estadisticas-docencias', {
             fechaBusqueda,
             fechaInicio,
             fechaFin,
             datosAsistencias: estadisticas,
             ...resumenExcepciones,
+            incidenciasPorDepartamento, // <-- para el gráfico de departamentos (mock)
             usuario: {
                 rol: req.session.user.rol,
                 nombre: req.session.user.nombre,
@@ -262,8 +291,8 @@ app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, m
             }
         });
     } catch (error) {
-        console.error('Error en la ruta /estadisticas-docencias:', error);
-        res.render('error', { error: 'Ocurrió un error al obtener las estadísticas de asistencias.' });
+        uiLogger.error(error);
+        res.render('error', { error });
     }
 });
 

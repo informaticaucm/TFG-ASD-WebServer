@@ -57,7 +57,7 @@ export async function getAsistencias(db, filter) {
 
         apiLogger.info(`Obteniendo asistencias con filtro: ${JSON.stringify(filter)}`);
         const asistencias = await db.sequelize.models.Asistencia.findAll({
-            attributes: ['id', 'docente_id', 'fecha', 'estado'], // Solo traemos los campos relevantes
+            attributes: ['id', 'docente_id', 'fecha', 'estado', 'docente_id'], // Solo traemos los campos relevantes
             where: filter
         });
 

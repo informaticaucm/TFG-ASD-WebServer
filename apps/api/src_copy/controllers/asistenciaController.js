@@ -22,10 +22,8 @@ export function asistenciasControllerFactory(db) {
         async getAsistencias(req, res, next) {
             try {
                 const filtrado = req.body || req.query || {};
-                console.log('Filtrado recibido:\n');
-                console.log('req.body', req.body);
-                console.log('req.query', req.query);
                 const result = await getAsistencias(db, filtrado);
+                console.log('Asistencias obtenidas:\n', result);
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));
@@ -93,25 +91,34 @@ export function asistenciasControllerFactory(db) {
                     asistidas: 0,
                     noAsistidas: 0,
                     irregularidades: 0,
-                    faltasPorClase: {}
+                    faltasPorClase: {},
+                    noAsistidasPorDocente: [] // Nuevo array para el resultado solicitado
                 };
+
+                // Contador por docente para "No Asistida"
+                const contadorDocente = {};
 
                 asistencias.forEach(asistencia => {
                     if (asistencia.estado === 'Asistida') {
                         estadisticas.asistidas++;
-                    } else if (asistencia.estado === 'No asistida') {
+                    } else if (asistencia.estado === 'No Asistida') {
                         estadisticas.noAsistidas++;
+                        const docenteId = asistencia.docente_id;
+                        if (!contadorDocente[docenteId]) {
+                            contadorDocente[docenteId] = 0;
+                        }
+                        contadorDocente[docenteId]++;
                     } else {
                         estadisticas.irregularidades++;
                     }
 
-                    // Contabiliza las faltas por clase
-                    const clase = asistencia.clase || 'Desconocida';
-                    if (!estadisticas.faltasPorClase[clase]) {
-                        estadisticas.faltasPorClase[clase] = 0;
-                    }
-                    estadisticas.faltasPorClase[clase]++;
                 });
+
+                // Formatea el resultado como array de objetos
+                estadisticas.noAsistidasPorDocente = Object.entries(contadorDocente).map(([docente_id, cantidad]) => ({
+                    docente_id: Number(docente_id),
+                    cantidad
+                }));
 
                 // Devuelve las estadísticas como respuesta
                 res.status(200).json(estadisticas);

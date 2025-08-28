@@ -29,8 +29,8 @@
                         <canvas id="asistenciasChart"></canvas>
                     </div>
                     <div class="estadistica-card barra">
-                        <h2>Faltas por Clase</h2>
-                        <canvas id="faltasPorClaseChart"></canvas>
+                        <h2>Top 5 Departamentos con más incidencias</h2>
+                        <canvas id="departamentosChart"></canvas>
                     </div>
                 </div>
 
@@ -70,21 +70,37 @@
 
         new Chart(document.getElementById('asistenciasChart'), asistenciasConfig);
 
-        // Datos para el gráfico de faltas por clase
-        const faltasPorClaseData = {
-            labels: <%- JSON.stringify(Object.keys(datosAsistencias.faltasPorClase)) %>,
-            datasets: [{
-                data: <%- JSON.stringify(Object.values(datosAsistencias.faltasPorClase)) %>,
-                backgroundColor: '#2196F3'
-            }]
-        };
+        // --- NUEVO GRÁFICO: Top 5 Departamentos con más incidencias ---
+        const incidenciasPorDepartamento = <%- JSON.stringify(incidenciasPorDepartamento) %>;
+        const topDepartamentos = Object.entries(incidenciasPorDepartamento)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
 
-        const faltasPorClaseConfig = {
-            type: 'bar',
-            data: faltasPorClaseData
-        };
+        const departamentosLabels = topDepartamentos.map(d => d[0]);
+        const departamentosData = topDepartamentos.map(d => d[1]);
 
-        new Chart(document.getElementById('faltasPorClaseChart'), faltasPorClaseConfig);
+        new Chart(document.getElementById('departamentosChart'), {
+            type: 'doughnut',
+            data: {
+                labels: departamentosLabels,
+                datasets: [{
+                    label: 'Incidencias',
+                    data: departamentosData,
+                    backgroundColor: [
+                        '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2'
+                    ]
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',   // Leyenda arriba
+                        align: 'start'     // Alineada a la izquierda
+                    }
+                }
+            }
+        });
 
         // Gráfico de donut: Canceladas vs Reprogramadas
         const datosExcepciones = <%- JSON.stringify(datosExcepciones) %>;
@@ -110,7 +126,9 @@
                 datasets: [{
                     label: 'Nº de excepciones',
                     data: topActividadesData,
-                    backgroundColor: '#3f51b5'
+                    backgroundColor: [
+                        '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2'
+                    ]
                 }]
             }
         });

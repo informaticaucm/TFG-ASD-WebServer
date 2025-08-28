@@ -866,6 +866,23 @@ app.get(configApi.path + '/recurrencias/actividades/:idActividad', authenticateC
 */
 app.get(configApi.path + '/departamentos', authenticateClient, async (req, res, next) => await api_controllers.departamentosControllerFactory(db).getAllDepartamentos(req, res, next));
 
+/* /departamentos/docente/{docenteId}
+ 
+    tags:
+        - departamentos
+    summary: Devuelve los detalles de un departamento
+    description: Devuelve un departamento
+    operationId: getDepartamentoByDocenteId
+    parameters:
+        - $ref: '#/components/parameters/docenteId'
+    responses:
+        '200':
+            $ref: '#/components/responses/Departamento'
+    security:
+        - ApiKeyAuth: []
+*/
+app.get(configApi.path + '/departamentos/docente/:docenteId', authenticateClient, async (req, res, next) => await api_controllers.departamentosControllerFactory(db).getDepartamentoByDocenteId(req, res, next));
+
 // Middleware to handle 404 and 405 errors (page not found and method not allowed)
 app.use((req, res, next) => {
   // Comprobamos si existe la ruta buscada, y miramos si el método no existe

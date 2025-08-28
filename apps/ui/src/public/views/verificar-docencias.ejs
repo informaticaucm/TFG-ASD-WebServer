@@ -28,29 +28,36 @@
                                 Docencias del día
                             </div>
                             <div class="card-body">
+                                <form method="GET" action="/verificar-docencias" class="mb-3">
+                                    <label for="fechaInicio">Fecha inicio:</label>
+                                    <input type="date" id="fechaInicio" name="fechaInicio" value="<%= fecha %>">
+                                    <label for="fechaFin">Fecha fin:</label>
+                                    <input type="date" id="fechaFin" name="fechaFin" value="<%= fecha_max %>">
+                                    <label for="status-filter">Filtrar por</label>
+                                    <select class="select datatable-selector dt-status-filter" id="status-filter" name="estado">
+                                        <option value="Todas">Todas</option>
+                                        <% valores_asist.forEach(function(val) { %>
+                                            <option value="<%= val %>"><%= val %></option>
+                                        <% }); %>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                                </form>
+                                <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
+                                    Descargar PDF
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Generar Informe
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" id="mensual-link" href="#">Mensual</a></li>
+                                        <li><a class="dropdown-item" id="cuatrimestral-link" href="#">Cuatrimestral</a></li>
+                                    </ul>
+                                </div>
                                 <table id="datatable" class="w-100">
                                     <div class="py-2">
                                         <label for="date-filter">Fecha</label>
                                         <input class="datatable-selector" type="date" id="date-filter" name="date-filter" value="<%= fecha %>" min="2023-09-11" max="<%= fecha_max %>" />
-                                        <label for="status-filter">Filtrar por</label>
-                                        <select class="select datatable-selector dt-status-filter" id="status-filter">
-                                            <option value="Todas">Todas</option>
-                                            <% valores_asist.forEach(function(val) { %>
-                                                <option value="<%= val %>"><%= val %></option>
-                                            <% }); %>
-                                        </select>       
-                                        <a id="btn-descargar" href="#" target="_blank" class="btn btn-primary my-2">
-                                            Descargar PDF
-                                        </a> 
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Generar Informe
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                <li><a class="dropdown-item" id="mensual-link" href="#">Mensual</a></li>
-                                                <li><a class="dropdown-item" id="cuatrimestral-link" href="#">Cuatrimestral</a></li>
-                                            </ul>
-                                        </div>                                 
                                     </div>
                                     <div class="justify-content-between" style="display: none;" id="mensaje_carga"> <h5>Cargando datos...</h5> </div>
                                     <thead>
@@ -88,7 +95,7 @@
         <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
         <script src="../assets/js/filtro-asistencias-bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-        <script> 
+        <script>
             $(document).ready(function() {
                 // Initialize Select2
                 var select2 = $('.select').select2();
@@ -118,19 +125,20 @@
         <script>
             $(document).ready(function () {
                 function updatePDFLink() {
-                    const fecha = $('#date-filter').val();
+                    const fechaInicio = $('#fechaInicio').val();
+                    const fechaFin = $('#fechaFin').val();
                     const estado = $('#status-filter').val();
-                    const url = `/ver-docencias/descargar?fecha=${encodeURIComponent(fecha)}&estado=${encodeURIComponent(estado)}`;
+                    const url = `/ver-docencias/descargar?fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&estado=${encodeURIComponent(estado)}`;
                     $('#btn-descargar').attr('href', url);
                 }
-        
-                // Actualizar enlace cuando cambia el filtro o la fecha
-                $('#status-filter, #date-filter').on('change', updatePDFLink);
-        
+
+                // Actualizar enlace cuando cambia el filtro o las fechas
+                $('#status-filter, #fechaInicio, #fechaFin').on('change', updatePDFLink);
+
                 // También actualizarlo al cargar por primera vez
                 updatePDFLink();
             });
         </script>
-        
+
     </body>
 </html>

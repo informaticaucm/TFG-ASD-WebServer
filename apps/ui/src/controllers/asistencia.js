@@ -141,7 +141,7 @@ export async function justificar(req, res) {
 }
 
 export async function filtrarAsistencias(req, res) {
-    
+
     const fecha = req.body.fecha || moment().utc().format('YYYY-MM-DD');
 
         const data = {
@@ -313,18 +313,20 @@ export async function confirmarFirma(req, res) {
 }
 
 export async function verAsistencias(req, res) {
-    // Prioriza req.body.fecha y req.body.estado, pero usa req.query si no están disponibles
+    // Prioriza req.body.fechaInicio/fechaFin, pero usa req.query si no están disponibles
     console.log('Ver asistencias');
     console.log(req.body, req.query);
 
-    const fecha_busqueda = req.body.fecha || req.query.fecha || moment().format('YYYY-MM-DD');
+    const fechaInicio = req.body.fechaInicio || req.query.fechaInicio || moment().startOf('month').format('YYYY-MM-DD');
+    const fechaFin = req.body.fechaFin || req.query.fechaFin || moment().endOf('month').format('YYYY-MM-DD');
     const estado_busqueda = req.body.estado || req.query.estado || null; // Estado opcional
 
     // Construye el objeto de búsqueda dinámicamente
-    const filtro = { fecha: fecha_busqueda };
+    const filtro = { fechaInicio, fechaFin };
     if (estado_busqueda && estado_busqueda != 'Todas') {
         filtro.estado = estado_busqueda; // Agrega el estado si está presente
     }
+    console.log('Filtro de búsqueda en verAsistencias:', filtro);
     const asistencia_ids = (await sendToApiJSON(filtro, '/seguimiento/asistencias', res, true));
     apiLogger.info('Asistencias encontradas: ' + asistencia_ids.length);
 
@@ -372,8 +374,8 @@ export async function verAsistencias(req, res) {
 
     let resultado = {
         asistencias: asistencias,
-        fecha: fecha_busqueda,
-        fecha_max: moment().format("YYYY-MM-DD")
+        fechaInicio,
+        fechaFin
     };
 
     return resultado;
