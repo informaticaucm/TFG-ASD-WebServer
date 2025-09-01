@@ -50,7 +50,6 @@
     </div>
 
     <script>
-        console.log('Datos de asistencias:', <%- JSON.stringify(datosAsistencias) %>);
     </script>
 
     <script>
@@ -58,6 +57,7 @@
         const asistenciasData = {
             labels: ['Asistidas', 'No Asistidas', 'Irregularidades'],
             datasets: [{
+                label: 'Nº de asistencias',
                 data: [<%- datosAsistencias.asistidas %>, <%- datosAsistencias.noAsistidas %>, <%- datosAsistencias.irregularidades %>],
                 backgroundColor: ['#4CAF50', '#F44336', '#FFC107']
             }]
@@ -70,43 +70,54 @@
 
         new Chart(document.getElementById('asistenciasChart'), asistenciasConfig);
 
-        // --- NUEVO GRÁFICO: Top 5 Departamentos con más incidencias ---
-        const incidenciasPorDepartamento = <%- JSON.stringify(incidenciasPorDepartamento) %>;
-        const topDepartamentos = Object.entries(incidenciasPorDepartamento)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
+        // --- TOP 5 Departamentos con más incidencias (EJS-safe) ---
+  const resumenDept = <%- JSON.stringify(
+    typeof incidenciasPorDepartamento !== 'undefined' ? incidenciasPorDepartamento : []
+  ) %>;
 
-        const departamentosLabels = topDepartamentos.map(d => d[0]);
-        const departamentosData = topDepartamentos.map(d => d[1]);
+  // Ordena por total_incidencias desc y toma Top-5
+  const top5Dept = resumenDept
+    .slice()
+    .sort((a, b) => b.total_incidencias - a.total_incidencias)
+    .slice(0, 5);
 
-        new Chart(document.getElementById('departamentosChart'), {
-            type: 'doughnut',
-            data: {
-                labels: departamentosLabels,
-                datasets: [{
-                    label: 'Incidencias',
-                    data: departamentosData,
-                    backgroundColor: [
-                        '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2'
-                    ]
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',   // Leyenda arriba
-                        align: 'start'     // Alineada a la izquierda
-                    }
-                }
-            }
-        });
+  const departamentosLabels = top5Dept.map(d => d.departamento_nombre);
+  const departamentosData   = top5Dept.map(d => d.total_incidencias);
+
+  const ctxDept = document.getElementById('departamentosChart');
+
+  if (ctxDept && top5Dept.length > 0) {
+    new Chart(ctxDept, {
+      type: 'doughnut', // cambia a 'doughnut' si prefieres donut
+      data: {
+        labels: departamentosLabels,
+        datasets: [{
+          label: 'Incidencias',
+          data: departamentosData,
+          backgroundColor: ['#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, position: 'top', align: 'start' },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+  } else if (ctxDept) {
+    // Mensaje si no hay datos
+    const p = document.createElement('p');
+    p.textContent = 'No hay incidencias para mostrar.';
+    ctxDept.replaceWith(p);
+  }
 
         // Gráfico de donut: Canceladas vs Reprogramadas
         const datosExcepciones = <%- JSON.stringify(datosExcepciones) %>;
         const excepcionesTipoData = {
             labels: Object.keys(datosExcepciones),
             datasets: [{
+                label: 'Nº de excepciones',
                 data: Object.values(datosExcepciones),
                 backgroundColor: ['#F44336', '#FFC107']
             }]
@@ -116,22 +127,26 @@
             data: excepcionesTipoData
         });
 
-        // Gráfico de barras: Top asignaturas con más excepciones
         const topActividadesLabels = <%- JSON.stringify(topActividadesLabels) %>;
-        const topActividadesData = <%- JSON.stringify(topActividadesData) %>;
-        new Chart(document.getElementById('topActividadesChart'), {
-            type: 'bar',
-            data: {
-                labels: topActividadesLabels,
-                datasets: [{
-                    label: 'Nº de excepciones',
-                    data: topActividadesData,
-                    backgroundColor: [
-                        '#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2'
-                    ]
-                }]
-            }
-        });
+  const topActividadesData   = <%- JSON.stringify(topActividadesData) %>;
+
+    new Chart(document.getElementById('topActividadesChart'), {
+        type: 'bar',
+        data: {
+        labels: topActividadesLabels,
+        datasets: [{
+            label: 'Nº de excepciones',
+            data: topActividadesData,
+            backgroundColor: ['#1976d2', '#388e3c', '#fbc02d', '#d32f2f', '#7b1fa2']
+        }]
+        },
+        options: {
+        plugins: {
+            legend: { display: false }, // <- oculta la leyenda (rectángulo azul)
+            // title: { display: false } // por si tuvieras título del plugin
+        }
+        }
+    });
     </script>
 </body>
 </html>

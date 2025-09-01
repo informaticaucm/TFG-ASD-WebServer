@@ -28,15 +28,11 @@ export async function getAJustificar(req, res) {
     for(let i = 0; i < noJustificadas.length; i++) {
         let asistencia = noJustificadas[i];
         let asistencia_info = await getFromApi(`/seguimiento/asistencias/${asistencia.id}`, res, true);
-        //console.log('asistencia_info', asistencia_info);
 
         if (asistencia_info.docente_id == req.session.user.id) {
             // Sacar actividades de este docente en el espacio
             let actividades_ids_docente = (await getFromApi(`/actividades/usuarios/${asistencia_info.docente_id}`, res, true)).actividades;
             let actividades_ids_espacio = (await getFromApi(`/actividades/espacios/${asistencia_info.espacio_id}`, res, true)).actividades;
-
-            //console.log('actividades_ids_docente', actividades_ids_docente);
-            //console.log('actividades_ids_espacio', actividades_ids_espacio);
 
             let actividades_ids = actividades_ids_docente.filter(x => {
                 for(let j = 0; j < actividades_ids_espacio.length; j++) {
@@ -102,7 +98,7 @@ export async function getAJustificar(req, res) {
                     resultado.push({fechayhora: asistencia_info.fecha, clase: clase_strings, pos: pos});
                     pos++;
                     req.session.user.no_justificadas.push(asistencia.id);
-                    
+
                     break;
                 }
             }
@@ -153,7 +149,6 @@ export async function filtrarAsistencias(req, res) {
 
         // Llamamos al servicio con los datos "crudos"
         let noJustificadas = (await sendToApiJSON(data, '/seguimiento/asistencias', res, true));
-        console.log('Respuesta del servicio:', noJustificadas);
 
         if (!noJustificadas) {
             uiLogger.error('La API no devolvió asistencias válidas:', noJustificadas);
@@ -313,9 +308,6 @@ export async function confirmarFirma(req, res) {
 }
 
 export async function verAsistencias(req, res) {
-    // Prioriza req.body.fechaInicio/fechaFin, pero usa req.query si no están disponibles
-    console.log('Ver asistencias');
-    console.log(req.body, req.query);
 
     const fechaInicio = req.body.fechaInicio || req.query.fechaInicio || moment().startOf('month').format('YYYY-MM-DD');
     const fechaFin = req.body.fechaFin || req.query.fechaFin || moment().endOf('month').format('YYYY-MM-DD');
@@ -326,7 +318,6 @@ export async function verAsistencias(req, res) {
     if (estado_busqueda && estado_busqueda != 'Todas') {
         filtro.estado = estado_busqueda; // Agrega el estado si está presente
     }
-    console.log('Filtro de búsqueda en verAsistencias:', filtro);
     const asistencia_ids = (await sendToApiJSON(filtro, '/seguimiento/asistencias', res, true));
     apiLogger.info('Asistencias encontradas: ' + asistencia_ids.length);
 
@@ -679,7 +670,6 @@ export async function obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, r
 
         // Llama al controlador de la API para obtener las estadísticas usando GET
         const estadisticas = await getFromApi(`/asistencias/estadisticas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, res, true);
-        console.log('Estadísticas obtenidas:', estadisticas);
         return { fechaInicio, fechaFin, estadisticas };
     } catch (error) {
         console.error('Error al obtener estadísticas de asistencias:', error);

@@ -124,66 +124,40 @@ export function fechaFromActividadRecurrencia(act, rec) {
     fecha: String en formato YYYY-MM-DDTHH:mm
 */
 export function isInRecurrencia(act, rec, fecha) {
-    console.log("Comprobando si la actividad está en la recurrencia...");
-    console.log("Actividad:", act);
-    console.log("Recurrencia:", rec);
-    console.log("Fecha a comprobar:", fecha);
-
     let inicio = primeraRecurrencia(act, rec);
-    console.log("Primera recurrencia calculada:", inicio.format('YYYY-MM-DDTHH:mm:ss'));
-
     let separacion = rec.separacion + 1; // Se añade uno para no hacer módulo 0 (da NaN)
     let tipo_rec = recTypeParser[rec.tipo_recurrencia];
-    console.log("Tipo de recurrencia:", tipo_rec, "Separación:", separacion);
-
     let a_comparar = moment(fecha + "Z", 'YYYY-MM-DDTHH:mmZ').utc();
-    console.log("Fecha a comparar (UTC):", a_comparar.format('YYYY-MM-DDTHH:mm:ss'));
-
     let comparar_hora = moment(a_comparar.format('YYYY-MM-DD') + ' ' + inicio.format('HH:mm'), "YYYY-MM-DD HH:mm").utc();
-    console.log("Hora de inicio de la actividad en la fecha a comparar:", comparar_hora.format('YYYY-MM-DDTHH:mm:ss'));
-
     let [,, diferencia_horas, diferencia_minutos] = getInicioDiferencia(act);
-    console.log("Diferencia de horas y minutos:", diferencia_horas, diferencia_minutos);
-
     let fin = moment(fecha + "Z", 'YYYY-MM-DDTHH:mmZ').add(diferencia_horas, 'hours').add(diferencia_minutos, 'minutes').utc();
-    console.log("Hora de fin de la actividad en la fecha a comparar:", fin.format('YYYY-MM-DDTHH:mm:ss'));
-
     // Comprobamos si la hora está dentro del rango de la actividad
     let aux = (comparar_hora.format("HH:mm") <= a_comparar.format("HH:mm") && a_comparar.format("HH:mm") <= fin.format("HH:mm"));
-    console.log("¿Está la hora dentro del rango de la actividad?", aux);
-
     if (aux == false) return false;
 
     switch (rec.tipo_recurrencia) {
         case "Diaria":
             // No hace falta comprobar nada auxiliar
-            console.log("Recurrencia diaria: no se requiere comprobación adicional.");
             break;
         case "Semanal":
             // Comprobar que está en el día de la semana correcto 
             aux = inicio.isoWeekday() == a_comparar.isoWeekday();
-            console.log("¿Está en el día de la semana correcto?", aux);
             break;
         case "Mensual":
             // Comprobar que está en el día del mes correcto
             aux = inicio.date() == a_comparar.date();
-            console.log("¿Está en el día del mes correcto?", aux);
             break;
         case "Anual": 
             // Comprobar que está en el día y en el mes correctos
             aux = inicio.date() == a_comparar.date() && inicio.month() == a_comparar.month();
-            console.log("¿Está en el día y mes correctos?", aux);
             break;
         default:
             aux = false;
-            console.log("Tipo de recurrencia no reconocido.");
             break;
     }
 
     // Nos aseguramos de que se cumpla la separación
     let cumple_separacion = (inicio.diff(a_comparar, tipo_rec) % separacion == 0);
-    console.log("¿Cumple la separación de la recurrencia?", cumple_separacion);
-
     return (aux && cumple_separacion);
 }
 

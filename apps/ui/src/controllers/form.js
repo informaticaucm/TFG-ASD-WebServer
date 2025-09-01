@@ -4,6 +4,7 @@ import moment from 'moment';
 import he from 'he';
 import { isInRecurrencia } from '@informaticaucm/seguimiento-events';
 import { valoresAsistencia } from '@informaticaucm/seguimiento-api-client';
+import { uiLogger } from '@informaticaucm/seguimiento-logger';
 
 export async function getEspaciosPosibles(req, res) {
 
@@ -228,24 +229,13 @@ export async function getForm(req, res) {
   const actividades_docente = (await getFromApi(`/actividades/usuarios/${docente_id}`, res, true)).actividades;
   const actividades_espacio = (await getFromApi(`/actividades/espacios/${esp}`, res, true)).actividades;
 
-  console.log("Actividades del docente:", actividades_docente);
-  console.log("Actividades del espacio:", actividades_espacio);
-
   let actividades_ids = actividades_docente.filter((actividad_docente) =>
     actividades_espacio.some((actividad_espacio) => actividad_docente.id === actividad_espacio.id)
   );
 
-  console.log("Actividades combinadas (docente y espacio):", actividades_ids);
-
   let actividades_posibles = await getActividadesPosibles(res, currentHour, actividades_ids);
 
-  console.log("Actividades posibles después de la primera comprobación:", actividades_posibles);
-
-  if (actividades_posibles.length === 0) {
-    console.log("No se encontraron actividades posibles en la primera comprobación. Buscando todas las actividades del espacio...");
-    actividades_posibles = await getAllActividades(res, actividades_espacio);
-    console.log("Actividades posibles después de buscar todas las actividades del espacio:", actividades_posibles);
-  }
+  if (actividades_posibles.length === 0) {actividades_posibles = await getAllActividades(res, actividades_espacio);}
 
   if (actividades_posibles.length !== 0) {
     // Procesar actividades posibles
@@ -291,7 +281,6 @@ export async function getForm(req, res) {
     });
     return;
   } else {
-    console.log("No se encontraron actividades posibles.");
     res.render('formulario-end', {
       resultado: {
         espacio: `${esp_data.nombre} ${esp_data.edificio}`,
@@ -351,7 +340,6 @@ export async function postForm(req, res) {
 
 export async function getAllDepartamentos(req, res) {
   let query_dep_all = await getFromApi('/departamentos', res, true);
-
   let departamentos_todos = [];
   let departamento = null;
   query_dep_all.forEach((dep) => {
@@ -360,7 +348,6 @@ export async function getAllDepartamentos(req, res) {
       departamentos_todos.push(departamento);
     }
   });
-  
   // Todos los departamentos
   req.departamentos = departamentos_todos
 }
@@ -433,8 +420,6 @@ async function getActividadesPosibles(res, currentHour, actividades_ids) {
     actividades_data.push({ id: actividad.id, data: actividad_data });
   }
 
-  console.log("Datos completos de las actividades:", actividades_data);
-
   let actividades_posibles = [];
 
   for (const actividad of actividades_data) {
@@ -442,14 +427,8 @@ async function getActividadesPosibles(res, currentHour, actividades_ids) {
     const fin = moment(actividad.data.tiempo_fin, 'HH:mm').utc();
     const excepcion_ids = (await getFromApi(`/excepciones/actividades/${actividad.id}`, res, true)).excepciones;
 
-    console.log(`Procesando actividad ${actividad.id}:`);
-    console.log("Inicio:", inicio.format('HH:mm'), "Fin:", fin.format('HH:mm'));
-    console.log("Excepciones:", excepcion_ids);
-
     if (inicio.format('HH:mm') <= currentHour && currentHour <= fin.format('HH:mm')) {
       const recurrencias = (await getFromApi(`/recurrencias/actividades/${actividad.id}`, res, true)).recurrencias;
-
-      console.log("Recurrencias:", recurrencias);
 
       for (const recurrencia of recurrencias) {
         const rec_data = await getFromApi(`/recurrencias/${recurrencia.id}`, res, true);
@@ -469,7 +448,6 @@ async function getActividadesPosibles(res, currentHour, actividades_ids) {
           }
 
           if (!cancelada) {
-            console.log(`Actividad ${actividad.id} es válida y no está cancelada.`);
             actividades_posibles.push(actividad.data);
             break;
           }
@@ -487,14 +465,11 @@ async function getActividadesPosibles(res, currentHour, actividades_ids) {
         exc.fecha_inicio_ex <= currentTime &&
         currentTime <= exc.fecha_fin_ex
       ) {
-        console.log(`Actividad ${actividad.id} está reprogramada y válida.`);
         actividades_posibles.push(actividad.data);
         break;
       }
     }
   }
-
-  console.log("Actividades posibles finales:", actividades_posibles);
   return actividades_posibles;
 }
 
@@ -508,65 +483,44 @@ async function getAllActividades(res, actividades_ids) {
     actividades_data.push({ id: actividad.id, data: actividad_data });
   }
 
-  console.log("Datos completos de las actividades (sin restricciones de hora):", actividades_data);
-
   let actividades_todo_el_dia = [];
 
   for (const actividad of actividades_data) {
     const excepcion_ids = (await getFromApi(`/excepciones/actividades/${actividad.id}`, res, true)).excepciones;
 
-    console.log(`Procesando actividad ${actividad.id} (sin restricciones de hora):`);
-    console.log("Excepciones obtenidas:", excepcion_ids);
-
     const recurrencias = (await getFromApi(`/recurrencias/actividades/${actividad.id}`, res, true)).recurrencias;
-
-    console.log("Recurrencias obtenidas para actividad:", actividad.id, recurrencias);
 
     for (const recurrencia of recurrencias) {
       const rec_data = await getFromApi(`/recurrencias/${recurrencia.id}`, res, true);
-
-      console.log(`Datos de la recurrencia ${recurrencia.id}:`, rec_data);
-
       if (isInRecurrencia(actividad.data, rec_data, moment().utc().format('YYYY-MM-DD HH:mm:ss'))) {
-        console.log(`La actividad ${actividad.id} está dentro de la recurrencia ${recurrencia.id}.`);
         let cancelada = false;
 
         for (const excepcion of excepcion_ids) {
           const exc = await getFromApi(`/excepciones/${excepcion.id}`, res, true);
-          console.log(`Datos de la excepción ${excepcion.id}:`, exc);
-
           if (
             (exc.esta_cancelado === 'Sí' || exc.esta_reprogramado === 'Sí') &&
             exc.fecha_inicio_act === moment().utc().format('YYYY-MM-DDTHH:mm:00')
           ) {
-            console.log(`La actividad ${actividad.id} está cancelada o reprogramada por la excepción ${excepcion.id}.`);
             cancelada = true;
             break;
           }
         }
 
         if (!cancelada) {
-          console.log(`La actividad ${actividad.id} es válida y no está cancelada.`);
           actividades_todo_el_dia.push(actividad.data);
           break;
         }
       } else {
-        console.log(`La actividad ${actividad.id} no está dentro de la recurrencia ${recurrencia.id}.`);
       }
     }
 
     for (const excepcion of excepcion_ids) {
       const exc = await getFromApi(`/excepciones/${excepcion.id}`, res, true);
-      console.log(`Datos de la excepción ${excepcion.id} (segunda comprobación):`, exc);
-
       if (exc.esta_cancelado === 'No' && exc.esta_reprogramado === 'Sí') {
-        console.log(`La actividad ${actividad.id} está reprogramada y válida por la excepción ${excepcion.id}.`);
         actividades_todo_el_dia.push(actividad.data);
         break;
       }
     }
   }
-
-  console.log("Actividades finales (sin restricciones de hora):", actividades_todo_el_dia);
   return actividades_todo_el_dia;
 }

@@ -39,7 +39,6 @@ export function excepcionesControllerFactory(db) {
                 res.status(200).send(response);
             } catch (error) {
                 const err = error instanceof AppError ? error : notExpectedError({ cause: "error al recuperar excepcionesbydocente " + error });
-                console.log(`Error en getExcepcionByDocente: ${err.message}`);
                 next(err);
             }
         },
@@ -56,7 +55,6 @@ export function excepcionesControllerFactory(db) {
         },
 
         async getExcepcionesByIntervalo(req, res, next) {
-            console.log('CONTROLADOR: getExcepcionesByIntervalo');
             try {
                 const resultado = await getExcepcionesByIntervalo(req, db);
                 res.status(200).json(resultado);

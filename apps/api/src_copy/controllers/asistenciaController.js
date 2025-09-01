@@ -23,7 +23,6 @@ export function asistenciasControllerFactory(db) {
             try {
                 const filtrado = req.body || req.query || {};
                 const result = await getAsistencias(db, filtrado);
-                console.log('Asistencias obtenidas:\n', result);
                 res.status(200).json(result);
             } catch (error) {
                 next(error instanceof AppError ? error : notExpectedError({ cause: error }));

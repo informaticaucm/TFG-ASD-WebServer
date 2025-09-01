@@ -67,7 +67,6 @@ export async function verExcepciones(req, res) {
  */
 export async function confirmarSustitucion(req, res) {
     const sustitucion = req.session.sustitucion
-    console.log(sustitucion)
     let data = {}
     data.actividad_id = parseInt(sustitucion.id_actividad)
 
@@ -77,7 +76,6 @@ export async function confirmarSustitucion(req, res) {
     try {
         //obtenemos la actividad para establecer las horas
         const actividad = await getFromApi('/actividades/'+data.actividad_id, res, true)
-        console.log(actividad)
         data.fecha_inicio_act = `${sustitucion.fecha} ${actividad.tiempo_inicio}:00`
         data.fecha_fin_act = `${sustitucion.fecha} ${actividad.tiempo_fin}:00`
         data.fecha_inicio_ex = `${sustitucion.fecha} ${actividad.tiempo_inicio}:00`
@@ -165,8 +163,6 @@ export async function getExcepcionesByDocente(idDocente,res) {
     apiLogger.info(`Fetching excepciones for docente ${idDocente} in getExcepcionesByDocente`);
 
     try {
-
-        console.log(`Fetching excepciones for docente ${idDocente} in getExcepcionesByDocente in excepciones.js`);
         const excepciones = await getFromApi(`/excepciones/docentes/${idDocente}`, res, true);
         return excepciones;
     }

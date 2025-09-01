@@ -42,7 +42,6 @@ window.addEventListener('DOMContentLoaded', event => {
             .res(async response => { 
                 return (response.headers.get('Content-Type').includes('application/json')) ? response.json() : response.text();
             })).asistencias;
-        //console.log(new_content);
         feedback_carga.style.display = "none";
         for (let i = 0; i < new_content.length; i++) {
             let asist = new_content[i];

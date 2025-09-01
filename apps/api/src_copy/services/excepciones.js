@@ -106,7 +106,7 @@ export async function getExcepcionesByIntervalo(req, db) {
     if (!fechaInicio || !fechaFin) {
         throw validationError('Faltan parámetros requeridos: fechaInicio, fechaFin');
     }
-    console.log("Estamos en EXCEPCIONES DE API/SRC_COPY/SERVICES/EXCEPCIONES.JS");
+
     const excepciones = await db.sequelize.models.Excepcion.findAll({
         where: {
             fecha_inicio_act: {
@@ -133,10 +133,8 @@ export async function getExcepcionesByIntervalo(req, db) {
 
 export async function getExcepcionByDocente(req, db) {
 
-    console.log("Estamos en EXCEPCIONES DE API/SRC_COPY/SERVICES/EXCEPCIONES.JS - getExcepcionByDocente");
-
     const  idDocente = req.params.idDocente;
-    
+
 
     if (!idDocente) {
         throw validationError('Falta el parámetro requerido: idDocente');
@@ -226,12 +224,8 @@ export async function getExcepcionByDocente(req, db) {
             'suplente_id'
         ]
     });
-    console.log(`Excepciones programadas encontradas: ${excepciones_programadas.length}`);
-    console.log(`Excepciones de sustitución encontradas: ${excepciones_sustitucion.length}`);
 
     const excepciones = [...excepciones_programadas, ...excepciones_sustitucion];
-
-    console.log(`Total de excepciones encontradas: ${excepciones_programadas} + ${excepciones_sustitucion}`);
 
     return excepciones.map((excepcion) => ({
         nombre_asignatura: excepcion.excepcion_de.sesion_de[0].de_asignatura.nombre,

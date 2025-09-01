@@ -24,8 +24,6 @@ export async function authenticateUser(req, db) {
         where: { email }
     });
 
-    //console.log('query:', query);
-
     if (!query) {
         let err = {};
         err.status = 422;
@@ -33,9 +31,7 @@ export async function authenticateUser(req, db) {
         throw err;
     }
 
-    //const valid = spices.some((spice) => bcrypt.compareSync(spice + password, query.password));
-    const valid = true;
-    console.log('valid:', valid);
+    const valid = spices.some((spice) => bcrypt.compareSync(spice + password, query.password));
     if (!valid) {
         let err = {};
         err.status = 422;

@@ -762,7 +762,6 @@ export async function registroPLA(req, res, next, db) {
                 }
 
                 let checkEstado = await checkEstadoAsistencia(db, query_doc.dataValues.id, query_esp.dataValues.id, datetime);
-                //console.log(checkEstado, (checkEstado) ? valoresAsistencia[0] : valoresAsistencia[1]);
 
                 await db.sequelize.models.Asistencia.findOrCreate({
                     where: {
@@ -870,22 +869,19 @@ export async function checkEstadoAsistencia(db, docenteId, espacioId, fecha) {
                 query_rec.forEach(rec => {
                     rec_list.push(rec.dataValues)
                 });
-                                    
+
                 let [exists, last] = recurrence_tool.getLastEventOfActividad(act, rec_list);
-                //console.log("Last event of actividad", exists, last);
-                // Si está en el día de hoy, Asistida, si no, la ignoramos
-                //console.log(last.utc().format('YYYY-MM-DD'), fecha_comparar.utc().format('YYYY-MM-DD'), last.format('YYYY-MM-DD') == fecha_comparar.utc().format('YYYY-MM-DD'))
+
                 if (exists && last.utc().format('YYYY-MM-DD') == fecha_comparar.utc().format('YYYY-MM-DD')) {
                     actividades_posibles.push(act);
                 }
-    
+
             }
             else if (moment(act.fecha_inicio + 'Z', 'YYYY-MM-DD HH:mm:ssZ').format('YYYY-MM-DD') == fecha_comparar.format('YYYY-MM-DD')) {
                 actividades_posibles.push(act);
             }
         }
     }
-    //console.log('Actividades posibles:', actividades_posibles);
 
     return actividades_posibles.length > 0;
 }

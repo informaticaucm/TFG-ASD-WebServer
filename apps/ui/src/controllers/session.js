@@ -7,18 +7,17 @@ export async function login(req, res) {
   const haySustitucion =req.session.hasOwnProperty('sustitucion')
   let sustitucion = null
   if(haySustitucion){
-    console.log("Sustitucion")
     redirectTo = '/confirmar_sustitucion'
     sustitucion = req.session.sustitucion
     delete req.session.sustitucion;
   }
 
-  let data = { 
+  let data = {
     email: req.body.usuario,
     password: req.body.password
   }
-  
-  let usuario 
+
+  let usuario
   try {
     usuario = await (sendToApiJSON(data, '/login', res, false));
   }

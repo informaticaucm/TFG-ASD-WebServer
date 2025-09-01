@@ -78,7 +78,7 @@ cron.schedule(process.env.CRON_LINE, async() => {
     console.log(error);
     resultado = false
   }
-  
+
 
   if (resultado) {
     console.log("Mensajes enviados correctamente")
@@ -232,10 +232,7 @@ app.get('/ver-docencias/descargar', [checkSesion, checkClearanceAdministracion, 
   const estado = req.query.estado || "Todas";
 
   uiLogger.info(`Got a GET in ver-docencias/descargar with ${JSON.stringify(req.query)}`);
-
-  // Pasa el intervalo al controlador
   let resultado = await app_controllers.verAsistencias(req, res, fechaInicio, fechaFin, estado);
-  console.log("Resultado de verAsistencias: " + JSON.stringify(resultado));
 
   const fechaActual = new Date().toLocaleDateString('es-ES');
   res.render('ver-docencias-reporte', {
@@ -253,25 +250,22 @@ app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, m
     const fechaBusqueda = req.query.fecha || moment().format('YYYY-MM-DD');
 
     try {
-        // 1. Obtener estadísticas de asistencias (puedes mockear si quieres)
+        // 1. Obtener estadísticas de asistencias
         const { fechaInicio, fechaFin, estadisticas } = await app_controllers.obtenerEstadisticasAsistencias(intervalo, fechaBusqueda, res);
 
-        // 2. Obtener array de docentes con incidencias (puedes mockear si quieres)
-        const docentesIncidencias = estadisticas.noAsistidasPorDocente;
+        // 2. Obtener array de docentes con incidencias
+        const incidenciasPorDocente = estadisticas.noAsistidasPorDocente;
 
-        // 3. MOCK: Incidencias por departamento (mock fijo)
-        const incidenciasPorDepartamento = {
-            "Sistemas Informáticos y Computación": 12,
-            "Arquitectura de Computadores y Automática": 8,
-            "Ingeniería del Software e Inteligencia Artificial": 15,
-            "Álgebra, Geometría y Topología": 5,
-            "Análisis Matemático y Matemática Aplicada": 7,
-            "Administración Financiera y Contabilidad": 3,
-            "Estadística e Investigación Operativa": 9,
-            "Estructura de la Materia, Física Térmica y Electrónica": 4,
-            "Física de Materiales": 2,
-            "Dibujo y Grabado": 1
-        };
+        // 3) trae departamentos y agrupa
+        await app_controllers.getAllDepartamentos(req, res);
+        const departamentos = req.departamentos || [];
+
+        const resumenDepartamentos = await app_controllers.obtenerDocentesPorDepartamento(
+          incidenciasPorDocente,
+          departamentos,
+          res
+        );
+        uiLogger.info(`Resumen por departamentos: ${JSON.stringify(resumenDepartamentos)}`);
 
         // 4. Obtener resumen de excepciones ya procesado
         const resumenExcepciones = await app_controllers.obtenerResumenExcepciones(fechaInicio, fechaFin, res);
@@ -283,7 +277,7 @@ app.get('/estadisticas-docencias', [checkSesion, checkClearanceAdministracion, m
             fechaFin,
             datosAsistencias: estadisticas,
             ...resumenExcepciones,
-            incidenciasPorDepartamento, // <-- para el gráfico de departamentos (mock)
+            incidenciasPorDepartamento: resumenDepartamentos,
             usuario: {
                 rol: req.session.user.rol,
                 nombre: req.session.user.nombre,
@@ -445,16 +439,14 @@ app.get('/profesores-infracciones', [checkSesion, checkClearanceDecanato, middle
 app.get('/gestion-cambio-clase', [checkSesion, middleware.keepCookies([])], async (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clase');
   let Id_docente = req.session.user.id;
-  let excepciones_docente= await app_controllers.getExcepcionesByDocente(Id_docente, res); 
-  console.log('excepciones de docente encontradas',excepciones_docente);
+  let excepciones_docente= await app_controllers.getExcepcionesByDocente(Id_docente, res);
   res.render('gestion-cambio-clase', {fecha: moment().utc(),Id_docente: req.session.user.id ,excepciones: excepciones_docente ,usuario: {rol: req.session.user.rol, nombre: req.session.user.nombre, apellidos: req.session.user.apellidos}});
 });
 
 app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async (req, res) => {
   uiLogger.info('Got a GET in gestion-cambio-clases/intercambio-horario');
   let listadeClases = await app_controllers.getClasesNoUI(req, res);
-  console.log(listadeClases);
-  if (listadeClases.error) {  
+  if (listadeClases.error) {
     res.render('error', {error: listadeClases.error});
     return;
   }
@@ -464,8 +456,7 @@ app.get('/intercambio-horario', [checkSesion, middleware.keepCookies([])],async 
 
 app.post('/intercambio-horario', [checkSesion, middleware.keepCookies([]), middleware.escapeRequest], async (req, res) => {
   uiLogger.info(`Got a POST in intercambio-horario with ${JSON.stringify(req.body)}`);
-  try { 
-    console.log(req.body);
+  try {
     const result = await app_controllers.reprogramarClase(req, res);
   }
   catch (error) {
